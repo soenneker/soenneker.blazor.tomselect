@@ -69,7 +69,7 @@ public void ConfigureServices(IServiceCollection services)
         Logger.LogInformation("OnItemAdd fired: Value: {value}", str);
     }
 
-    private void GetSelectedItems()
+    private void LogSelectedItems()
     {
         foreach (Country item in _tomSelect.Items)
         {

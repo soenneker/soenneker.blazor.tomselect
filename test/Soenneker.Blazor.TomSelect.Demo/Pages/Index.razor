@@ -1,0 +1,102 @@
+﻿@page "/"
+@using Microsoft.Extensions.Logging
+@using Soenneker.Blazor.TomSelect.Demo.Dtos
+@using Soenneker.Blazor.TomSelect.Dtos
+@using Soenneker.Extensions.Enumerable
+@using Soenneker.Utils.AutoBogus
+@inject ILogger<Index> Logger
+@inject HttpClient Http
+
+<img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" />
+<h1>Soenneker.Blazor.TomSelect demo</h1>
+<p>This page demonstrates some of the uses of the TomSelect component.</p>
+
+<h2>Multiple</h2>
+
+<TomSelect
+    TItem="Country" TType="string" OnInitialize="OnTomSelectInitialized"
+    OnOptionAdd="OnOptionAdd" OnItemAdd="OnItemAdd"
+    Data="@_countries"
+    TextField="@(item => item.Name)"
+    ValueField="@(item => item.Id.ToString())" @ref="_tomSelect">
+</TomSelect>
+
+<br />
+
+<button @onclick="AddOption" >AddOption</button>
+<button @onclick="AddItem" >AddItem</button>
+<button @onclick="GetSelectedItems">GetSelectedItems</button>
+
+<hr />
+
+<h2>Single</h2>
+
+<TomSelect TItem="Country" TType="string" Options="Options" OnInitialize="OnTomSelectInitialized"
+           OnOptionAdd="OnOptionAdd" OnItemAdd="OnItemAdd"
+           Data="@_countries"
+           TextField="@(item => item.Name)"
+           ValueField="@(item => item.Id.ToString())" Multiple="false">
+</TomSelect> 
+
+@code{
+
+    private List<Country>? _countries;
+
+    private AutoFaker _autoFaker = default!;
+
+    private List<TomSelectOption>? _options;
+
+    private TomSelect<Country, string> _tomSelect = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _countries = await Http.GetFromJsonAsync<List<Country>>("sample-data/countries.json");
+    }
+
+    protected override void OnInitialized()
+    {
+        _autoFaker = new AutoFaker();
+
+    }
+
+    private void OnTomSelectInitialized()
+    {
+        Logger.LogInformation("OnInitialized called");
+    }
+
+    private void OnOptionAdd((string str, TomSelectOption obj) result)
+    {
+        Logger.LogInformation("OnOptionAdd called");
+    }
+
+    private void OnItemAdd((string str, TomSelectOption obj) result)
+    {
+        Logger.LogInformation("OnItemAdd called");
+    }
+
+    private async Task AddItem()
+    {
+        await _tomSelect.AddItem(_tomSelect.Data.GetRandom().Id.ToString());
+    }
+
+    private async Task AddOption()
+    {
+        await _tomSelect.AddOption(_autoFaker.Generate<Country>());
+        // await _tomSelect.RefreshOptions(true);
+    }
+
+    private void GetSelectedItems()
+    {
+        if (_tomSelect.Items.Count == 0)
+        {
+            Logger.LogInformation("No items selected");
+            return;
+        }
+
+        foreach (Country item in _tomSelect.Items)
+        {
+            Logger.LogInformation("Selected item: {0}", item.Name);
+        }
+    }
+
+}

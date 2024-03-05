@@ -1,0 +1,19 @@
+﻿@using Microsoft.Extensions.Logging
+@using Soenneker.Blazor.TomSelect.Abstract
+@using Soenneker.Blazor.Utils.InteropEventListener.Abstract
+
+@inject ITomSelectInterop _tomSelectInterop
+@inject IInteropEventListener _interopEventListener
+@inject ILogger<BaseTomSelect> _logger
+
+@code {
+
+    protected override void OnInitialized()
+    {
+        InteropEventListener = _interopEventListener;
+        TomSelectInterop = _tomSelectInterop;
+        Logger = _logger;
+        base.OnInitialized();
+    }
+
+}

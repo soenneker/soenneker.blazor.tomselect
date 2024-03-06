@@ -68,7 +68,7 @@ public class TomSelectConfiguration
     /// The max number of options to display in the dropdown. Null for unlimited.
     /// </summary>
     [JsonPropertyName("maxOptions")]
-    public int? MaxOptions { get; set; } = 50;
+    public int? MaxOptions { get; set; } = null;
 
     /// <summary>
     /// The max number of items the user can select. Null for unlimited.

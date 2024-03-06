@@ -156,14 +156,14 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
     }
 
     // Value Management Methods
-    public ValueTask SetValue(string elementId, object value, bool silent = false, CancellationToken cancellationToken = default)
+    public ValueTask SetValue(string elementId, TomSelectOption value, bool silent = false, CancellationToken cancellationToken = default)
     {
         return JsRuntime.InvokeVoidAsync("tomSelectInterop.setValue", cancellationToken, elementId, value, silent);
     }
 
-    public ValueTask<object> GetValue(string elementId, CancellationToken cancellationToken = default)
+    public ValueTask<TomSelectOption> GetValue(string elementId, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeAsync<object>("tomSelectInterop.getValue", cancellationToken, elementId);
+        return JsRuntime.InvokeAsync<TomSelectOption>("tomSelectInterop.getValue", cancellationToken, elementId);
     }
 
     // Caret and Item Management Methods

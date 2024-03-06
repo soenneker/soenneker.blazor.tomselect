@@ -60,7 +60,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     public EventCallback<(string Value, TomSelectOption Item)> OnItemRemove { get; set; }
 
     [Parameter]
-    public EventCallback<object> OnItemSelect { get; set; }
+    public EventCallback<TomSelectOption> OnItemSelect { get; set; }
 
     [Parameter]
     public EventCallback OnClear { get; set; }
@@ -84,10 +84,10 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     public EventCallback OnOptgroupClear { get; set; }
 
     [Parameter]
-    public EventCallback<object> OnDropdownOpen { get; set; }
+    public EventCallback<TomSelectOption> OnDropdownOpen { get; set; }
 
     [Parameter]
-    public EventCallback<object> OnDropdownClose { get; set; }
+    public EventCallback<TomSelectOption> OnDropdownClose { get; set; }
 
     [Parameter]
     public EventCallback<string> OnType { get; set; }
@@ -106,30 +106,30 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     [Parameter]
     public List<TItem> Items { get; set; } = [];
 
-    private bool _isInitialized;
+    private bool _isCreated;
+    private bool _isDataSet;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            _isDataSet = false;
             InteropEventListener.Initialize(TomSelectInterop);
             await Create();
+            _isCreated = true;
         }
-    }
 
-    protected override async Task OnParametersSetAsync()
-    {
-        if (!_isInitialized)
+        if (!_isDataSet && _isCreated)
         {
             if (Data.Populated())
             {
-                _isInitialized = true;
+                _isDataSet = true;
 
                 await AddOptions(Data, false);
             }
         }
 
-        await base.OnParametersSetAsync();
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     public async ValueTask Create(TomSelectConfiguration? configuration = null, CancellationToken cancellationToken = default)
@@ -327,13 +327,13 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         return TomSelectInterop.Disable(ElementId, linkedCts.Token);
     }
 
-    public ValueTask SetValue(object value, bool silent = false, CancellationToken cancellationToken = default)
+    public ValueTask SetValue(TomSelectOption value, bool silent = false, CancellationToken cancellationToken = default)
     {
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
         return TomSelectInterop.SetValue(ElementId, value, silent, linkedCts.Token);
     }
 
-    public ValueTask<object> GetValue(CancellationToken cancellationToken = default)
+    public ValueTask<TomSelectOption> GetValue(CancellationToken cancellationToken = default)
     {
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
         return TomSelectInterop.GetValue(ElementId, linkedCts.Token);
@@ -522,7 +522,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                     await OnItemRemove.InvokeAsync(parameters);
             });
 
-        await AddEventListener<object>(
+        await AddEventListener<TomSelectOption>(
             GetJsEventName(nameof(OnItemSelect)),
             async e =>
             {
@@ -593,14 +593,14 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
         if (OnDropdownOpen.HasDelegate)
         {
-            await AddEventListener<object>(
+            await AddEventListener<TomSelectOption>(
                 GetJsEventName(nameof(OnDropdownOpen)),
                 async e => { await OnDropdownOpen.InvokeAsync(e); });
         }
 
         if (OnDropdownClose.HasDelegate)
         {
-            await AddEventListener<object>(
+            await AddEventListener<TomSelectOption>(
                 GetJsEventName(nameof(OnDropdownClose)),
                 async e => { await OnDropdownClose.InvokeAsync(e); });
         }

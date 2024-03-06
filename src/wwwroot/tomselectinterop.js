@@ -348,7 +348,6 @@ window.tomSelectInterop = (function () {
 /*        load: load,*/
         destroy: destroy,
         setOptions: setOptions,
-        destroy: destroy,
         addOutputEventListener: addOutputEventListener,
         addEventListener: addEventListener,
     };

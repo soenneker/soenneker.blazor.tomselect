@@ -61,9 +61,9 @@ public interface ITomSelectInterop : IEventListeningInterop
 
     ValueTask Disable(string elementId, CancellationToken cancellationToken = default);
 
-    ValueTask SetValue(string elementId, object value, bool silent = false, CancellationToken cancellationToken = default);
+    ValueTask SetValue(string elementId, TomSelectOption value, bool silent = false, CancellationToken cancellationToken = default);
 
-    ValueTask<object> GetValue(string elementId, CancellationToken cancellationToken = default);
+    ValueTask<TomSelectOption> GetValue(string elementId, CancellationToken cancellationToken = default);
 
     ValueTask SetCaret(string elementId, int index, CancellationToken cancellationToken = default);
 

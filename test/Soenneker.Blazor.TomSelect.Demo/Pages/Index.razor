@@ -13,19 +13,22 @@
 
 <h2>Multiple</h2>
 
-<TomSelect
-    TItem="Country" TType="string" OnInitialize="OnTomSelectInitialized"
-    OnOptionAdd="OnOptionAdd" OnItemAdd="OnItemAdd"
-    Data="@_countries"
-    TextField="@(item => item.Name)"
-    ValueField="@(item => item.Id.ToString())" @ref="_tomSelect">
-</TomSelect>
-
+@if (_render)
+{
+    <TomSelect
+        TItem="Country" TType="string" OnInitialize="OnTomSelectInitialized"
+        OnOptionAdd="OnOptionAdd" OnItemAdd="OnItemAdd"
+        Data="@_countries"
+        TextField="@(item => item.Name)"
+        ValueField="@(item => item.Id.ToString())" @ref="_tomSelect" >
+    </TomSelect>
+}
 <br />
 
 <button @onclick="AddOption" >AddOption</button>
 <button @onclick="AddItem" >AddItem</button>
-<button @onclick="GetSelectedItems">GetSelectedItems</button>
+<button @onclick="GetSelectedItems" >GetSelectedItems</button>
+<button @onclick="Render" >Render</button>
 
 <hr />
 
@@ -35,8 +38,8 @@
            OnOptionAdd="OnOptionAdd" OnItemAdd="OnItemAdd"
            Data="@_countries"
            TextField="@(item => item.Name)"
-           ValueField="@(item => item.Id.ToString())" Multiple="false">
-</TomSelect> 
+           ValueField="@(item => item.Id.ToString())" Multiple="false" >
+</TomSelect>
 
 @code{
 
@@ -48,6 +51,8 @@
 
     private TomSelect<Country, string> _tomSelect = default!;
 
+    private bool _render = true;
+
     protected override async Task OnInitializedAsync()
     {
         _countries = await Http.GetFromJsonAsync<List<Country>>("sample-data/countries.json");
@@ -56,12 +61,16 @@
     protected override void OnInitialized()
     {
         _autoFaker = new AutoFaker();
-
     }
 
     private void OnTomSelectInitialized()
     {
         Logger.LogInformation("OnInitialized called");
+    }
+
+    private void Render()
+    {
+        _render = !_render;
     }
 
     private void OnOptionAdd((string str, TomSelectOption obj) result)
@@ -82,7 +91,6 @@
     private async Task AddOption()
     {
         await _tomSelect.AddOption(_autoFaker.Generate<Country>());
-        // await _tomSelect.RefreshOptions(true);
     }
 
     private void GetSelectedItems()
@@ -100,3 +108,4 @@
     }
 
 }
+

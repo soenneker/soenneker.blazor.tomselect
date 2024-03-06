@@ -26,7 +26,7 @@ public class TomSelectConfiguration
     /// This setting can be true, false, or a function.
     /// </summary>
     [JsonPropertyName("create")]
-    public object Create { get; set; } = false;
+    public bool Create { get; set; } = false;
 
     /// <summary>
     /// If true, when user exits the field, a new option is created and selected if the create setting is enabled.
@@ -38,7 +38,7 @@ public class TomSelectConfiguration
     /// Specifies a RegExp, a string containing a regular expression, or a predicate function that the current search filter must match to be allowed to be created.
     /// </summary>
     [JsonPropertyName("createFilter")]
-    public object? CreateFilter { get; set; } = null;
+    public string? CreateFilter { get; set; } = null;
 
     /// <summary>
     /// The string to separate items by.
@@ -122,7 +122,7 @@ public class TomSelectConfiguration
     /// Preloads options upon control initialization or when control receives focus.
     /// </summary>
     [JsonPropertyName("preload")]
-    public object Preload { get; set; } = false;
+    public bool Preload { get; set; } = false;
 
     /// <summary>
     /// The element the dropdown menu is appended to. Null appends it as a child of the control.
@@ -212,13 +212,17 @@ public class TomSelectConfiguration
     /// Defines how items are sorted in the dropdown. Can be a string, array, or function.
     /// </summary>
     [JsonPropertyName("sortField")]
-    public object SortField { get; set; } = new List<TomSelectSortField> { new() { Field = "$score" }, new() { Field = "$order" } };
+    public List<TomSelectSortField> SortField { get; set; } =
+    [
+        new TomSelectSortField {Field = "$score"},
+        new TomSelectSortField {Field = "$order"}
+    ];
 
     /// <summary>
     /// An array of property names to analyze when filtering options.
     /// </summary>
     [JsonPropertyName("searchField")]
-    public object SearchField { get; set; } = new List<string> { "text" };
+    public List<string> SearchField { get; set; } = [ "text" ];
 
     /// <summary>
     /// The operator used when searching for multiple terms.

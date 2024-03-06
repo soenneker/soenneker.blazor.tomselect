@@ -172,7 +172,6 @@ window.tomSelectInterop = (function () {
 
     function trigger(elementId, event) {
         var tomSelect = tomSelects[elementId];
-        // Trigger an event programmatically. Additional arguments can be passed if necessary.
         tomSelect.trigger(event);
     }
 
@@ -210,41 +209,6 @@ window.tomSelectInterop = (function () {
         });
     }
 
-    function addOutputEventListener(elementId, eventName, dotNetCallback) {
-        var tomSelect = tomSelects[elementId];
-
-        switch (eventName) {
-            case "OnBeforeAddFile":
-                pond.beforeAddFile = function (file) {
-                    return handleFileEvent(file);
-                };
-                break;
-            case "OnBeforeDropFile":
-                pond.beforeDropFile = function (file) {
-                    return handleFileEvent(file);
-                };
-                break;
-            case "OnBeforeRemoveFile":
-                pond.beforeRemoveFile = function (file) {
-                    return handleFileEvent(file);
-                };
-                break;
-            case "OnFileRename":
-                var existingOptions = options[elementId];
-
-                if (!existingOptions)
-                    existingOptions = {};
-
-                existingOptions.fileRenameFunction = function (file) {
-                    return handleRenameEvent(file);
-                };
-
-                pond.setOptions(existingOptions);
-                options[elementId] = existingOptions;
-                break;
-        }
-    }
-
     function getJsonFromArguments(...args) {
         const processedArgs = args.map(arg => {
             if (typeof arg === 'object' && arg !== null) {
@@ -256,58 +220,6 @@ window.tomSelectInterop = (function () {
 
         var json = JSON.stringify(processedArgs);
         return json;
-    }
-
-    function getJsonFromObjectOrArray(objOrArray) {
-        const stringifyable = mapToJSON(objOrArray);
-
-        const json = JSON.stringify(stringifyable);
-        return json;
-    }
-
-    function mapToJSON(objOrArray) {
-        if (Array.isArray(objOrArray)) {
-            return objOrArray.map(item => {
-                return typeof item === 'object' && item !== null
-                    ? objectToStringifyable(item)
-                    : item;
-            });
-        } else if (typeof objOrArray === 'object' && objOrArray !== null) {
-            return objectToStringifyable(objOrArray);
-        } else {
-            return objOrArray;
-        }
-    }
-
-    function objectToStringifyable(obj) {
-        let objectJSON = {};
-
-        // Get all property names of the object
-        let props = Object.getOwnPropertyNames(obj);
-
-        // Iterate through each property
-        props.forEach(prop => {
-            // Get the property descriptor
-            let descriptor = Object.getOwnPropertyDescriptor(obj, prop);
-
-            // Check if the property has a getter
-            if (descriptor && typeof descriptor.get === 'function') {
-                // Call the getter in the context of the object
-                objectJSON[prop] = descriptor.get.call(obj);
-            } else {
-                // Include the property value if there's no getter
-                const propValue = obj[prop];
-
-                if (typeof propValue === 'object' && propValue !== null) {
-                    // Recursively handle nested objects
-                    objectJSON[prop] = objectToStringifyable(propValue);
-                } else {
-                    objectJSON[prop] = propValue;
-                }
-            }
-        });
-
-        return objectJSON;
     }
 
     return {
@@ -348,7 +260,6 @@ window.tomSelectInterop = (function () {
 /*        load: load,*/
         destroy: destroy,
         setOptions: setOptions,
-        addOutputEventListener: addOutputEventListener,
         addEventListener: addEventListener,
     };
 })();

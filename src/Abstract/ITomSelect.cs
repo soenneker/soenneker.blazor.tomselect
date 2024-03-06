@@ -19,6 +19,11 @@ public interface ITomSelect<TItem, TSource>
     /// </summary>
     IEnumerable<TItem> Data { get; set; }
 
+    /// <summary>
+    /// The selected item(s) in the TomSelect component.
+    /// </summary>
+    List<TItem> Items { get; set; }
+
     #region Events
 
     /// <summary>

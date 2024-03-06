@@ -23,8 +23,6 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     [Parameter, EditorRequired]
     public IEnumerable<TItem> Data { get; set; } = default!;
 
-    public List<TItem> UserCreatedData { get; set; } = [];
-
     [Parameter, EditorRequired]
     public Func<TItem, string?> TextField { get; set; } = default!;
 
@@ -36,8 +34,6 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
     [Parameter]
     public TomSelectConfiguration Configuration { get; set; } = new();
-
-    private readonly List<TomSelectOption> _options = [];
 
     #region Events
 
@@ -109,6 +105,13 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     private bool _isCreated;
     private bool _isDataSet;
 
+    private readonly List<TomSelectOption> _options = [];
+
+    /// <summary>
+    /// I don't think we should modify the reference of Data when AddOption() is called, thus the reason for this var
+    /// </summary>
+    private readonly List<TItem> _userCreatedData = [];
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -148,22 +151,9 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         await AddEventListeners();
     }
 
-    private TomSelectOption? ToOptionFromItem(TItem item)
-    {
-        string? value = ValueField.Invoke(item);
-        string? text = TextField.Invoke(item);
-
-        if (text == null || value == null)
-            return null;
-
-        var tomSelectOption = new TomSelectOption {Text = text, Value = value};
-
-        return tomSelectOption;
-    }
-
     public ValueTask AddOption(TItem item, bool userCreated = true, CancellationToken cancellationToken = default)
     {
-        UserCreatedData.Add(item);
+        _userCreatedData.Add(item);
 
         TomSelectOption? option = ToOptionFromItem(item);
 
@@ -375,6 +365,40 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         return TomSelectInterop.Destroy(ElementId, linkedCts.Token);
     }
 
+    private TomSelectOption? ToOptionFromItem(TItem item)
+    {
+        string? value = ValueField.Invoke(item);
+        string? text = TextField.Invoke(item);
+
+        if (text == null || value == null)
+            return null;
+
+        var tomSelectOption = new TomSelectOption { Text = text, Value = value };
+
+        return tomSelectOption;
+    }
+
+    private TItem? ToItemFromValue(string value)
+    {
+        foreach (TItem item in Data)
+        {
+            string? result = ValueField?.Invoke(item);
+
+            if (result == value)
+                return item;
+        }
+
+        foreach (TItem item in _userCreatedData)
+        {
+            string? result = ValueField?.Invoke(item);
+
+            if (result == value)
+                return item;
+        }
+
+        return default;
+    }
+
     private void OnItemAdd_internal(string value)
     {
         TItem? item = ToItemFromValue(value);
@@ -395,33 +419,12 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         }
     }
 
-    private TItem? ToItemFromValue(string value)
-    {
-        foreach (TItem item in Data)
-        {
-            string? result = ValueField?.Invoke(item);
-
-            if (result == value)
-                return item;
-        }
-
-        foreach (TItem item in UserCreatedData)
-        {
-            string? result = ValueField?.Invoke(item);
-
-            if (result == value)
-                return item;
-        }
-
-        return default;
-    }
-
     private void OnItemClear_internal()
     {
         Items.Clear();
     }
 
-    public bool OnOptionAdd_internal(string value, TomSelectOption data)
+    private bool OnOptionAdd_internal(string value, TomSelectOption data)
     {
         TomSelectOption? option = _options.FirstOrDefault(c => c.Value == value);
 
@@ -435,7 +438,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         return true;
     }
 
-    public void OnOptionRemove_internal(string value)
+    private void OnOptionRemove_internal(string value)
     {
         TomSelectOption? option = _options.FirstOrDefault(c => c.Value == value);
 
@@ -443,7 +446,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             _options.Remove(option);
     }
 
-    public void OnOptionClear_internal()
+    private void OnOptionClear_internal()
     {
         _options.Clear();
     }
@@ -638,11 +641,6 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     private ValueTask AddEventListener<T>(string eventName, Func<T, ValueTask> callback)
     {
         return InteropEventListener.Add("tomSelectInterop.addEventListener", ElementId, eventName, callback, _cTs.Token);
-    }
-
-    private ValueTask AddEventListener<TInput, TOutput>(string eventName, Func<TInput, ValueTask<TOutput>> callback)
-    {
-        return InteropEventListener.Add("tomSelectInterop.addOutputEventListener", ElementId, eventName, callback, _cTs.Token);
     }
 
     [JSInvokable("OnInitializedJs")]

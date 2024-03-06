@@ -10,12 +10,6 @@ namespace Soenneker.Blazor.TomSelect.Configuration;
 public class TomSelectConfiguration
 {
     /// <summary>
-    /// Configuration populated from the original input or select element.
-    /// </summary>
-    //[JsonPropertyName("options")]
-    //public List<TomSelectOption> Options { get; set; } = [];
-
-    /// <summary>
     /// An array of the initial selected values, populated from the original input element.
     /// </summary>
     [JsonPropertyName("items")]
@@ -67,6 +61,7 @@ public class TomSelectConfiguration
     /// <summary>
     /// The max number of options to display in the dropdown. Null for unlimited.
     /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     [JsonPropertyName("maxOptions")]
     public int? MaxOptions { get; set; } = null;
 

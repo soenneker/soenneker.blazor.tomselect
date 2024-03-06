@@ -24,7 +24,7 @@ public partial class BaseTomSelect : ComponentBase, IBaseTomSelect
     /// </summary>
     protected readonly string ElementId = Guid.NewGuid().ToString();
 
-    protected CancellationTokenSource _cTs = new();
+    protected readonly CancellationTokenSource CTs = new();
 
     protected ElementReference ElementReference;
 
@@ -39,7 +39,7 @@ public partial class BaseTomSelect : ComponentBase, IBaseTomSelect
 
         DotNetReference?.Dispose();
         InteropEventListener.DisposeForElement(ElementId);
-        _cTs.Cancel();
+        CTs.Cancel();
         return TomSelectInterop.Destroy(ElementId);
     }
 
@@ -49,7 +49,7 @@ public partial class BaseTomSelect : ComponentBase, IBaseTomSelect
 
         DotNetReference?.Dispose();
         InteropEventListener.DisposeForElement(ElementId);
-        _cTs.Cancel();
+        CTs.Cancel();
         TomSelectInterop.Destroy(ElementId);
     }
 }

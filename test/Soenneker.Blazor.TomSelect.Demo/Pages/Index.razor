@@ -53,14 +53,16 @@
 
     private bool _render = true;
 
-    protected override async Task OnInitializedAsync()
-    {
-        _countries = await Http.GetFromJsonAsync<List<Country>>("sample-data/countries.json");
-    }
-
     protected override void OnInitialized()
     {
         _autoFaker = new AutoFaker();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        //_countries = _autoFaker.Generate<Country>(100);
+
+        _countries = await Http.GetFromJsonAsync<List<Country>>("sample-data/countries.json");
     }
 
     private void OnTomSelectInitialized()

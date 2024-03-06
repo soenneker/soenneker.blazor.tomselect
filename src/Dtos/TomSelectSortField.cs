@@ -7,9 +7,15 @@ namespace Soenneker.Blazor.TomSelect.Dtos;
 /// </summary>
 public class TomSelectSortField
 {
+    /// <summary>
+    /// Gets or sets the field used for sorting.
+    /// </summary>
     [JsonPropertyName("field")]
-    public string Field { get; set; }
+    public string? Field { get; set; }
 
+    /// <summary>
+    /// Gets or sets the sorting direction. The default value is "asc".
+    /// </summary>
     [JsonPropertyName("direction")]
-    public string Direction { get; set; } = "asc"; // Assuming default sorting direction is ascending.
+    public string Direction { get; set; } = "asc";
 }

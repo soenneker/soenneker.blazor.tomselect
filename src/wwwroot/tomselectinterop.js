@@ -37,6 +37,11 @@ window.tomSelectInterop = (function () {
         tomSelect.addItem(value, silent);
     }
 
+    function addItems(elementId, data, silent) {
+        var tomSelect = tomSelects[elementId];
+        data.forEach(item => tomSelect.addItem(item, silent));
+    }
+
     function setOptions(elementId, options) {
         var tomSelect = tomSelects[elementId];
 
@@ -222,10 +227,42 @@ window.tomSelectInterop = (function () {
         return json;
     }
 
+    function objectToStringifyable(obj) {
+        let objectJSON = {};
+
+        // Get all property names of the object
+        let props = Object.getOwnPropertyNames(obj);
+
+        // Iterate through each property
+        props.forEach(prop => {
+            // Get the property descriptor
+            let descriptor = Object.getOwnPropertyDescriptor(obj, prop);
+
+            // Check if the property has a getter
+            if (descriptor && typeof descriptor.get === 'function') {
+                // Call the getter in the context of the object
+                objectJSON[prop] = descriptor.get.call(obj);
+            } else {
+                // Include the property value if there's no getter
+                const propValue = obj[prop];
+
+                if (typeof propValue === 'object' && propValue !== null) {
+                    // Recursively handle nested objects
+                    objectJSON[prop] = objectToStringifyable(propValue);
+                } else {
+                    objectJSON[prop] = propValue;
+                }
+            }
+        });
+
+        return objectJSON;
+    }
+
     return {
         create: create,
         addOption: addOption,
         addItem: addItem,
+        addItems: addItems,
         addOptions: addOptions,
         updateOption: updateOption,
         removeOption: removeOption,

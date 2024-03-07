@@ -129,6 +129,8 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                 _isDataSet = true;
 
                 await AddOptions(Data, false);
+
+                await AddItems(Items, true);
             }
         }
 
@@ -221,10 +223,40 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         return TomSelectInterop.ClearOptions(ElementId, linkedCts.Token);
     }
 
+    public ValueTask AddItem(TItem item, bool silent = false, CancellationToken cancellationToken = default)
+    {
+        string? value = ToValueFromItem(item);
+
+        return AddItem(value!, silent, cancellationToken);
+    }
+
+    public ValueTask AddItems(IEnumerable<TItem> items, bool silent = false, CancellationToken cancellationToken = default)
+    {
+        List<string> values = [];
+
+        foreach (TItem item in items)
+        {
+            string? value = ToValueFromItem(item);
+
+            if (value == null)
+                continue;
+
+            values.Add(value);
+        }
+
+        return AddItems(values, silent, cancellationToken);
+    }
+
     public ValueTask AddItem(string value, bool silent = false, CancellationToken cancellationToken = default)
     {
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
         return TomSelectInterop.AddItem(ElementId, value, silent, linkedCts.Token);
+    }
+
+    public ValueTask AddItems(IEnumerable<string> values, bool silent = false, CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.AddItems(ElementId, values, silent, linkedCts.Token);
     }
 
     public ValueTask ClearItems(bool silent = false, CancellationToken cancellationToken = default)
@@ -367,13 +399,13 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
     private TomSelectOption? ToOptionFromItem(TItem item)
     {
-        string? value = ValueField.Invoke(item);
-        string? text = TextField.Invoke(item);
+        string? value = ToValueFromItem(item);
+        string? text = ToTextFromItem(item);
 
         if (text == null || value == null)
             return null;
 
-        var tomSelectOption = new TomSelectOption { Text = text, Value = value };
+        var tomSelectOption = new TomSelectOption {Text = text, Value = value};
 
         return tomSelectOption;
     }
@@ -382,7 +414,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     {
         foreach (TItem item in Data)
         {
-            string? result = ValueField?.Invoke(item);
+            string? result = ToValueFromItem(item);
 
             if (result == value)
                 return item;
@@ -390,7 +422,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
         foreach (TItem item in _userCreatedData)
         {
-            string? result = ValueField?.Invoke(item);
+            string? result = ToValueFromItem(item);
 
             if (result == value)
                 return item;
@@ -399,24 +431,36 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         return default;
     }
 
+    private string? ToValueFromItem(TItem item)
+    {
+        return ValueField.Invoke(item);
+    }
+
+    private string? ToTextFromItem(TItem item)
+    {
+        return TextField.Invoke(item);
+    }
+
     private void OnItemAdd_internal(string value)
     {
         TItem? item = ToItemFromValue(value);
 
-        if (item != null)
-        {
+        if (item == null)
+            return;
+
+        if (!Items.Contains(item))
             Items.Add(item);
-        }
     }
 
     private void OnItemRemove_Internal(string value)
     {
         TItem? item = ToItemFromValue(value);
 
-        if (item != null)
-        {
+        if (item == null)
+            return;
+
+        if (Items.Contains(item))
             Items.Remove(item);
-        }
     }
 
     private void OnItemClear_internal()

@@ -177,10 +177,34 @@ public interface ITomSelect<TItem, TSource>
     /// <summary>
     /// Adds an item with the specified value to the TomSelect component.
     /// </summary>
+    /// <param name="item">The item to add.</param>
+    /// <param name="silent">Indicates whether to suppress triggering any events. Default is false. (Optional)</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation. (Optional)</param>
+    ValueTask AddItem(TItem item, bool silent = false, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Adds an item with the specified value to the TomSelect component.
+    /// </summary>
     /// <param name="value">The value of the item to add.</param>
     /// <param name="silent">Indicates whether to suppress triggering any events. Default is false. (Optional)</param>
     /// <param name="cancellationToken">The cancellation token to cancel the operation. (Optional)</param>
     ValueTask AddItem(string value, bool silent = false, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Adds an item with the specified value to the TomSelect component.
+    /// </summary>
+    /// <param name="values">The values of the items to add.</param>
+    /// <param name="silent">Indicates whether to suppress triggering any events. Default is false. (Optional)</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation. (Optional)</param>
+    ValueTask AddItems(IEnumerable<string> values, bool silent = false, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Adds an item with the specified value to the TomSelect component.
+    /// </summary>
+    /// <param name="items">The items to add.</param>
+    /// <param name="silent">Indicates whether to suppress triggering any events. Default is false. (Optional)</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation. (Optional)</param>
+    ValueTask AddItems(IEnumerable<TItem> items, bool silent = false, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Clears all selected items from the TomSelect component.

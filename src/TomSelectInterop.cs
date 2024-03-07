@@ -80,9 +80,14 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
         return JsRuntime.InvokeVoidAsync("tomSelectInterop.addItem", cancellationToken, elementId, value, silent);
     }
 
-    public ValueTask RemoveItem(string elementId, string valueOrHTMLElement, bool silent = false, CancellationToken cancellationToken = default)
+    public ValueTask AddItems(string elementId, IEnumerable<string> values, bool silent = false, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("tomSelectInterop.removeItem", cancellationToken, elementId, valueOrHTMLElement, silent);
+        return JsRuntime.InvokeVoidAsync("tomSelectInterop.addItems", cancellationToken, elementId, values, silent);
+    }
+
+    public ValueTask RemoveItem(string elementId, string valueOrHtmlElement, bool silent = false, CancellationToken cancellationToken = default)
+    {
+        return JsRuntime.InvokeVoidAsync("tomSelectInterop.removeItem", cancellationToken, elementId, valueOrHtmlElement, silent);
     }
 
     public ValueTask RefreshItems(string elementId, CancellationToken cancellationToken = default)

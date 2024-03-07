@@ -33,7 +33,9 @@ public interface ITomSelectInterop : IEventListeningInterop
 
     ValueTask AddItem(string elementId, string value, bool silent = false, CancellationToken cancellationToken = default);
 
-    ValueTask RemoveItem(string elementId, string valueOrHTMLElement, bool silent = false, CancellationToken cancellationToken = default);
+    ValueTask AddItems(string elementId, IEnumerable<string> value, bool silent = false, CancellationToken cancellationToken = default);
+
+    ValueTask RemoveItem(string elementId, string valueOrHtmlElement, bool silent = false, CancellationToken cancellationToken = default);
 
     ValueTask RefreshItems(string elementId, CancellationToken cancellationToken = default);
 

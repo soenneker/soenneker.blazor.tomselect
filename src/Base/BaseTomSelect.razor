@@ -1,5 +1,7 @@
-﻿@using Microsoft.Extensions.Logging
+﻿@using System.Threading
+@using Microsoft.Extensions.Logging
 @using Soenneker.Blazor.TomSelect.Abstract
+@using Soenneker.Blazor.TomSelect.Dtos
 @using Soenneker.Blazor.Utils.InteropEventListener.Abstract
 
 @* ReSharper disable InconsistentNaming *@
@@ -10,6 +12,67 @@
 
 @code {
 
+    #region Events
+
+    [Parameter]
+    public EventCallback OnInitialize { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnChange { get; set; }
+
+    [Parameter]
+    public EventCallback OnFocus { get; set; }
+
+    [Parameter]
+    public EventCallback OnBlur { get; set; }
+
+    [Parameter]
+    public EventCallback<(string Value, TomSelectOption Item)> OnItemAdd { get; set; }
+
+    [Parameter]
+    public EventCallback<(string Value, TomSelectOption Item)> OnItemRemove { get; set; }
+
+    [Parameter]
+    public EventCallback<TomSelectOption> OnItemSelect { get; set; }
+
+    [Parameter]
+    public EventCallback OnClearItems { get; set; }
+
+    [Parameter]
+    public EventCallback<(string Value, TomSelectOption Data)> OnOptionAdd { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnOptionRemove { get; set; }
+
+    [Parameter]
+    public EventCallback OnOptionClear { get; set; }
+
+    [Parameter]
+    public EventCallback<(string Id, TomSelectOption Data)> OnOptgroupAdd { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnOptgroupRemove { get; set; }
+
+    [Parameter]
+    public EventCallback OnOptgroupClear { get; set; }
+
+    [Parameter]
+    public EventCallback<TomSelectOption> OnDropdownOpen { get; set; }
+
+    [Parameter]
+    public EventCallback<TomSelectOption> OnDropdownClose { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnType { get; set; }
+
+    [Parameter]
+    public EventCallback<object> OnLoad { get; set; }
+
+    [Parameter]
+    public EventCallback OnDestroy { get; set; }
+
+    #endregion Events
+
     protected override void OnInitialized()
     {
         InteropEventListener = _interopEventListener;
@@ -18,4 +81,170 @@
         base.OnInitialized();
     }
 
+    public virtual ValueTask Reinitialize()
+    {
+        return ValueTask.CompletedTask;
+    }
+
+    public ValueTask RemoveOption(string value, CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.RemoveOption(ElementId, value, linkedCts.Token);
+    }
+
+    public ValueTask RefreshOptions(bool triggerDropdown = false, CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.RefreshOptions(ElementId, triggerDropdown, linkedCts.Token);
+    }
+
+    public ValueTask ClearOptions(CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.ClearOptions(ElementId, linkedCts.Token);
+    }
+
+    public ValueTask ClearItems(bool silent = false, CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.ClearItems(ElementId, silent, linkedCts.Token);
+    }
+
+    public ValueTask RemoveItem(string valueOrHtmlElement, bool silent = false, CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.RemoveItem(ElementId, valueOrHtmlElement, silent, linkedCts.Token);
+    }
+
+    public ValueTask AddItem(string value, bool silent = false, CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.AddItem(ElementId, value, silent, linkedCts.Token);
+    }
+
+    public ValueTask AddItems(IEnumerable<string> values, bool silent = false, CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.AddItems(ElementId, values, silent, linkedCts.Token);
+    }
+
+    public ValueTask AddOptionGroup(string id, object data, CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.AddOptionGroup(ElementId, id, data, linkedCts.Token);
+    }
+
+    public ValueTask RemoveOptionGroup(string id, CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.RemoveOptionGroup(ElementId, id, linkedCts.Token);
+    }
+
+    public ValueTask ClearOptionGroups(CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.ClearOptionGroups(ElementId, linkedCts.Token);
+    }
+
+    public ValueTask OpenDropdown(CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.OpenDropdown(ElementId, linkedCts.Token);
+    }
+
+    public ValueTask CloseDropdown(CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.CloseDropdown(ElementId, linkedCts.Token);
+    }
+
+    public ValueTask PositionDropdown(CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.PositionDropdown(ElementId, linkedCts.Token);
+    }
+
+    public ValueTask Focus(CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.Focus(ElementId, linkedCts.Token);
+    }
+
+    public ValueTask Blur(CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.Blur(ElementId, linkedCts.Token);
+    }
+
+    public ValueTask Lock(CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.Lock(ElementId, linkedCts.Token);
+    }
+
+    public ValueTask Unlock(CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.Unlock(ElementId, linkedCts.Token);
+    }
+
+    public ValueTask Enable(CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.Enable(ElementId, linkedCts.Token);
+    }
+
+    public ValueTask Disable(CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.Disable(ElementId, linkedCts.Token);
+    }
+
+    public ValueTask SetValue(TomSelectOption value, bool silent = false, CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.SetValue(ElementId, value, silent, linkedCts.Token);
+    }
+
+    public ValueTask<TomSelectOption> GetValue(CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.GetValue(ElementId, linkedCts.Token);
+    }
+
+    public ValueTask SetCaret(int index, CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.SetCaret(ElementId, index, linkedCts.Token);
+    }
+
+    public ValueTask<bool> IsFull(CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.IsFull(ElementId, linkedCts.Token);
+    }
+
+    public ValueTask ClearCache(CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.ClearCache(ElementId, linkedCts.Token);
+    }
+
+    public ValueTask SetTextboxValue(string str, CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.SetTextboxValue(ElementId, str, linkedCts.Token);
+    }
+
+    public ValueTask Sync(CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.Sync(ElementId, linkedCts.Token);
+    }
+
+    public ValueTask Destroy(CancellationToken cancellationToken = default)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.Destroy(ElementId, linkedCts.Token);
+    }
 }

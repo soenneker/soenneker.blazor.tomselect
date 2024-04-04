@@ -1,6 +1,8 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Blazorise;
+using Blazorise.Bootstrap;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,6 +34,10 @@ public class Program
             });
 
             builder.Services.AddTomSelect();
+
+            builder.Services
+                .AddBlazorise()
+                .AddBootstrapProviders();
 
             WebAssemblyHost host = builder.Build();
 

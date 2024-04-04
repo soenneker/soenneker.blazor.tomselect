@@ -1,0 +1,46 @@
+﻿@using Soenneker.Blazor.TomSelect.Demo.Enums
+@using Soenneker.Extensions.List
+@using Soenneker.Blazor.TomSelect.Base
+@inject HttpClient Http
+
+<Modal @ref="_modalRef">
+    <ModalContent Centered="true">
+        <ModalHeader>
+            <CloseButton/>
+        </ModalHeader>
+        <ModalBody>
+            <Field>
+                <FieldLabel>State</FieldLabel>
+                <TomSelect @ref="_tomSelectRef" TItem="StateType"
+                           TType="string"
+                           Data="_states"
+                           TextField="@(c => c.Name)"
+                           ValueField="@(c => c.Value.ToString())"
+                           Items="@_selectedStates"
+                           Multiple="true">
+                </TomSelect>
+            </Field>
+        </ModalBody>
+    </ModalContent>
+</Modal>
+
+@code {
+    private List<StateType>? _states;
+    private List<StateType> _selectedStates = [];
+
+    private Modal? _modalRef;
+    private BaseTomSelect? _tomSelectRef;
+
+    protected override void OnInitialized()
+    {
+        _states = StateType.List.ToList();
+    }
+
+    public async Task Show()
+    {
+        _selectedStates = [_states!.GetRandom(), _states!.GetRandom()];
+
+        await _modalRef!.Show();
+    }
+
+}

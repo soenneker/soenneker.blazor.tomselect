@@ -31,6 +31,10 @@ public interface ITomSelectInterop : IEventListeningInterop
 
     ValueTask ClearItems(string elementId, bool silent = false, CancellationToken cancellationToken = default);
 
+    ValueTask ClearAndAddItems(string elementId, IEnumerable<string> value, bool silent = false, CancellationToken cancellationToken = default);
+
+    ValueTask ClearAndAddOptions(string elementId, IEnumerable<TomSelectOption> data, bool silent = false, CancellationToken cancellationToken = default);
+
     ValueTask AddItem(string elementId, string value, bool silent = false, CancellationToken cancellationToken = default);
 
     ValueTask AddItems(string elementId, IEnumerable<string> value, bool silent = false, CancellationToken cancellationToken = default);

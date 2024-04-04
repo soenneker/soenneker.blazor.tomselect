@@ -38,7 +38,6 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
         return JsRuntime.InvokeVoidAsync("tomSelectInterop.destroy", cancellationToken, elementId);
     }
 
-    // Option Methods
     public ValueTask AddOption(string elementId, TomSelectOption tomSelectOption, bool userCreated = false, CancellationToken cancellationToken = default)
     {
         return JsRuntime.InvokeVoidAsync("tomSelectInterop.addOption", cancellationToken, elementId, tomSelectOption, userCreated);
@@ -69,10 +68,19 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
         return JsRuntime.InvokeVoidAsync("tomSelectInterop.clearOptions", cancellationToken, elementId);
     }
 
-    // Item Methods
     public ValueTask ClearItems(string elementId, bool silent = false, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("tomSelectInterop.clear", cancellationToken, elementId, silent);
+        return JsRuntime.InvokeVoidAsync("tomSelectInterop.clearItems", cancellationToken, elementId, silent);
+    }
+
+    public ValueTask ClearAndAddItems(string elementId, IEnumerable<string> values, bool silent = false, CancellationToken cancellationToken = default)
+    {
+        return JsRuntime.InvokeVoidAsync("tomSelectInterop.clearAndAddItems", cancellationToken, elementId, values, silent);
+    }
+
+    public ValueTask ClearAndAddOptions(string elementId, IEnumerable<TomSelectOption> data, bool silent = false, CancellationToken cancellationToken = default)
+    {
+        return JsRuntime.InvokeVoidAsync("tomSelectInterop.clearAndAddOptions", cancellationToken, elementId, data, silent);
     }
 
     public ValueTask AddItem(string elementId, string value, bool silent = false, CancellationToken cancellationToken = default)

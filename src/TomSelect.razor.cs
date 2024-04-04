@@ -14,6 +14,8 @@ using Soenneker.Extensions.Enumerable;
 using Soenneker.Blazor.TomSelect.Abstract;
 using Soenneker.Extensions.List;
 using Microsoft.Extensions.Logging;
+using System.Data;
+using Newtonsoft.Json.Linq;
 
 namespace Soenneker.Blazor.TomSelect;
 
@@ -21,7 +23,7 @@ namespace Soenneker.Blazor.TomSelect;
 public partial class TomSelect<TItem, TType> : BaseTomSelect
 {
     [Parameter, EditorRequired]
-    public IEnumerable<TItem> Data { get; set; } = default!;
+    public IEnumerable<TItem>? Data { get; set; }
 
     [Parameter, EditorRequired]
     public Func<TItem, string?> TextField { get; set; } = default!;
@@ -35,87 +37,32 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     [Parameter]
     public TomSelectConfiguration Configuration { get; set; } = new();
 
-    #region Events
-
-    [Parameter]
-    public EventCallback OnInitialize { get; set; }
-
-    [Parameter]
-    public EventCallback<string> OnChange { get; set; }
-
-    [Parameter]
-    public EventCallback OnFocus { get; set; }
-
-    [Parameter]
-    public EventCallback OnBlur { get; set; }
-
-    [Parameter]
-    public EventCallback<(string Value, TomSelectOption Item)> OnItemAdd { get; set; }
-
-    [Parameter]
-    public EventCallback<(string Value, TomSelectOption Item)> OnItemRemove { get; set; }
-
-    [Parameter]
-    public EventCallback<TomSelectOption> OnItemSelect { get; set; }
-
-    [Parameter]
-    public EventCallback OnClear { get; set; }
-
-    [Parameter]
-    public EventCallback<(string Value, TomSelectOption Data)> OnOptionAdd { get; set; }
-
-    [Parameter]
-    public EventCallback<string> OnOptionRemove { get; set; }
-
-    [Parameter]
-    public EventCallback OnOptionClear { get; set; }
-
-    [Parameter]
-    public EventCallback<(string Id, TomSelectOption Data)> OnOptgroupAdd { get; set; }
-
-    [Parameter]
-    public EventCallback<string> OnOptgroupRemove { get; set; }
-
-    [Parameter]
-    public EventCallback OnOptgroupClear { get; set; }
-
-    [Parameter]
-    public EventCallback<TomSelectOption> OnDropdownOpen { get; set; }
-
-    [Parameter]
-    public EventCallback<TomSelectOption> OnDropdownClose { get; set; }
-
-    [Parameter]
-    public EventCallback<string> OnType { get; set; }
-
-    [Parameter]
-    public EventCallback<object> OnLoad { get; set; }
-
-    [Parameter]
-    public EventCallback OnDestroy { get; set; }
-
-    #endregion Events
-
     [Parameter]
     public bool Multiple { get; set; } = true;
 
     [Parameter]
-    public List<TItem> Items { get; set; } = [];
+    public List<TItem> Items { get; set; } = default!;
+
+    private int _itemsHash;
+    private int _optionsHash;
 
     private bool _isCreated;
     private bool _isDataSet;
 
-    private readonly List<TomSelectOption> _options = [];
-
     /// <summary>
     /// I don't think we should modify the reference of Data when AddOption() is called, thus the reason for this var
     /// </summary>
-    private readonly List<TItem> _userCreatedData = [];
+    private readonly List<TItem> _workingItems = [];
+
+    private readonly List<TomSelectOption> _workingOptions = [];
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+            Items ??= [];
+
             _isDataSet = false;
             InteropEventListener.Initialize(TomSelectInterop);
             await Create();
@@ -124,17 +71,69 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
         if (!_isDataSet && _isCreated)
         {
-            if (Data.Populated())
-            {
-                _isDataSet = true;
+            _isDataSet = true;
 
-                await AddOptions(Data, false);
-
-                await AddItems(Items, true);
-            }
+            await Initialize();
         }
 
         await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!_isDataSet || !_isCreated)
+            return;
+
+        if (Data != null)
+        {
+            int optionsHashCode = Data.GetHashCode();
+
+            if (_optionsHash != optionsHashCode)
+            {
+                _optionsHash = optionsHashCode;
+
+                List<TomSelectOption> tomSelectOptions = ConvertItemsToOptions(Data);
+
+                await TomSelectInterop.ClearAndAddOptions(ElementId, tomSelectOptions, true);
+            }
+        }
+
+        int itemsHashCode = Items.GetHashCode();
+
+        if (_itemsHash != itemsHashCode)
+        {
+            _itemsHash = itemsHashCode;
+
+            List<string> values = ConvertItemsToListString(Items);
+            await TomSelectInterop.ClearAndAddItems(ElementId, values, true);
+        }
+    }
+
+    public override async ValueTask Reinitialize()
+    {
+        await ClearItems(true);
+
+        await ClearOptions();
+
+        await Initialize();
+    }
+
+    private async ValueTask Initialize()
+    {
+        _itemsHash = Items.GetHashCode();
+
+        if (Data == null)
+            return;
+
+        _optionsHash = Data.GetHashCode();
+
+        if (Data.Any())
+        {
+            await AddOptions(Data, false);
+
+            if (Items.Populated())
+                await AddItems(Items, true);
+        }
     }
 
     public async ValueTask Create(TomSelectConfiguration? configuration = null, CancellationToken cancellationToken = default)
@@ -147,7 +146,6 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         DotNetReference = DotNetObjectReference.Create((BaseTomSelect) this);
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-
         await TomSelectInterop.Create(ElementReference, ElementId, DotNetReference, Configuration, linkedCts.Token);
 
         await AddEventListeners();
@@ -155,7 +153,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
     public ValueTask AddOption(TItem item, bool userCreated = true, CancellationToken cancellationToken = default)
     {
-        _userCreatedData.Add(item);
+        _workingItems.Add(item);
 
         TomSelectOption? option = ToOptionFromItem(item);
 
@@ -165,7 +163,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             return ValueTask.CompletedTask;
         }
 
-        _options.Add(option);
+        _workingOptions.Add(option);
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
         return TomSelectInterop.AddOption(ElementId, option, userCreated, linkedCts.Token);
@@ -173,17 +171,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
     public async ValueTask AddOptions(IEnumerable<TItem> items, bool userCreated = true, CancellationToken cancellationToken = default)
     {
-        var tomSelectOptions = new List<TomSelectOption>();
-
-        foreach (TItem datum in items)
-        {
-            TomSelectOption? tomSelectOption = ToOptionFromItem(datum);
-
-            if (tomSelectOption == null)
-                continue;
-
-            tomSelectOptions.Add(tomSelectOption);
-        }
+        List<TomSelectOption> tomSelectOptions = ConvertItemsToOptions(items);
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
         await TomSelectInterop.AddOptions(ElementId, tomSelectOptions, userCreated, linkedCts.Token);
@@ -199,28 +187,10 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             return ValueTask.CompletedTask;
         }
 
-        _options.Replace(c => c.Value == value, option);
+        _workingOptions.Replace(c => c.Value == value, option);
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
         return TomSelectInterop.UpdateOption(ElementId, value, option, linkedCts.Token);
-    }
-
-    public ValueTask RemoveOption(string value, CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.RemoveOption(ElementId, value, linkedCts.Token);
-    }
-
-    public ValueTask RefreshOptions(bool triggerDropdown, CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.RefreshOptions(ElementId, triggerDropdown, linkedCts.Token);
-    }
-
-    public ValueTask ClearOptions(CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.ClearOptions(ElementId, linkedCts.Token);
     }
 
     public ValueTask AddItem(TItem item, bool silent = false, CancellationToken cancellationToken = default)
@@ -231,6 +201,30 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     }
 
     public ValueTask AddItems(IEnumerable<TItem> items, bool silent = false, CancellationToken cancellationToken = default)
+    {
+        List<string> values = ConvertItemsToListString(items);
+
+        return AddItems(values, silent, cancellationToken);
+    }
+
+    private List<TomSelectOption> ConvertItemsToOptions(IEnumerable<TItem> items)
+    {
+        var tomSelectOptions = new List<TomSelectOption>();
+
+        foreach (TItem item in items)
+        {
+            TomSelectOption? tomSelectOption = ToOptionFromItem(item);
+
+            if (tomSelectOption == null)
+                continue;
+
+            tomSelectOptions.Add(tomSelectOption);
+        }
+
+        return tomSelectOptions;
+    }
+
+    private List<string> ConvertItemsToListString(IEnumerable<TItem> items)
     {
         List<string> values = [];
 
@@ -244,157 +238,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             values.Add(value);
         }
 
-        return AddItems(values, silent, cancellationToken);
-    }
-
-    public ValueTask AddItem(string value, bool silent = false, CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.AddItem(ElementId, value, silent, linkedCts.Token);
-    }
-
-    public ValueTask AddItems(IEnumerable<string> values, bool silent = false, CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.AddItems(ElementId, values, silent, linkedCts.Token);
-    }
-
-    public ValueTask ClearItems(bool silent = false, CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.ClearItems(ElementId, silent, linkedCts.Token);
-    }
-
-    public ValueTask RemoveItem(string valueOrHTMLElement, bool silent = false, CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.RemoveItem(ElementId, valueOrHTMLElement, silent, linkedCts.Token);
-    }
-
-    public ValueTask RefreshItems(CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.RefreshItems(ElementId, linkedCts.Token);
-    }
-
-    public ValueTask AddOptionGroup(string id, object data, CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.AddOptionGroup(ElementId, id, data, linkedCts.Token);
-    }
-
-    public ValueTask RemoveOptionGroup(string id, CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.RemoveOptionGroup(ElementId, id, linkedCts.Token);
-    }
-
-    public ValueTask ClearOptionGroups(CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.ClearOptionGroups(ElementId, linkedCts.Token);
-    }
-
-    public ValueTask OpenDropdown(CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.OpenDropdown(ElementId, linkedCts.Token);
-    }
-
-    public ValueTask CloseDropdown(CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.CloseDropdown(ElementId, linkedCts.Token);
-    }
-
-    public ValueTask PositionDropdown(CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.PositionDropdown(ElementId, linkedCts.Token);
-    }
-
-    public ValueTask Focus(CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.Focus(ElementId, linkedCts.Token);
-    }
-
-    public ValueTask Blur(CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.Blur(ElementId, linkedCts.Token);
-    }
-
-    public ValueTask Lock(CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.Lock(ElementId, linkedCts.Token);
-    }
-
-    public ValueTask Unlock(CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.Unlock(ElementId, linkedCts.Token);
-    }
-
-    public ValueTask Enable(CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.Enable(ElementId, linkedCts.Token);
-    }
-
-    public ValueTask Disable(CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.Disable(ElementId, linkedCts.Token);
-    }
-
-    public ValueTask SetValue(TomSelectOption value, bool silent = false, CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.SetValue(ElementId, value, silent, linkedCts.Token);
-    }
-
-    public ValueTask<TomSelectOption> GetValue(CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.GetValue(ElementId, linkedCts.Token);
-    }
-
-    public ValueTask SetCaret(int index, CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.SetCaret(ElementId, index, linkedCts.Token);
-    }
-
-    public ValueTask<bool> IsFull(CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.IsFull(ElementId, linkedCts.Token);
-    }
-
-    public ValueTask ClearCache(CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.ClearCache(ElementId, linkedCts.Token);
-    }
-
-    public ValueTask SetTextboxValue(string str, CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.SetTextboxValue(ElementId, str, linkedCts.Token);
-    }
-
-    public ValueTask Sync(CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.Sync(ElementId, linkedCts.Token);
-    }
-
-    public ValueTask Destroy(CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.Destroy(ElementId, linkedCts.Token);
+        return values;
     }
 
     private TomSelectOption? ToOptionFromItem(TItem item)
@@ -412,15 +256,18 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
     private TItem? ToItemFromValue(string value)
     {
-        foreach (TItem item in Data)
+        if (Data != null)
         {
-            string? result = ToValueFromItem(item);
+            foreach (TItem item in Data)
+            {
+                string? result = ToValueFromItem(item);
 
-            if (result == value)
-                return item;
+                if (result == value)
+                    return item;
+            }
         }
 
-        foreach (TItem item in _userCreatedData)
+        foreach (TItem item in _workingItems)
         {
             string? result = ToValueFromItem(item);
 
@@ -459,18 +306,17 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         if (item == null)
             return;
 
-        if (Items.Contains(item))
-            Items.Remove(item);
+        Items.Remove(item);
     }
 
-    private void OnItemClear_internal()
+    private void OnClearItems_internal()
     {
         Items.Clear();
     }
 
     private bool OnOptionAdd_internal(string value, TomSelectOption data)
     {
-        TomSelectOption? option = _options.FirstOrDefault(c => c.Value == value);
+        TomSelectOption? option = _workingOptions.FirstOrDefault(c => c.Value == value);
 
         if (option != null)
         {
@@ -478,21 +324,21 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             return false;
         }
 
-        _options.Add(data);
+        _workingOptions.Add(data);
         return true;
     }
 
     private void OnOptionRemove_internal(string value)
     {
-        TomSelectOption? option = _options.FirstOrDefault(c => c.Value == value);
+        TomSelectOption? option = _workingOptions.FirstOrDefault(c => c.Value == value);
 
         if (option != null)
-            _options.Remove(option);
+            _workingOptions.Remove(option);
     }
 
     private void OnOptionClear_internal()
     {
-        _options.Clear();
+        _workingOptions.Clear();
     }
 
     private async ValueTask AddEventListeners()
@@ -508,7 +354,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                     jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!
                 );
 
-                OnOptionAdd_internal(parameters.Item1, parameters.Item2);
+                //OnOptionAdd_internal(parameters.Item1, parameters.Item2);
 
                 if (OnOptionAdd.HasDelegate)
                     await OnOptionAdd.InvokeAsync(parameters);
@@ -518,8 +364,6 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             GetJsEventName(nameof(OnOptionRemove)),
             async e =>
             {
-                // OnOptionRemove_Internal();
-
                 if (OnOptionRemove.HasDelegate)
                     await OnOptionRemove.InvokeAsync(e);
             });
@@ -577,15 +421,16 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                     await OnItemSelect.InvokeAsync(e);
             });
 
-        await AddEventListener<string>(
-            GetJsEventName(nameof(OnClear)),
-            async e =>
-            {
-                OnItemClear_internal();
+        // TODO: There's a bug in the JS that raises the clear event when an item is selected 04/04/24
+        //await AddEventListener<string>(
+        //    "clear",
+        //    async e =>
+        //    {
+        //        OnClearItems_internal();
 
-                if (OnClear.HasDelegate)
-                    await OnClear.InvokeAsync();
-            });
+        //        if (OnClearItems.HasDelegate)
+        //            await OnClearItems.InvokeAsync();
+        //    });
 
         if (OnChange.HasDelegate)
         {

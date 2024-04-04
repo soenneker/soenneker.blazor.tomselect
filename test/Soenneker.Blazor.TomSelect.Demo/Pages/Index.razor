@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using Microsoft.Extensions.Logging
+@using Soenneker.Blazor.TomSelect.Base
 @using Soenneker.Blazor.TomSelect.Demo.Dtos
 @using Soenneker.Blazor.TomSelect.Dtos
 @using Soenneker.Extensions.Enumerable
@@ -11,16 +12,20 @@
 <h1>Soenneker.Blazor.TomSelect demo</h1>
 <p>This page demonstrates some of the uses of the TomSelect component.</p>
 
-<h2>Multiple</h2>
-
 @if (_render)
 {
     <TomSelect
-        TItem="Country" TType="string" OnInitialize="OnTomSelectInitialized"
-        OnOptionAdd="OnOptionAdd" OnItemAdd="OnItemAdd"
+        TItem="Country" 
+        TType="string" 
+        OnInitialize="OnTomSelectInitialized"
+        OnOptionAdd="OnOptionAdd" 
+        OnItemAdd="OnItemAdd"
         Data="@_countries"
         TextField="@(item => item.Name)"
-               ValueField="@(item => item.Id.ToString())" @ref="_tomSelect" Items=_selectedItems>
+        ValueField="@(item => item.Id.ToString())" 
+        @ref="_tomSelect"
+        Items=_selectedItems 
+        Multiple="false">
     </TomSelect>
 }
 <br />
@@ -29,20 +34,18 @@
 <button @onclick="AddItem" >AddItem</button>
 <button @onclick="GetSelectedItems" >GetSelectedItems</button>
 <button @onclick="Render" >Render</button>
+<button @onclick="ClearItems">ClearItems</button>
+<button @onclick="ClearOptions">ClearOptions</button>
+<button @onclick="Reinitialize">Reinitialize</button>
+<button @onclick="SetData" >SetData</button>
+
+<button @onclick="OpenModal">Open Modal</button>
 
 <hr />
 
-<h2>Single</h2>
-
-@* <TomSelect TItem="Country" TType="string" Options="Options" OnInitialize="OnTomSelectInitialized"
-           OnOptionAdd="OnOptionAdd" OnItemAdd="OnItemAdd"
-           Data="@_countries"
-           TextField="@(item => item.Name)"
-           ValueField="@(item => item.Id.ToString())" Multiple="false" >
-</TomSelect> *@
-
+<TomSelectModal @ref="_tomSelectModal"></TomSelectModal>
+ 
 @code{
-
     private List<Country>? _countries;
 
     private AutoFaker _autoFaker = default!;
@@ -54,6 +57,8 @@
 
     private bool _render = true;
 
+    private TomSelectModal? _tomSelectModal;
+
     protected override void OnInitialized()
     {
         _autoFaker = new AutoFaker();
@@ -63,13 +68,39 @@
     {
         //_countries = _autoFaker.Generate<Country>(100);
 
+        // await SetData();
+        //_selectedItems = _countries!.Take(2).ToList();
+    }
+
+    private async Task SetData()
+    {
         _countries = await Http.GetFromJsonAsync<List<Country>>("sample-data/countries.json");
-        _selectedItems = _countries!.Take(2).ToList();
+        _selectedItems = _countries!.Take(1).ToList();
+    }
+
+    private async Task OpenModal()
+    {
+        await _tomSelectModal!.Show();
     }
 
     private void OnTomSelectInitialized()
     {
         Logger.LogInformation("OnInitialized called");
+    }
+
+    private async Task ClearItems()
+    {
+        await _tomSelect.ClearItems();
+    }
+
+    private async Task ClearOptions()
+    {
+        await _tomSelect.ClearOptions();
+    }
+
+    private async Task Reinitialize()
+    {
+        await _tomSelect.Reinitialize();
     }
 
     private void Render()
@@ -112,4 +143,3 @@
     }
 
 }
-

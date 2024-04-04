@@ -42,6 +42,16 @@ window.tomSelectInterop = (function () {
         data.forEach(item => tomSelect.addItem(item, silent));
     }
 
+    function clearAndAddOptions(elementId, data, userCreated) {
+        clearOptions(elementId);
+        addOptions(elementId, data, userCreated);
+    }
+
+    function clearAndAddItems(elementId, data, silent) {
+        clearItems(elementId, silent);
+        addItems(elementId, data, silent);
+    }
+
     function setOptions(elementId, options) {
         var tomSelect = tomSelects[elementId];
 
@@ -269,6 +279,8 @@ window.tomSelectInterop = (function () {
         refreshOptions: refreshOptions,
         clearOptions: clearOptions,
         clearItems: clearItems,
+        clearAndAddItems: clearAndAddItems,
+        clearAndAddOptions: clearAndAddOptions,
 
         removeItem: removeItem,
         refreshItems: refreshItems,

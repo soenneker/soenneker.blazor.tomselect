@@ -14,8 +14,6 @@ using Soenneker.Extensions.Enumerable;
 using Soenneker.Blazor.TomSelect.Abstract;
 using Soenneker.Extensions.List;
 using Microsoft.Extensions.Logging;
-using System.Data;
-using Newtonsoft.Json.Linq;
 
 namespace Soenneker.Blazor.TomSelect;
 
@@ -90,6 +88,8 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
             if (_optionsHash != optionsHashCode)
             {
+                //Logger.LogInformation("Setting new options");
+
                 _optionsHash = optionsHashCode;
 
                 List<TomSelectOption> tomSelectOptions = ConvertItemsToOptions(Data);
@@ -102,6 +102,8 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
         if (_itemsHash != itemsHashCode)
         {
+            //Logger.LogInformation("Setting new items");
+
             _itemsHash = itemsHashCode;
 
             List<string> values = ConvertItemsToListString(Items);

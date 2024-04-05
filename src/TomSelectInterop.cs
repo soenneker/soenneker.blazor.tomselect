@@ -1,5 +1,4 @@
 using Soenneker.Blazor.TomSelect.Abstract;
-using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System.Threading.Tasks;
 using Soenneker.Blazor.Utils.EventListeningInterop;
@@ -16,11 +15,8 @@ namespace Soenneker.Blazor.TomSelect;
 /// <inheritdoc cref="ITomSelectInterop"/>
 public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
 {
-    private readonly ILogger<TomSelectInterop> _logger;
-
-    public TomSelectInterop(IJSRuntime jSRuntime, ILogger<TomSelectInterop> logger) : base(jSRuntime)
+    public TomSelectInterop(IJSRuntime jSRuntime) : base(jSRuntime)
     {
-        _logger = logger;
     }
 
     public ValueTask Create(ElementReference elementReference, string elementId, DotNetObjectReference<BaseTomSelect> dotNetObjectRef, TomSelectConfiguration? configuration = null, CancellationToken cancellationToken = default)
@@ -103,7 +99,6 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
         return JsRuntime.InvokeVoidAsync("tomSelectInterop.refreshItems", cancellationToken, elementId);
     }
 
-    // Optgroup Methods
     public ValueTask AddOptionGroup(string elementId, string id, object data, CancellationToken cancellationToken = default)
     {
         return JsRuntime.InvokeVoidAsync("tomSelectInterop.addOptionGroup", cancellationToken, elementId, id, data);
@@ -119,7 +114,6 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
         return JsRuntime.InvokeVoidAsync("tomSelectInterop.clearOptionGroups", cancellationToken, elementId);
     }
 
-    // Dropdown Methods
     public ValueTask OpenDropdown(string elementId, CancellationToken cancellationToken = default)
     {
         return JsRuntime.InvokeVoidAsync("tomSelectInterop.open", cancellationToken, elementId);
@@ -145,8 +139,6 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
         return JsRuntime.InvokeVoidAsync("tomSelectInterop.blur", cancellationToken, elementId);
     }
 
-
-    // Lock and Unlock Methods
     public ValueTask Lock(string elementId, CancellationToken cancellationToken = default)
     {
         return JsRuntime.InvokeVoidAsync("tomSelectInterop.lock", cancellationToken, elementId);
@@ -157,7 +149,6 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
         return JsRuntime.InvokeVoidAsync("tomSelectInterop.unlock", cancellationToken, elementId);
     }
 
-    // Enable and Disable Methods
     public ValueTask Enable(string elementId, CancellationToken cancellationToken = default)
     {
         return JsRuntime.InvokeVoidAsync("tomSelectInterop.enable", cancellationToken, elementId);
@@ -168,7 +159,6 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
         return JsRuntime.InvokeVoidAsync("tomSelectInterop.disable", cancellationToken, elementId);
     }
 
-    // Value Management Methods
     public ValueTask SetValue(string elementId, TomSelectOption value, bool silent = false, CancellationToken cancellationToken = default)
     {
         return JsRuntime.InvokeVoidAsync("tomSelectInterop.setValue", cancellationToken, elementId, value, silent);
@@ -179,7 +169,6 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
         return JsRuntime.InvokeAsync<TomSelectOption>("tomSelectInterop.getValue", cancellationToken, elementId);
     }
 
-    // Caret and Item Management Methods
     public ValueTask SetCaret(string elementId, int index, CancellationToken cancellationToken = default)
     {
         return JsRuntime.InvokeVoidAsync("tomSelectInterop.setCaret", cancellationToken, elementId, index);
@@ -190,7 +179,6 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
         return JsRuntime.InvokeAsync<bool>("tomSelectInterop.isFull", cancellationToken, elementId);
     }
 
-    // Cache and Textbox Value Methods
     public ValueTask ClearCache(string elementId, CancellationToken cancellationToken = default)
     {
         return JsRuntime.InvokeVoidAsync("tomSelectInterop.clearCache", cancellationToken, elementId);
@@ -201,7 +189,6 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
         return JsRuntime.InvokeVoidAsync("tomSelectInterop.setTextboxValue", cancellationToken, elementId, str);
     }
 
-    // Synchronization Method
     public ValueTask Sync(string elementId, CancellationToken cancellationToken = default)
     {
         return JsRuntime.InvokeVoidAsync("tomSelectInterop.sync", cancellationToken, elementId);

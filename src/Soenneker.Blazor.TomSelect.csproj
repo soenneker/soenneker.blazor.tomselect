@@ -43,7 +43,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.4" />
-        <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="2.1.852" />
+        <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="2.1.857" />
         <PackageReference Include="Soenneker.Extensions.List" Version="2.1.229" />
         <PackageReference Include="Soenneker.Extensions.String" Version="2.1.142" />
     </ItemGroup>

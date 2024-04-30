@@ -84,11 +84,11 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
         if (Data != null)
         {
-            int optionsHashCode = Data.GetHashCode();
+            int optionsHashCode = Data.GetAggregateHashCode();
 
             if (_optionsHash != optionsHashCode)
             {
-                //Logger.LogInformation("Setting new options");
+                //Logger.LogDebug("Setting new options");
 
                 _optionsHash = optionsHashCode;
 
@@ -98,11 +98,11 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             }
         }
 
-        int itemsHashCode = Items.GetHashCode();
+        int itemsHashCode = Items.GetAggregateHashCode();
 
         if (_itemsHash != itemsHashCode)
         {
-            //Logger.LogInformation("Setting new items");
+            //Logger.LogDebug("Setting new items");
 
             _itemsHash = itemsHashCode;
 
@@ -122,12 +122,12 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
     private async ValueTask Initialize()
     {
-        _itemsHash = Items.GetHashCode();
+        _itemsHash = Items.GetAggregateHashCode();
 
         if (Data == null)
             return;
 
-        _optionsHash = Data.GetHashCode();
+        _optionsHash = Data.GetAggregateHashCode();
 
         if (Data.Any())
         {
@@ -352,7 +352,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             {
                 JsonDocument jsonDocument = JsonDocument.Parse(e);
                 (string, TomSelectOption) parameters = (
-                    jsonDocument.RootElement[0].Deserialize<string>(),
+                    jsonDocument.RootElement[0].Deserialize<string>()!,
                     jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!
                 );
 
@@ -389,7 +389,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             {
                 JsonDocument jsonDocument = JsonDocument.Parse(e);
                 (string, TomSelectOption) parameters = (
-                    jsonDocument.RootElement[0].Deserialize<string>(),
+                    jsonDocument.RootElement[0].Deserialize<string>()!,
                     jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!
                 );
 
@@ -405,7 +405,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             {
                 JsonDocument jsonDocument = JsonDocument.Parse(e);
                 (string, TomSelectOption) parameters = (
-                    jsonDocument.RootElement[0].Deserialize<string>(),
+                    jsonDocument.RootElement[0].Deserialize<string>()!,
                     jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!
                 );
 
@@ -463,7 +463,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                 {
                     JsonDocument jsonDocument = JsonDocument.Parse(e);
                     (string, TomSelectOption) parameters = (
-                        jsonDocument.RootElement[0].Deserialize<string>(),
+                        jsonDocument.RootElement[0].Deserialize<string>()!,
                         jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!
                     );
 

@@ -88,9 +88,10 @@
         Logger.LogInformation("OnInitialized called");
     }
 
-    private async Task ClearItems()
+    private void ClearItems()
     {
-        await _tomSelect.ClearItems();
+        // await _tomSelect.ClearItems();
+        _selectedItems.Clear();
     }
 
     private async Task ClearOptions()
@@ -120,7 +121,7 @@
 
     private async Task AddItem()
     {
-        await _tomSelect.AddItem(_tomSelect.Data.GetRandom().Id.ToString());
+        await _tomSelect.AddItem(_tomSelect.Data.GetRandom()!.Id.ToString());
     }
 
     private async Task AddOption()

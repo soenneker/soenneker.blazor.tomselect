@@ -162,7 +162,7 @@ public class TomSelectConfiguration
     public List<TomSelectOption>? OptGroups { get; set; }
 
     /// <summary>
-    /// The <option> attribute from which to read JSON data about the option.
+    /// The option attribute from which to read JSON data about the option.
     /// </summary>
     [JsonPropertyName("dataAttr")]
     public string? DataAttr { get; set; } = null;

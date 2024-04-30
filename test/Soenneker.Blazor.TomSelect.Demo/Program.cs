@@ -72,7 +72,7 @@ public class Program
 
     private static void SetGlobalLogger(IJSRuntime jsRuntime)
     {
-        var logEventLevel = LogEventLevel.Verbose;
+        const LogEventLevel logEventLevel = LogEventLevel.Verbose;
 
         var loggerConfig = new LoggerConfiguration();
         loggerConfig.MinimumLevel.Is(logEventLevel);

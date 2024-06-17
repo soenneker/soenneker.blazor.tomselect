@@ -14,6 +14,8 @@ using Soenneker.Extensions.Enumerable;
 using Soenneker.Blazor.TomSelect.Abstract;
 using Soenneker.Extensions.List;
 using Microsoft.Extensions.Logging;
+using Soenneker.Extensions.ValueTask;
+using System.Runtime.InteropServices;
 
 namespace Soenneker.Blazor.TomSelect;
 
@@ -29,14 +31,20 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     [Parameter, EditorRequired]
     public Func<TItem, string?> ValueField { get; set; } = default!;
 
+    [Parameter]
+    public Func<string, TItem>? CreateFunc { get; set; }
+
     [Parameter(CaptureUnmatchedValues = true)]
-    public Dictionary<string, object>? Attributes { get; set; }
+    public Dictionary<string, object?>? Attributes { get; set; }
 
     [Parameter]
     public TomSelectConfiguration Configuration { get; set; } = new();
 
     [Parameter]
     public bool Multiple { get; set; } = true;
+
+    [Parameter]
+    public bool Create { get; set; }
 
     [Parameter]
     public List<TItem> Items { get; set; } = default!;
@@ -48,7 +56,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     private bool _isDataSet;
 
     /// <summary>
-    /// I don't think we should modify the reference of Data when AddOption() is called, thus the reason for this var
+    /// We have this list because we don't want to modify the reference of <see cref="Data"></see> when <see cref="AddOption(TItem, bool, CancellationToken)"/> is called
     /// </summary>
     private readonly List<TItem> _workingItems = [];
 
@@ -63,7 +71,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
             _isDataSet = false;
             InteropEventListener.Initialize(TomSelectInterop);
-            await Create();
+            await Initialize();
             _isCreated = true;
         }
 
@@ -71,7 +79,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         {
             _isDataSet = true;
 
-            await Initialize();
+            await InitializeInternal();
         }
 
         await base.OnAfterRenderAsync(firstRender);
@@ -117,10 +125,10 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
         await ClearOptions();
 
-        await Initialize();
+        await InitializeInternal();
     }
 
-    private async ValueTask Initialize()
+    private async ValueTask InitializeInternal()
     {
         _itemsHash = Items.GetAggregateHashCode();
 
@@ -138,19 +146,20 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         }
     }
 
-    public async ValueTask Create(TomSelectConfiguration? configuration = null, CancellationToken cancellationToken = default)
+    public async ValueTask Initialize(TomSelectConfiguration? configuration = null, CancellationToken cancellationToken = default)
     {
         if (configuration != null)
-        {
             Configuration = configuration;
-        }
+
+        if (Create)
+            Configuration.Create = true;
 
         DotNetReference = DotNetObjectReference.Create((BaseTomSelect) this);
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        await TomSelectInterop.Create(ElementReference, ElementId, DotNetReference, Configuration, linkedCts.Token);
+        await TomSelectInterop.Initialize(ElementReference, ElementId, DotNetReference, Configuration, linkedCts.Token);
 
-        await AddEventListeners();
+        await AddEventListeners().NoSync();
     }
 
     public ValueTask AddOption(TItem item, bool userCreated = true, CancellationToken cancellationToken = default)
@@ -290,15 +299,45 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         return TextField.Invoke(item);
     }
 
-    private void OnItemAdd_internal(string value)
+    private TItem CreateItemFromValue(string text)
+    {
+        if (CreateFunc == null)
+            throw new Exception("Cannot create a new item without `CreateFunc` being defined on the TomSelect");
+
+        return CreateFunc!.Invoke(text);
+    }
+
+    private async ValueTask OnItemAdd_internal(string value)
     {
         TItem? item = ToItemFromValue(value);
 
         if (item == null)
+        {
+            await OnItemCreated_internal(value);
             return;
+        }
 
         if (!Items.Contains(item))
             Items.Add(item);
+    }
+
+    private async ValueTask OnItemCreated_internal(string value)
+    {
+        TItem item = CreateItemFromValue(value);
+        _workingItems.Add(item);
+        Items.Add(item);
+
+        // Unfortunately we need to remove the option (stored via value) so we can re-add the properly built one from the component
+        await RemoveOption(value);
+        await AddOption(item, false);
+
+        if (OnItemCreated.HasDelegate)
+        {
+            TomSelectOption? newOption = ToOptionFromItem(item);
+
+            if (newOption != null)
+                await OnItemCreated.InvokeAsync((value, newOption));
+        }
     }
 
     private void OnItemRemove_Internal(string value)
@@ -393,7 +432,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                     jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!
                 );
 
-                OnItemAdd_internal(parameters.Item1);
+                await OnItemAdd_internal(parameters.Item1);
 
                 if (OnItemAdd.HasDelegate)
                     await OnItemAdd.InvokeAsync(parameters);
@@ -415,12 +454,19 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                     await OnItemRemove.InvokeAsync(parameters);
             });
 
-        await AddEventListener<TomSelectOption>(
+        await AddEventListener<string>(
             GetJsEventName(nameof(OnItemSelect)),
             async e =>
             {
-                if (OnItemSelect.HasDelegate)
-                    await OnItemSelect.InvokeAsync(e);
+                TItem? item = ToItemFromValue(e);
+
+                if (item != null)
+                {
+                    TomSelectOption? option = ToOptionFromItem(item);
+
+                    if (OnItemSelect.HasDelegate)
+                        await OnItemSelect.InvokeAsync(option);
+                }
             });
 
         // TODO: There's a bug in the JS that raises the clear event when an item is selected 04/04/24
@@ -517,7 +563,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         {
             await AddEventListener<string>(
                 GetJsEventName(nameof(OnDestroy)),
-                async (e) => { await OnDestroy.InvokeAsync(); });
+                async e => { await OnDestroy.InvokeAsync(); });
         }
     }
 

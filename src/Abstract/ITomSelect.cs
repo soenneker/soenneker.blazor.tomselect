@@ -3,6 +3,7 @@ using System.Threading;
 using Soenneker.Blazor.TomSelect.Configuration;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
+using System;
 
 namespace Soenneker.Blazor.TomSelect.Abstract;
 
@@ -24,12 +25,24 @@ public interface ITomSelect<TItem, TSource>
     /// </summary>
     List<TItem> Items { get; set; }
 
+    Func<TItem, string?> TextField { get; set; }
+
+    Func<TItem, string?> ValueField { get; set; }
+
+    Dictionary<string, object?>? Attributes { get; set; }
+
+    TomSelectConfiguration Configuration { get; set; }
+
+    bool Multiple { get; set; }
+
+    bool Create { get; set; }
+
     /// <summary>
     /// Creates the TomSelect component with the specified configuration.
     /// </summary>
     /// <param name="configuration">The configuration for the TomSelect component. (Optional)</param>
     /// <param name="cancellationToken">The cancellation token to cancel the operation. (Optional)</param>
-    ValueTask Create(TomSelectConfiguration? configuration = null, CancellationToken cancellationToken = default);
+    ValueTask Initialize(TomSelectConfiguration? configuration = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Adds a single option to the TomSelect component.

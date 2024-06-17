@@ -1,6 +1,5 @@
 ﻿@page "/"
 @using Microsoft.Extensions.Logging
-@using Soenneker.Blazor.TomSelect.Base
 @using Soenneker.Blazor.TomSelect.Demo.Dtos
 @using Soenneker.Blazor.TomSelect.Dtos
 @using Soenneker.Extensions.Enumerable
@@ -15,17 +14,19 @@
 @if (_render)
 {
     <TomSelect
-        TItem="Country" 
-        TType="string" 
+        TItem="Country"
+        TType="string"
         OnInitialize="OnTomSelectInitialized"
-        OnOptionAdd="OnOptionAdd" 
+        OnOptionAdd="OnOptionAdd"
         OnItemAdd="OnItemAdd"
         Data="@_countries"
-        TextField="@(item => item.Name)"
-        ValueField="@(item => item.Id.ToString())" 
+        TextField="item => item.Name"
+        ValueField="item => item.Id.ToString()"
+        CreateFunc="text => new Country{Name = text, Id = 123}"
         @ref="_tomSelect"
-        Items=_selectedItems 
-        Multiple="false">
+        Items=_selectedItems
+        Multiple="true"
+        Create="true" >
     </TomSelect>
 }
 <br />
@@ -34,23 +35,23 @@
 <button @onclick="AddItem" >AddItem</button>
 <button @onclick="GetSelectedItems" >GetSelectedItems</button>
 <button @onclick="Render" >Render</button>
-<button @onclick="ClearItems">ClearItems</button>
-<button @onclick="ClearOptions">ClearOptions</button>
-<button @onclick="Reinitialize">Reinitialize</button>
+<button @onclick="ClearItems" >ClearItems</button>
+<button @onclick="ClearOptions" >ClearOptions</button>
+<button @onclick="Reinitialize" >Reinitialize</button>
 <button @onclick="SetData" >SetData</button>
 
-<button @onclick="OpenModal">Open Modal</button>
+<button @onclick="OpenModal" >Open Modal</button>
 
 <hr />
 
-<TomSelectModal @ref="_tomSelectModal"></TomSelectModal>
- 
+<TomSelectModal @ref="_tomSelectModal" ></TomSelectModal>
+
 @code{
     private List<Country>? _countries;
 
     private AutoFaker _autoFaker = default!;
 
-    private List<TomSelectOption>? _options;
+   // private List<TomSelectOption>? _options;
     private List<Country> _selectedItems = [];
 
     private TomSelect<Country, string> _tomSelect = default!;

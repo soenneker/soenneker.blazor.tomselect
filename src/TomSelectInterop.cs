@@ -19,7 +19,7 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
     {
     }
 
-    public ValueTask Create(ElementReference elementReference, string elementId, DotNetObjectReference<BaseTomSelect> dotNetObjectRef, TomSelectConfiguration? configuration = null, CancellationToken cancellationToken = default)
+    public ValueTask Initialize(ElementReference elementReference, string elementId, DotNetObjectReference<BaseTomSelect> dotNetObjectRef, TomSelectConfiguration? configuration = null, CancellationToken cancellationToken = default)
     {
         string? json = null;
 

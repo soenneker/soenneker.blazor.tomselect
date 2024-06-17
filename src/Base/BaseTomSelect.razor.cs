@@ -33,23 +33,14 @@ public partial class BaseTomSelect : ComponentBase, IBaseTomSelect
     /// <summary>
     /// Destroys the element.
     /// </summary>
-    public ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         GC.SuppressFinalize(this);
 
         DotNetReference?.Dispose();
         InteropEventListener.DisposeForElement(ElementId);
-        CTs.Cancel();
-        return TomSelectInterop.Destroy(ElementId);
-    }
 
-    public void Dispose()
-    {
-        GC.SuppressFinalize(this);
-
-        DotNetReference?.Dispose();
-        InteropEventListener.DisposeForElement(ElementId);
-        CTs.Cancel();
-        TomSelectInterop.Destroy(ElementId);
+        await CTs.CancelAsync();
+        await TomSelectInterop.Destroy(ElementId);
     }
 }

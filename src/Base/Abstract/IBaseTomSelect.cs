@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Threading;
 using Soenneker.Blazor.TomSelect.Dtos;
 using Microsoft.AspNetCore.Components;
@@ -10,9 +9,8 @@ namespace Soenneker.Blazor.TomSelect.Base.Abstract;
 /// Represents the base object for TomSelect.
 /// </summary>
 /// <remarks>We need a base object because we have generic type parameters on TomSelect.</remarks>
-public interface IBaseTomSelect : IDisposable, IAsyncDisposable
+public interface IBaseTomSelect
 {
-
     #region Events
 
     /// <summary>
@@ -39,6 +37,8 @@ public interface IBaseTomSelect : IDisposable, IAsyncDisposable
     /// Event triggered when an item is added to the component.
     /// </summary>
     EventCallback<(string Value, TomSelectOption Item)> OnItemAdd { get; set; }
+
+    EventCallback<(string Value, TomSelectOption Item)> OnItemCreated { get; set; }
 
     /// <summary>
     /// Event triggered when an item is removed from the component.

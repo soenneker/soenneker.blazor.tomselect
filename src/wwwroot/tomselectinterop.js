@@ -218,7 +218,14 @@ window.tomSelectInterop = (function () {
     function addEventListener(elementId, eventName, dotNetCallback) {
         var tomSelect = tomSelects[elementId];
         tomSelect.on(eventName, function (...args) {
-            var json = getJsonFromArguments(...args);
+
+            if (eventName === "item_select") {
+                return dotNetCallback.invokeMethodAsync("Invoke", args[0].textContent);
+            }
+            else {
+                var json = getJsonFromArguments(...args);
+                var event = eventName;
+            }
 
             return dotNetCallback.invokeMethodAsync("Invoke", json);
         });

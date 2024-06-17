@@ -17,7 +17,7 @@ public class TomSelectConfiguration
 
     /// <summary>
     /// Determines if the user is allowed to create new items that aren't in the initial list of options.
-    /// This setting can be true, false, or a function.
+    /// This setting can be true or false.
     /// </summary>
     [JsonPropertyName("create")]
     public bool Create { get; set; } = false;

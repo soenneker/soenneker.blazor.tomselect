@@ -7,6 +7,7 @@ using Soenneker.Blazor.TomSelect.Base.Abstract;
 using Soenneker.Blazor.Utils.InteropEventListener.Abstract;
 using Soenneker.Blazor.TomSelect.Abstract;
 using Microsoft.Extensions.Logging;
+using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 
 namespace Soenneker.Blazor.TomSelect.Base;
 

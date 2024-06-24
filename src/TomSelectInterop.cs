@@ -209,4 +209,9 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
     {
         return JsRuntime.InvokeVoidAsync("TomSelectInterop.sync", cancellationToken, elementId);
     }
+
+    public ValueTask DisposeAsync()
+    {
+        return _moduleImportUtil.DisposeModule("Soenneker.Blazor.TomSelect/js/tomselectinterop.js");
+    }
 }

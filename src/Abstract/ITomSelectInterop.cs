@@ -7,13 +7,14 @@ using System.Collections.Generic;
 using Soenneker.Blazor.TomSelect.Configuration;
 using Soenneker.Blazor.TomSelect.Dtos;
 using Soenneker.Blazor.TomSelect.Base;
+using System;
 
 namespace Soenneker.Blazor.TomSelect.Abstract;
 
 /// <summary>
 /// A Blazor interop library for the select user control library, Tom Select
 /// </summary>
-public interface ITomSelectInterop : IEventListeningInterop
+public interface ITomSelectInterop : IEventListeningInterop, IAsyncDisposable
 {
     ValueTask CreateObserver(string elementId, CancellationToken cancellationToken = default);
 

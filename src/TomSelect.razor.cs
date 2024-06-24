@@ -15,7 +15,6 @@ using Soenneker.Blazor.TomSelect.Abstract;
 using Soenneker.Extensions.List;
 using Microsoft.Extensions.Logging;
 using Soenneker.Extensions.ValueTask;
-using System.Runtime.InteropServices;
 
 namespace Soenneker.Blazor.TomSelect;
 
@@ -62,6 +61,11 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
     private readonly List<TomSelectOption> _workingOptions = [];
 
+    protected override async Task OnInitializedAsync()
+    {
+        await TomSelectInterop.Initialize();
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -81,8 +85,6 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
             await InitializeInternal();
         }
-
-        await base.OnAfterRenderAsync(firstRender);
     }
 
     protected override async Task OnParametersSetAsync()
@@ -157,7 +159,8 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         DotNetReference = DotNetObjectReference.Create((BaseTomSelect) this);
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        await TomSelectInterop.Initialize(ElementReference, ElementId, DotNetReference, Configuration, linkedCts.Token);
+        await TomSelectInterop.Create(ElementReference, ElementId, DotNetReference, Configuration, linkedCts.Token);
+        await TomSelectInterop.CreateObserver(ElementId, cancellationToken);
 
         await AddEventListeners().NoSync();
     }
@@ -577,7 +580,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
     private ValueTask AddEventListener<T>(string eventName, Func<T, ValueTask> callback)
     {
-        return InteropEventListener.Add("tomSelectInterop.addEventListener", ElementId, eventName, callback, CTs.Token);
+        return InteropEventListener.Add("TomSelectInterop.addEventListener", ElementId, eventName, callback, CTs.Token);
     }
 
     [JSInvokable("OnInitializedJs")]

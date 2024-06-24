@@ -15,7 +15,11 @@ namespace Soenneker.Blazor.TomSelect.Abstract;
 /// </summary>
 public interface ITomSelectInterop : IEventListeningInterop
 {
-    ValueTask Initialize(ElementReference elementReference, string elementId, DotNetObjectReference<BaseTomSelect> dotNetObjectRef, TomSelectConfiguration? configuration = null,  CancellationToken cancellationToken = default);
+    ValueTask CreateObserver(string elementId, CancellationToken cancellationToken = default);
+
+    ValueTask Initialize(CancellationToken cancellationToken = default);
+
+    ValueTask Create(ElementReference elementReference, string elementId, DotNetObjectReference<BaseTomSelect> dotNetObjectRef, TomSelectConfiguration? configuration = null,  CancellationToken cancellationToken = default);
 
     ValueTask AddOption(string elementId, TomSelectOption tomSelectOption, bool userCreated = true, CancellationToken cancellationToken = default);
 

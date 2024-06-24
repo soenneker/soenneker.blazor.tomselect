@@ -41,7 +41,7 @@ public class Program
 
             WebAssemblyHost host = builder.Build();
 
-            var jsRuntime = (IJSRuntime)host.Services.GetService(typeof(IJSRuntime))!;
+            var jsRuntime = (IJSRuntime) host.Services.GetService(typeof(IJSRuntime))!;
 
             SetGlobalLogger(jsRuntime);
 

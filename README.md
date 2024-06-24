@@ -15,13 +15,7 @@ Diligence was taken to align the Blazor API with JS. Refer to the [Tom Select do
 dotnet add package Soenneker.Blazor.TomSelect
 ```
 
-### 1. Add the following to your `_Imports.razor` file
-
-```razor
-@using Soenneker.Blazor.TomSelect
-```
-
-### 2. Add the following to your `Startup.cs` file
+### Add the following to your `Startup.cs` file
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
@@ -30,22 +24,11 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
-### 3. Add the stylesheet to your `wwwroot/index.html` file
-
-```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap5.min.css">
-```
-
-### 4. Add the scripts to your `wwwroot/index.html` file
-
-```html
-<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
-<script src="_content/Soenneker.Blazor.TomSelect/tomselectinterop.js"></script>
-```
-
 ## Usage
 
 ```razor
+@using Soenneker.Blazor.TomSelect
+
 <TomSelect
     TItem="Country" TType="string" OnItemAdd="OnItemAdd"
     Data="@_countries"

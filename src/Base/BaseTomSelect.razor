@@ -1,5 +1,4 @@
 ﻿@using System.Threading
-@using Microsoft.AspNetCore.Components.Routing
 @using Microsoft.Extensions.Logging
 @using Soenneker.Blazor.TomSelect.Abstract
 @using Soenneker.Blazor.TomSelect.Dtos
@@ -9,7 +8,6 @@
 @inject ITomSelectInterop _tomSelectInterop
 @inject IInteropEventListener _interopEventListener
 @inject ILogger<BaseTomSelect> _logger
-@inject NavigationManager Navigation
 @* ReSharper restore InconsistentNaming *@
 
 @code {
@@ -83,14 +81,7 @@
         TomSelectInterop = _tomSelectInterop;
         Logger = _logger;
 
-        Navigation.RegisterLocationChangingHandler(OnLocationChanging);
-
         base.OnInitialized();
-    }
-
-    private ValueTask OnLocationChanging(LocationChangingContext context)
-    {
-        return DisposeAsync();
     }
 
     public virtual ValueTask Reinitialize()

@@ -10,6 +10,7 @@ using Soenneker.Blazor.TomSelect.Configuration;
 using Soenneker.Blazor.TomSelect.Dtos;
 using Soenneker.Blazor.TomSelect.Base;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
+using Soenneker.Utils.AsyncSingleton;
 
 namespace Soenneker.Blazor.TomSelect;
 
@@ -17,15 +18,25 @@ namespace Soenneker.Blazor.TomSelect;
 public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
 {
     private readonly IModuleImportUtil _moduleImportUtil;
+    private readonly AsyncSingleton<object> _scriptInitializer;
 
     public TomSelectInterop(IJSRuntime jSRuntime, IModuleImportUtil moduleImportUtil) : base(jSRuntime)
     {
         _moduleImportUtil = moduleImportUtil;
+
+        _scriptInitializer = new AsyncSingleton<object>(async objects => {
+
+            var cancellationToken = (CancellationToken)objects[0];
+
+            await _moduleImportUtil.Import("Soenneker.Blazor.TomSelect/tomselectinterop.js", cancellationToken);
+
+            return new object();
+        });
     }
 
     public async ValueTask Initialize(CancellationToken cancellationToken = default)
     {
-        await _moduleImportUtil.Import("Soenneker.Blazor.TomSelect/js/tomselectinterop.js", cancellationToken);
+        await _scriptInitializer.Get(cancellationToken);
     }
 
     public ValueTask CreateObserver(string elementId, CancellationToken cancellationToken = default)
@@ -35,9 +46,9 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
 
     public async ValueTask Create(ElementReference elementReference, string elementId, DotNetObjectReference<BaseTomSelect> dotNetObjectRef, TomSelectConfiguration? configuration = null, CancellationToken cancellationToken = default)
     {
-        await _moduleImportUtil.WaitUntilLoaded("Soenneker.Blazor.TomSelect/js/tomselectinterop.js", cancellationToken);
+        await _moduleImportUtil.WaitUntilLoadedAndAvailable("Soenneker.Blazor.TomSelect/tomselectinterop.js", "TomSelectInterop", 100, cancellationToken);
 
-        string? json = null;
+        string ? json = null;
 
         if (configuration != null)
             json = JsonUtil.Serialize(configuration);
@@ -212,6 +223,6 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
 
     public ValueTask DisposeAsync()
     {
-        return _moduleImportUtil.DisposeModule("Soenneker.Blazor.TomSelect/js/tomselectinterop.js");
+        return _moduleImportUtil.DisposeModule("Soenneker.Blazor.TomSelect/tomselectinterop.js");
     }
 }

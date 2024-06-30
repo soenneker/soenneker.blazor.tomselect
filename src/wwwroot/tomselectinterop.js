@@ -1,5 +1,3 @@
-import '../Soenneker.Blazor.Utils.ResourceLoader/resourceloader.js';
-
 export class TomSelectInterop {
     constructor() {
         this.tomSelects = {};
@@ -7,10 +5,6 @@ export class TomSelectInterop {
     }
 
     async create(element, elementId, options, dotNetCallback) {
-        await ResourceLoader.loadCss('https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css', "sha256-4MwGlgBoHJALXjs2YKZb4sMqhSw7+yMymHAoa0cwJGE=");
-        await ResourceLoader.loadScript('https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js', "sha256-KNeF6xW5o/tW1oae5XlS4JCNADoM+RHqrnoUqL6pvHY=");
-        await ResourceLoader.waitForVariable("TomSelect");
-
         let tomSelect;
 
         if (options) {

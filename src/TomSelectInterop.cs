@@ -9,26 +9,29 @@ using System.Collections.Generic;
 using Soenneker.Blazor.TomSelect.Configuration;
 using Soenneker.Blazor.TomSelect.Dtos;
 using Soenneker.Blazor.TomSelect.Base;
-using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Utils.AsyncSingleton;
+using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
+using Soenneker.Extensions.ValueTask;
 
 namespace Soenneker.Blazor.TomSelect;
 
 /// <inheritdoc cref="ITomSelectInterop"/>
 public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
 {
-    private readonly IModuleImportUtil _moduleImportUtil;
+    private readonly IResourceLoader _resourceLoader;
     private readonly AsyncSingleton<object> _scriptInitializer;
 
-    public TomSelectInterop(IJSRuntime jSRuntime, IModuleImportUtil moduleImportUtil) : base(jSRuntime)
+    public TomSelectInterop(IJSRuntime jSRuntime, IResourceLoader resourceLoader) : base(jSRuntime)
     {
-        _moduleImportUtil = moduleImportUtil;
+        _resourceLoader = resourceLoader;
 
-        _scriptInitializer = new AsyncSingleton<object>(async objects => {
+        _scriptInitializer = new AsyncSingleton<object>(async objects =>
+        {
+            var cancellationToken = (CancellationToken) objects[0];
 
-            var cancellationToken = (CancellationToken)objects[0];
-
-            await _moduleImportUtil.Import("Soenneker.Blazor.TomSelect/tomselectinterop.js", cancellationToken);
+            await _resourceLoader.ImportModuleAndWaitUntilAvailable("Soenneker.Blazor.TomSelect/tomselectinterop.js", "TomSelectInterop", 100, cancellationToken).NoSync();
+            await _resourceLoader.LoadStyle("https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css", "sha256-4MwGlgBoHJALXjs2YKZb4sMqhSw7+yMymHAoa0cwJGE=", cancellationToken).NoSync();
+            await _resourceLoader.LoadScriptAndWaitForVariable("https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js", "TomSelect", "sha256-KNeF6xW5o/tW1oae5XlS4JCNADoM+RHqrnoUqL6pvHY=", cancellationToken).NoSync();
 
             return new object();
         });
@@ -44,11 +47,12 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
         return JsRuntime.InvokeVoidAsync("TomSelectInterop.createObserver", cancellationToken, elementId);
     }
 
-    public async ValueTask Create(ElementReference elementReference, string elementId, DotNetObjectReference<BaseTomSelect> dotNetObjectRef, TomSelectConfiguration? configuration = null, CancellationToken cancellationToken = default)
+    public async ValueTask Create(ElementReference elementReference, string elementId, DotNetObjectReference<BaseTomSelect> dotNetObjectRef, TomSelectConfiguration? configuration = null,
+        CancellationToken cancellationToken = default)
     {
-        await _moduleImportUtil.WaitUntilLoadedAndAvailable("Soenneker.Blazor.TomSelect/tomselectinterop.js", "TomSelectInterop", 100, cancellationToken);
+        await _scriptInitializer.Get(cancellationToken).NoSync();
 
-        string ? json = null;
+        string? json = null;
 
         if (configuration != null)
             json = JsonUtil.Serialize(configuration);
@@ -223,6 +227,6 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
 
     public ValueTask DisposeAsync()
     {
-        return _moduleImportUtil.DisposeModule("Soenneker.Blazor.TomSelect/tomselectinterop.js");
+        return _resourceLoader.DisposeModule("Soenneker.Blazor.TomSelect/tomselectinterop.js");
     }
 }

@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Soenneker.Blazor.TomSelect.Abstract;
 using Soenneker.Blazor.Utils.InteropEventListener.Registrars;
-using Soenneker.Blazor.Utils.ModuleImport.Registrars;
+using Soenneker.Blazor.Utils.ResourceLoader.Registrars;
 
 namespace Soenneker.Blazor.TomSelect.Registrars;
 
@@ -16,7 +16,7 @@ public static class TomSelectRegistrar
     /// </summary>
     public static void AddTomSelect(this IServiceCollection services)
     {
-        services.AddModuleImportUtil();
+        services.AddResourceLoader();
         services.TryAddSingleton<ITomSelectInterop, TomSelectInterop>();
         services.AddInteropEventListener();
     }

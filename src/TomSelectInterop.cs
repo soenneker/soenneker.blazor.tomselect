@@ -25,13 +25,11 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
     {
         _resourceLoader = resourceLoader;
 
-        _scriptInitializer = new AsyncSingleton<object>(async objects =>
+        _scriptInitializer = new AsyncSingleton<object>(async (token, _) =>
         {
-            var cancellationToken = (CancellationToken) objects[0];
-
-            await _resourceLoader.ImportModuleAndWaitUntilAvailable("Soenneker.Blazor.TomSelect/tomselectinterop.js", "TomSelectInterop", 100, cancellationToken).NoSync();
-            await _resourceLoader.LoadStyle("https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css", "sha256-4MwGlgBoHJALXjs2YKZb4sMqhSw7+yMymHAoa0cwJGE=", cancellationToken).NoSync();
-            await _resourceLoader.LoadScriptAndWaitForVariable("https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js", "TomSelect", "sha256-KNeF6xW5o/tW1oae5XlS4JCNADoM+RHqrnoUqL6pvHY=", cancellationToken).NoSync();
+            await _resourceLoader.ImportModuleAndWaitUntilAvailable("Soenneker.Blazor.TomSelect/tomselectinterop.js", "TomSelectInterop", 100, token).NoSync();
+            await _resourceLoader.LoadStyle("https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css", "sha256-4MwGlgBoHJALXjs2YKZb4sMqhSw7+yMymHAoa0cwJGE=", token).NoSync();
+            await _resourceLoader.LoadScriptAndWaitForVariable("https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js", "TomSelect", "sha256-KNeF6xW5o/tW1oae5XlS4JCNADoM+RHqrnoUqL6pvHY=", token).NoSync();
 
             return new object();
         });
@@ -39,7 +37,7 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
 
     public async ValueTask Initialize(CancellationToken cancellationToken = default)
     {
-        await _scriptInitializer.Get(cancellationToken);
+        await _scriptInitializer.Get(cancellationToken).NoSync();
     }
 
     public ValueTask CreateObserver(string elementId, CancellationToken cancellationToken = default)

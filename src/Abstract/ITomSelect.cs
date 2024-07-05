@@ -31,6 +31,10 @@ public interface ITomSelect<TItem, TSource>
 
     Dictionary<string, object?>? Attributes { get; set; }
 
+    Func<string, TItem>? CreateFuncSync { get; set; }
+
+    Func<string, ValueTask<TItem>>? CreateFunc { get; set; }
+
     TomSelectConfiguration Configuration { get; set; }
 
     bool Multiple { get; set; }

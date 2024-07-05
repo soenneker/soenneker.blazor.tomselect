@@ -31,7 +31,10 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     public Func<TItem, string?> ValueField { get; set; } = default!;
 
     [Parameter]
-    public Func<string, TItem>? CreateFunc { get; set; }
+    public Func<string, TItem>? CreateFuncSync { get; set; }
+
+    [Parameter]
+    public Func<string, ValueTask<TItem>>? CreateFunc { get; set; }
 
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object?>? Attributes { get; set; }
@@ -302,12 +305,21 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         return TextField.Invoke(item);
     }
 
-    private TItem CreateItemFromValue(string text)
+    private async ValueTask<TItem> CreateItemFromValue(string text)
     {
-        if (CreateFunc == null)
-            throw new Exception("Cannot create a new item without `CreateFunc` being defined on the TomSelect");
+        if (CreateFunc == null && CreateFuncSync == null)
+            throw new Exception("Cannot create a new item without `CreateFunc` or `CreatedFuncSync` being defined on the TomSelect");
 
-        return CreateFunc!.Invoke(text);
+        if (CreateFunc != null && CreateFuncSync != null)
+            throw new Exception("`CreateFunc` and `CreatedFuncSync` cannot both be defined on the TomSelect");
+
+        if (CreateFuncSync != null)
+            return CreateFuncSync.Invoke(text);
+
+        if (CreateFunc != null)
+            return await CreateFunc.Invoke(text);
+
+        return default!;
     }
 
     private async ValueTask OnItemAdd_internal(string value)
@@ -326,7 +338,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
     private async ValueTask OnItemCreated_internal(string value)
     {
-        TItem item = CreateItemFromValue(value);
+        TItem item = await CreateItemFromValue(value);
         _workingItems.Add(item);
         Items.Add(item);
 

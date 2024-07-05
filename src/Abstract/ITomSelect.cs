@@ -4,6 +4,7 @@ using Soenneker.Blazor.TomSelect.Configuration;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
 using System;
+using Soenneker.Blazor.TomSelect.Dtos;
 
 namespace Soenneker.Blazor.TomSelect.Abstract;
 
@@ -54,7 +55,7 @@ public interface ITomSelect<TItem, TSource>
     /// <param name="item">The item to add as an option.</param>
     /// <param name="userCreated">Indicates whether the item was created by the user. (Optional)</param>
     /// <param name="cancellationToken">The cancellation token to cancel the operation. (Optional)</param>
-    ValueTask AddOption(TItem item, bool userCreated = true, CancellationToken cancellationToken = default);
+    ValueTask<TomSelectOption?> AddOption(TItem item, bool userCreated = true, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Adds multiple options to the TomSelect component.

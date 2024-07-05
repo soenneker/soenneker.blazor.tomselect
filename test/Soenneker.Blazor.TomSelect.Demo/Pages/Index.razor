@@ -4,6 +4,7 @@
 @using Soenneker.Blazor.TomSelect.Dtos
 @using Soenneker.Extensions.Enumerable
 @using Soenneker.Utils.AutoBogus
+@using Soenneker.Utils.Random
 
 @inject ILogger<Index> Logger
 @inject HttpClient Http
@@ -18,22 +19,26 @@
         TItem="Country"
         TType="string"
         OnInitialize="OnTomSelectInitialized"
+        OnOptionRemove="OnOptionRemove"
+        OnItemRemove="OnItemRemove"
         OnOptionAdd="OnOptionAdd"
+        OnItemCreated="OnItemCreated"
         OnItemAdd="OnItemAdd"
         Data="@_countries"
         TextField="item => item.Name"
         ValueField="item => item.Id.ToString()"
-        CreateFuncSync="text => new Country{Name = text, Id = 123}"
+        CreateFuncSync="text => new Country {Name = text, Id = RandomUtil.Next(1, 1000)}"
         @ref="_tomSelect"
         Items=_selectedItems
         Multiple="true"
-        Create="true" >
+        Create="true"
+        OnChange="OnChange" >
     </TomSelect>
 }
 <br />
 
 <button @onclick="AddOption" >AddOption</button>
-<button @onclick="AddItem" >AddItem</button>
+<button @onclick="AddExistingItem">AddExistingItem</button>
 <button @onclick="GetSelectedItems" >GetSelectedItems</button>
 <button @onclick="Render" >Render</button>
 <button @onclick="ClearItems" >ClearItems</button>
@@ -42,17 +47,17 @@
 <button @onclick="SetData" >SetData</button>
 
 <button @onclick="OpenModal" >Open Modal</button>
-<NavLink href="/second">Go to second page</NavLink>
+<NavLink href="/second" >Go to second page</NavLink>
 <hr />
 
-<TomSelectModal @ref="_tomSelectModal" ></TomSelectModal>
+@* <TomSelectModal @ref="_tomSelectModal" ></TomSelectModal> *@
 
 @code{
     private List<Country>? _countries;
 
     private AutoFaker _autoFaker = default!;
 
-   // private List<TomSelectOption>? _options;
+    // private List<TomSelectOption>? _options;
     private List<Country> _selectedItems = [];
 
     private TomSelect<Country, string> _tomSelect = default!;
@@ -121,7 +126,32 @@
         Logger.LogInformation("OnItemAdd called");
     }
 
-    private async Task AddItem()
+    private void OnOptionRemove(string result)
+    {
+        Logger.LogInformation("OnOptionRemove called");
+    }
+
+    private void OnItemRemove((string str, TomSelectOption obj) result)
+    {
+        Logger.LogInformation("OnItemRemove called");
+    }
+
+    private void OnItemCreated((string str, TomSelectOption obj) result)
+    {
+        Logger.LogInformation("OnItemCreated called");
+    }
+
+    private void OnChange()
+    {
+        Logger.LogInformation("OnChange called");
+
+        foreach (Country item in _selectedItems)
+        {
+            Logger.LogInformation("Item is currently selected: {item}", item.Name);
+        }
+    }
+
+    private async Task AddExistingItem()
     {
         await _tomSelect.AddItem(_tomSelect.Data.GetRandom()!.Id.ToString());
     }

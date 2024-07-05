@@ -4,7 +4,7 @@ export class TomSelectInterop {
         this.options = {};
     }
 
-    async create(element, elementId, options, dotNetCallback) {
+    create(element, elementId, options, dotNetCallback) {
         let tomSelect;
 
         if (options) {

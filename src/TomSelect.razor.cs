@@ -57,12 +57,9 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     private bool _isCreated;
     private bool _isDataSet;
 
-    /// <summary>
-    /// We have this list because we don't want to modify the reference of <see cref="Data"></see> when <see cref="AddOption(TItem, bool, CancellationToken)"/> is called
-    /// </summary>
-    private readonly List<TItem> _workingItems = [];
-
     private readonly List<TomSelectOption> _workingOptions = [];
+
+    private TaskCompletionSource<bool> _onModificationTask = new TaskCompletionSource<bool>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -168,22 +165,22 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         await AddEventListeners().NoSync();
     }
 
-    public ValueTask AddOption(TItem item, bool userCreated = true, CancellationToken cancellationToken = default)
+    public async ValueTask<TomSelectOption?> AddOption(TItem item, bool userCreated = true, CancellationToken cancellationToken = default)
     {
-        _workingItems.Add(item);
-
-        TomSelectOption? option = ToOptionFromItem(item);
+        TomSelectOption? option = CreateOptionFromItem(item);
 
         if (option == null)
         {
             Logger.LogWarning("Could not add item, option is null");
-            return ValueTask.CompletedTask;
+            return null;
         }
 
         _workingOptions.Add(option);
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.AddOption(ElementId, option, userCreated, linkedCts.Token);
+        await TomSelectInterop.AddOption(ElementId, option, userCreated, linkedCts.Token);
+
+        return option;
     }
 
     public async ValueTask AddOptions(IEnumerable<TItem> items, bool userCreated = true, CancellationToken cancellationToken = default)
@@ -196,7 +193,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
     public ValueTask UpdateOption(string value, TItem item, CancellationToken cancellationToken = default)
     {
-        TomSelectOption? option = ToOptionFromItem(item);
+        TomSelectOption? option = CreateOptionFromItem(item);
 
         if (option == null)
         {
@@ -230,7 +227,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
         foreach (TItem item in items)
         {
-            TomSelectOption? tomSelectOption = ToOptionFromItem(item);
+            TomSelectOption? tomSelectOption = CreateOptionFromItem(item);
 
             if (tomSelectOption == null)
                 continue;
@@ -258,7 +255,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         return values;
     }
 
-    private TomSelectOption? ToOptionFromItem(TItem item)
+    private TomSelectOption? CreateOptionFromItem(TItem item)
     {
         string? value = ToValueFromItem(item);
         string? text = ToTextFromItem(item);
@@ -266,10 +263,47 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         if (text == null || value == null)
             return null;
 
-        var tomSelectOption = new TomSelectOption {Text = text, Value = value};
+        var tomSelectOption = new TomSelectOption
+        {
+            Text = text, Value = value,
+            Item = item
+        };
 
         return tomSelectOption;
     }
+
+    private TomSelectOption? GetOptionFromValue(string value)
+    {
+        return _workingOptions.FirstOrDefault(option => option.Value == value);
+    }
+
+    private TomSelectOption? GetOptionFromText(string text)
+    {
+        return _workingOptions.FirstOrDefault(option => option.Text == text);
+    }
+
+    private TItem? ToItemFromText(string text)
+    {
+        if (Data != null)
+        {
+            foreach (TItem item in Data)
+            {
+                string? result = ToTextFromItem(item);
+
+                if (result == text)
+                    return item;
+            }
+        }
+
+        foreach (TomSelectOption option in _workingOptions)
+        {
+            if (option.Value == text)
+                return (TItem) option.Item!;
+        }
+
+        return default;
+    }
+
 
     private TItem? ToItemFromValue(string value)
     {
@@ -284,12 +318,10 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             }
         }
 
-        foreach (TItem item in _workingItems)
+        foreach (TomSelectOption option in _workingOptions)
         {
-            string? result = ToValueFromItem(item);
-
-            if (result == value)
-                return item;
+            if (option.Value == value)
+                return (TItem) option.Item!;
         }
 
         return default;
@@ -322,47 +354,51 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         return default!;
     }
 
-    private async ValueTask OnItemAdd_internal(string value)
+    private async ValueTask OnItemAdd_internal(string valueOrText)
     {
-        TItem? item = ToItemFromValue(value);
+        TItem? item = ToItemFromValue(valueOrText) ?? ToItemFromText(valueOrText);
 
         if (item == null)
         {
-            await OnItemCreated_internal(value);
+            await OnOptionCreated_internal(valueOrText);
+
             return;
         }
 
         if (!Items.Contains(item))
+        {
             Items.Add(item);
+            _itemsHash = Items.GetAggregateHashCode();
+        }
     }
 
-    private async ValueTask OnItemCreated_internal(string value)
+    private async ValueTask OnOptionCreated_internal(string value)
     {
         TItem item = await CreateItemFromValue(value);
-        _workingItems.Add(item);
-        Items.Add(item);
 
         // Unfortunately we need to remove the option (stored via value) so we can re-add the properly built one from the component
         await RemoveOption(value);
-        await AddOption(item, false);
+        TomSelectOption? newOption = await AddOption(item, false);
 
         if (OnItemCreated.HasDelegate)
         {
-            TomSelectOption? newOption = ToOptionFromItem(item);
-
             if (newOption != null)
                 await OnItemCreated.InvokeAsync((value, newOption));
         }
     }
 
-    private void OnItemRemove_Internal(string value)
+    private void OnItemRemove_Internal(string valueOrText)
     {
-        TItem? item = ToItemFromValue(value);
+        TItem? item = ToItemFromValue(valueOrText) ?? ToItemFromText(valueOrText);
 
         if (item == null)
             return;
 
-        Items.Remove(item);
+        if (Items.Contains(item))
+        {
+            Items.Remove(item);
+            _itemsHash = Items.GetAggregateHashCode();
+        }
     }
 
     private void OnClearItems_internal()
@@ -410,7 +446,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                     jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!
                 );
 
-                //OnOptionAdd_internal(parameters.Item1, parameters.Item2);
+                //  OnOptionAdd_internal(parameters.Item1, parameters.Item2);
 
                 if (OnOptionAdd.HasDelegate)
                     await OnOptionAdd.InvokeAsync(parameters);
@@ -451,6 +487,8 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
                 if (OnItemAdd.HasDelegate)
                     await OnItemAdd.InvokeAsync(parameters);
+
+                _onModificationTask.TrySetResult(true);
             });
 
         await AddEventListener<string>(
@@ -467,6 +505,8 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
                 if (OnItemRemove.HasDelegate)
                     await OnItemRemove.InvokeAsync(parameters);
+
+                _onModificationTask.TrySetResult(true);
             });
 
         await AddEventListener<string>(
@@ -477,7 +517,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
                 if (item != null)
                 {
-                    TomSelectOption? option = ToOptionFromItem(item);
+                    TomSelectOption? option = CreateOptionFromItem(item);
 
                     if (OnItemSelect.HasDelegate)
                         await OnItemSelect.InvokeAsync(option);
@@ -499,7 +539,14 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         {
             await AddEventListener<string>(
                 GetJsEventName(nameof(OnChange)),
-                async e => { await OnChange.InvokeAsync(e); });
+                async e =>
+                {
+                    await _onModificationTask.Task;
+
+                    await OnChange.InvokeAsync(e);
+
+                    _onModificationTask = new TaskCompletionSource<bool>();
+                });
         }
 
         if (OnFocus.HasDelegate)

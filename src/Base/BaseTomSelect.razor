@@ -107,12 +107,6 @@
         return TomSelectInterop.ClearOptions(ElementId, linkedCts.Token);
     }
 
-    public ValueTask ClearItems(bool silent = false, CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.ClearItems(ElementId, silent, linkedCts.Token);
-    }
-
     public ValueTask RemoveItem(string valueOrHtmlElement, bool silent = false, CancellationToken cancellationToken = default)
     {
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);

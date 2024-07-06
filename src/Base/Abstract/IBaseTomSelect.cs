@@ -240,13 +240,6 @@ public interface IBaseTomSelect
     ValueTask Destroy(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Clears all selected items from the TomSelect component.
-    /// </summary>
-    /// <param name="silent">Indicates whether to suppress triggering any events. Default is false. (Optional)</param>
-    /// <param name="cancellationToken">The cancellation token to cancel the operation. (Optional)</param>
-    ValueTask ClearItems(bool silent = false, CancellationToken cancellationToken = default);
-
-    /// <summary>
     /// Removes an item from the TomSelect component based on its value or HTML element.
     /// </summary>
     /// <param name="valueOrHtmlElement">The value or HTML element of the item to remove.</param>

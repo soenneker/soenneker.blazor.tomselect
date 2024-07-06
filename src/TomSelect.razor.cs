@@ -240,7 +240,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
     private List<string> ConvertItemsToListString(IEnumerable<TItem> items)
     {
-        List<string> values = [];
+        HashSet<string> values = [];
 
         foreach (TItem item in items)
         {
@@ -252,7 +252,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             values.Add(value);
         }
 
-        return values;
+        return values.ToList();
     }
 
     private TomSelectOption? CreateOptionFromItem(TItem item)
@@ -404,6 +404,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     private void OnClearItems_internal()
     {
         Items.Clear();
+        _itemsHash = Items.GetAggregateHashCode();
     }
 
     private bool OnOptionAdd_internal(string value, TomSelectOption data)
@@ -640,6 +641,15 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     private ValueTask AddEventListener<T>(string eventName, Func<T, ValueTask> callback)
     {
         return InteropEventListener.Add("TomSelectInterop.addEventListener", ElementId, eventName, callback, CTs.Token);
+    }
+
+    public ValueTask ClearItems(bool silent = false, CancellationToken cancellationToken = default)
+    {
+        Items.Clear();
+        _itemsHash = Items.GetAggregateHashCode();
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
+        return TomSelectInterop.ClearItems(ElementId, silent, linkedCts.Token);
     }
 
     [JSInvokable("OnInitializedJs")]

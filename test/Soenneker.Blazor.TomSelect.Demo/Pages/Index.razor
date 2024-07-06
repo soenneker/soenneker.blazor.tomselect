@@ -41,7 +41,8 @@
 <button @onclick="AddExistingItem">AddExistingItem</button>
 <button @onclick="GetSelectedItems" >GetSelectedItems</button>
 <button @onclick="Render" >Render</button>
-<button @onclick="ClearItems" >ClearItems</button>
+<button @onclick="ClearViaData">ClearViaData</button>
+<button @onclick="async () => await ClearItems()">ClearItems</button>
 <button @onclick="ClearOptions" >ClearOptions</button>
 <button @onclick="Reinitialize" >Reinitialize</button>
 <button @onclick="SetData" >SetData</button>
@@ -73,16 +74,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-        //_countries = _autoFaker.Generate<Country>(100);
-
-        // await SetData();
-        //_selectedItems = _countries!.Take(2).ToList();
+        await SetData();
     }
 
     private async Task SetData()
     {
         _countries = await Http.GetFromJsonAsync<List<Country>>("sample-data/countries.json");
-        _selectedItems = _countries!.Take(1).ToList();
+        _selectedItems.AddRange(_countries!.Take(2).ToList());
     }
 
     private async Task OpenModal()
@@ -95,10 +93,14 @@
         Logger.LogInformation("OnInitialized called");
     }
 
-    private void ClearItems()
+    private void ClearViaData()
     {
-        // await _tomSelect.ClearItems();
         _selectedItems.Clear();
+    }
+
+    private async ValueTask ClearItems()
+    {
+        await _tomSelect.ClearItems();
     }
 
     private async Task ClearOptions()

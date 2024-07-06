@@ -104,4 +104,11 @@ public interface ITomSelect<TItem, TSource>
     /// <param name="silent">Indicates whether to suppress triggering any events. Default is false. (Optional)</param>
     /// <param name="cancellationToken">The cancellation token to cancel the operation. (Optional)</param>
     ValueTask AddItems(IEnumerable<TItem> items, bool silent = false, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Clears all selected items from the TomSelect component.
+    /// </summary>
+    /// <param name="silent">Indicates whether to suppress triggering any events. Default is false. (Optional)</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation. (Optional)</param>
+    ValueTask ClearItems(bool silent = false, CancellationToken cancellationToken = default);
 }

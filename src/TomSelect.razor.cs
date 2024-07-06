@@ -15,6 +15,7 @@ using Soenneker.Blazor.TomSelect.Abstract;
 using Soenneker.Extensions.List;
 using Microsoft.Extensions.Logging;
 using Soenneker.Extensions.ValueTask;
+using Soenneker.Extensions.Task;
 
 namespace Soenneker.Blazor.TomSelect;
 
@@ -59,7 +60,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
     private readonly List<TomSelectOption> _workingOptions = [];
 
-    private TaskCompletionSource<bool> _onModificationTask = new TaskCompletionSource<bool>();
+    private TaskCompletionSource<bool>? _onModificationTask = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -135,8 +136,10 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         _itemsHash = Items.GetAggregateHashCode();
 
         if (Data == null)
+        {
+            _onModificationTask = new TaskCompletionSource<bool>();
             return;
-
+        }
         _optionsHash = Data.GetAggregateHashCode();
 
         if (Data.Any())
@@ -146,6 +149,8 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             if (Items.Populated())
                 await AddItems(Items, true);
         }
+
+        _onModificationTask = new TaskCompletionSource<bool>();
     }
 
     public async ValueTask Initialize(TomSelectConfiguration? configuration = null, CancellationToken cancellationToken = default)
@@ -489,7 +494,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                 if (OnItemAdd.HasDelegate)
                     await OnItemAdd.InvokeAsync(parameters);
 
-                _onModificationTask.TrySetResult(true);
+                _onModificationTask?.TrySetResult(true);
             });
 
         await AddEventListener<string>(
@@ -507,7 +512,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                 if (OnItemRemove.HasDelegate)
                     await OnItemRemove.InvokeAsync(parameters);
 
-                _onModificationTask.TrySetResult(true);
+                _onModificationTask?.TrySetResult(true);
             });
 
         await AddEventListener<string>(
@@ -542,7 +547,8 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                 GetJsEventName(nameof(OnChange)),
                 async e =>
                 {
-                    await _onModificationTask.Task;
+                    if (_onModificationTask != null)
+                        await _onModificationTask.Task.NoSync();
 
                     await OnChange.InvokeAsync(e);
 

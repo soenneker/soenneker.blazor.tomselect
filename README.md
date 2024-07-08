@@ -36,7 +36,8 @@ public void ConfigureServices(IServiceCollection services)
     Data="@_countries"
     TextField="@(item => item.Name)"
     ValueField="@(item => item.Id.ToString())" 
-    @ref="_tomSelect" 
+    @ref="_tomSelect"
+    Configuration="@_configuration"
     @bind-Items="_selectedCountries"> // Supports two-way binding
 </TomSelect>
 
@@ -45,6 +46,11 @@ public void ConfigureServices(IServiceCollection services)
 
     private List<Country>? _selectedCountries = [];
     private List<Country>? _countries;
+
+    private readonly TomSelectConfiguration _configuration = new()
+    {
+        Plugins = [TomSelectPluginType.DragDrop]
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -58,7 +64,7 @@ public void ConfigureServices(IServiceCollection services)
 
     private void LogSelectedItems()
     {
-        foreach (Country item in _tomSelect.Items)
+        foreach (Country item in _selectedCountries)
         {
             Logger.LogInformation("Selected item: {0}", item.Name);
         }

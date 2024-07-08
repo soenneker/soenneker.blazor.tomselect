@@ -260,7 +260,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
     private ValueTask AddItemsToDom(IEnumerable<string> values, bool silent, CancellationToken cancellationToken)
     {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(CTs.Token);
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(CTs.Token, cancellationToken);
         return TomSelectInterop.AddItems(ElementId, values!, silent, linkedCts.Token);
     }
 
@@ -268,7 +268,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     {
         IEnumerable<string?> values = items.Select(ToValueFromItem);
 
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(CTs.Token);
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(CTs.Token, cancellationToken);
         return TomSelectInterop.AddItems(ElementId, values!, silent, linkedCts.Token);
     }
 

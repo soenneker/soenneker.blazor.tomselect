@@ -12,6 +12,7 @@ using Soenneker.Blazor.TomSelect.Base;
 using Soenneker.Utils.AsyncSingleton;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using Soenneker.Extensions.ValueTask;
+using System;
 
 namespace Soenneker.Blazor.TomSelect;
 
@@ -225,6 +226,8 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
 
     public ValueTask DisposeAsync()
     {
+        GC.SuppressFinalize(this);
+
         return _resourceLoader.DisposeModule("Soenneker.Blazor.TomSelect/tomselectinterop.js");
     }
 }

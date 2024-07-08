@@ -16,27 +16,30 @@
 
 @if (_render)
 {
-    <TomSelect
-        TItem="Country"
-        TType="string"
-        OnInitialize="OnTomSelectInitialized"
-        OnOptionRemove="OnOptionRemove"
-        OnItemRemove="OnItemRemove"
-        OnOptionAdd="OnOptionAdd"
-        OnItemCreated="OnItemCreated"
-        OnItemAdd="OnItemAdd"
-        Data="@_countries"
-        TextField="item => item.Name"
-        ValueField="item => item.Id.ToString()"
-        CreateFuncSync="text => new Country {Name = text, Id = Guid.NewGuid().ToString()}"
-        @ref="_tomSelect"
-        @bind-Items="_selectedItems"
-        Multiple="true"
-        Create="true"
-        OnChange="OnChange"
-        Debug=true 
-        Configuration="_configuration">
-    </TomSelect>
+    @if (_countries.Populated())
+    {
+        <TomSelect
+            TItem="Country"
+            TType="string"
+            OnInitialize="OnTomSelectInitialized"
+            OnOptionRemove="OnOptionRemove"
+            OnItemRemove="OnItemRemove"
+            OnOptionAdd="OnOptionAdd"
+            OnItemCreated="OnItemCreated"
+            OnItemAdd="OnItemAdd"
+            Data="@_countries"
+            TextField="item => item.Name"
+            ValueField="item => item.Id.ToString()"
+            CreateFuncSync="text => new Country {Name = text, Id = Guid.NewGuid().ToString()}"
+            @ref="_tomSelect"
+            @bind-Items="_selectedItems"
+            Multiple="true"
+            Create="true"
+            OnChange="OnChange"
+            Debug=true
+            Configuration="_configuration" >
+        </TomSelect>
+    }
 }
 <br />
 
@@ -45,11 +48,11 @@
 <button @onclick="GetItems" >GetItems</button>
 <button @onclick="Render" >Render</button>
 <button @onclick="ClearViaData" >ClearViaData</button>
-<button @onclick="AddViaData">AddViaData</button>
+<button @onclick="AddViaData" >AddViaData</button>
 <button @onclick="async () => await ClearItems()" >ClearItems</button>
 <button @onclick="ClearOptions" >ClearOptions</button>
 <button @onclick="Reinitialize" >Reinitialize</button>
-<button @onclick="SetData" >SetData</button>
+<button @onclick="SetOptionsAndItems">SetOptionsAndItems</button>
 
 <button @onclick="OpenModal" >Open Modal</button>
 <NavLink href="/second" >Go to second page</NavLink>
@@ -83,10 +86,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await SetData();
+        await SetOptionsAndItems();
     }
 
-    private async Task SetData()
+    private async Task SetOptionsAndItems()
     {
         _countries = await Http.GetFromJsonAsync<List<Country>>("sample-data/countries.json");
         _selectedItems = _countries!.ToList();
@@ -198,3 +201,4 @@
     }
 
 }
+

@@ -66,6 +66,8 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
     private readonly List<TomSelectOption> _workingOptions = [];
 
+    private List<TItem> _workingItems = [];
+
     private TaskCompletionSource<bool>? _onModificationTask = null;
 
     protected override async Task OnInitializedAsync()
@@ -90,7 +92,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         {
             _isDataSet = true;
 
-            await InitializeInternal();
+            await InitializeData();
         }
     }
 
@@ -115,17 +117,19 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             }
         }
 
-        int itemsHashCode = Items.GetAggregateHashCode();
+        int itemsHashCode = Items.GetAggregateHashCode(false);
 
         if (_itemsHash != itemsHashCode)
         {
             LogDebug("OnParametersSet: Items hash differs, updating...");
 
+            _workingItems = Items;
+
             await CleanItems();
 
-            _itemsHash = Items.GetAggregateHashCode();
+            _itemsHash = Items.GetAggregateHashCode(false);
 
-            List<string> values = ConvertItemsToListString(Items);
+            List<string> values = ConvertItemsToListString(_workingItems);
             await TomSelectInterop.ClearAndAddItems(ElementId, values, true);
         }
     }
@@ -136,10 +140,10 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
         await ClearOptions().NoSync();
 
-        await InitializeInternal().NoSync();
+        await InitializeData().NoSync();
     }
 
-    private async ValueTask InitializeInternal()
+    private async ValueTask InitializeData()
     {
         if (Data == null)
         {
@@ -153,9 +157,11 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         {
             await AddOptions(Data, false);
 
+            _workingItems = Items;
+
             await CleanItems();
 
-            await AddItemsToDom(Items, true, CancellationToken.None);
+            await AddItemsToDom(_workingItems, true, CancellationToken.None);
         }
 
         _onModificationTask = new TaskCompletionSource<bool>();
@@ -410,23 +416,19 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
     private async ValueTask OnItemRemove_Internal(string valueOrText)
     {
-        TItem? item = ToItemFromValue(valueOrText) ?? ToItemFromText(valueOrText);
+        foreach (var item in _workingItems)
+        {
+            var value = ToValueFromItem(item);
 
-        if (item == null)
-        {
-            LogWarning("Could not find item to remove");
-            return;
+            if (value == valueOrText)
+            {
+                _workingItems.Remove(item);
+                await SyncItems();
+                return;
+            }
         }
 
-        if (Items.Contains(item))
-        {
-            Items.Remove(item);
-            await SyncItems();
-        }
-        else
-        {
-            LogWarning($"Item ({valueOrText}) was not found in Items list, cannot remove");
-        }
+        LogWarning($"Item ({valueOrText}) was not found in Items list, cannot remove");
     }
 
     private void OnOptionClear_internal()
@@ -447,8 +449,6 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                     jsonDocument.RootElement[0].Deserialize<string>()!,
                     jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!
                 );
-
-                //  OnOptionAdd_internal(parameters.Item1, parameters.Item2);
 
                 if (OnOptionAdd.HasDelegate)
                     await OnOptionAdd.InvokeAsync(parameters);
@@ -646,7 +646,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
     public async ValueTask ClearItems(bool silent = false, CancellationToken cancellationToken = default)
     {
-        Items.Clear();
+        _workingItems.Clear();
         await SyncItems();
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
@@ -713,7 +713,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             }
         }
 
-        Items.Add(item);
+        _workingItems.Add(item);
         await SyncItems();
 
         return AddItemType.Normal;
@@ -734,7 +734,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
         var requiresSync = false;
 
-        foreach (TItem item in Items)
+        foreach (TItem item in _workingItems)
         {
             string? value = ToValueFromItem(item);
 
@@ -755,15 +755,15 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         if (requiresSync)
         {
             LogDebug("Clean requires a resync of Items");
-            Items = cleaned.Values.ToList();
+            _workingItems = cleaned.Values.ToList();
             await SyncItems();
         }
     }
 
     private Task SyncItems()
     {
-        _itemsHash = Items.GetAggregateHashCode();
-        return ItemsChanged.InvokeAsync(Items);
+        _itemsHash = _workingItems.GetAggregateHashCode(false);
+        return ItemsChanged.InvokeAsync(_workingItems);
     }
 
     private void SyncOptions()

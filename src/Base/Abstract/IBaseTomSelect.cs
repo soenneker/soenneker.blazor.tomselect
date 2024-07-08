@@ -110,6 +110,11 @@ public interface IBaseTomSelect
     /// </summary>
     EventCallback OnDestroy { get; set; }
 
+    /// <summary>
+    /// For debugging to log messages
+    /// </summary>
+    bool Debug { get; set; }
+
     #endregion Events
 
     /// <summary>

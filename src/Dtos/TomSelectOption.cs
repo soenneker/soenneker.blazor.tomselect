@@ -19,6 +19,9 @@ public class TomSelectOption
     [JsonPropertyName("text")]
     public string Text { get; set; } = default!;
 
+    /// <summary>
+    /// The underlying item of the option.
+    /// </summary>
     [JsonPropertyName("item")]
     public object? Item { get; set; }
 }

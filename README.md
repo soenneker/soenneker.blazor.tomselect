@@ -30,16 +30,20 @@ public void ConfigureServices(IServiceCollection services)
 @using Soenneker.Blazor.TomSelect
 
 <TomSelect
-    TItem="Country" TType="string" OnItemAdd="OnItemAdd"
+    TItem="Country" 
+    TType="string" 
+    OnItemAdd="OnItemAdd"
     Data="@_countries"
     TextField="@(item => item.Name)"
-    ValueField="@(item => item.Id.ToString())" @ref="_tomSelect" Items="_selectedCountries">
+    ValueField="@(item => item.Id.ToString())" 
+    @ref="_tomSelect" 
+    @bind-Items="_selectedCountries"> // Supports two-way binding
 </TomSelect>
 
 @code{
     private TomSelect<Country, string> _tomSelect = default!;
 
-    private List<Country>? _selectedCountries;
+    private List<Country>? _selectedCountries = [];
     private List<Country>? _countries;
 
     protected override async Task OnInitializedAsync()
@@ -61,5 +65,3 @@ public void ConfigureServices(IServiceCollection services)
     }
 }
 ```
-
-⚠️ While a lot of the Tom Select library has been implemented, there are features not yet supported. If you need assistance or want to request a new feature, please open an issue or submit a pull request.

@@ -1,18 +1,25 @@
 ﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Soenneker.Blazor.TomSelect.Demo.Dtos;
 
 public class Country
 {
-    public int Id { get; set; }
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = default!;
 
+    [JsonPropertyName("name")]
     public string? Name { get; set; }
 
+    [JsonPropertyName("culture")]
     public string? Culture { get; set; }
 
+    [JsonPropertyName("flagIcon")]
     public string? FlagIcon { get; set; }
 
+    [JsonPropertyName("region")]
     public string? Region { get; set; }
 
+    [JsonPropertyName("alternativeNames")]
     public IEnumerable<string>? AlternativeNames { get; set; }
 }

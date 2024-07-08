@@ -45,4 +45,20 @@ public partial class BaseTomSelect : ComponentBase, IBaseTomSelect
         await CTs.CancelAsync().NoSync();
         await TomSelectInterop.Destroy(ElementId).NoSync();
     }
+
+    protected void LogWarning(string message)
+    {
+        Console.WriteLine(message);
+
+      //  if (Debug)
+      //      Logger?.LogWarning(message);
+    }
+
+    protected void LogDebug(string message)
+    {
+        Console.WriteLine(message);
+
+     //   if (Debug)
+     //       Logger?.LogInformation(message);
+    }
 }

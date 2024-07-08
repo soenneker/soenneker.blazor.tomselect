@@ -23,7 +23,7 @@
         Data="@_countries"
         TextField="item => item.Name"
         ValueField="item => item.Id.ToString()"
-        CreateFuncSync="text => new Country{Name = text, Id = 123}"
+        CreateFuncSync="text => new Country{Name = text, Id = Guid.NewGuid().ToString()}"
         @ref="_tomSelect"
         Items=_selectedItems
         Multiple="true"

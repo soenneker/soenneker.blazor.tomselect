@@ -73,6 +73,9 @@
     [Parameter]
     public EventCallback OnDestroy { get; set; }
 
+    [Parameter]
+    public bool Debug {get; set;}
+
     #endregion Events
 
     protected override void OnInitialized()
@@ -111,18 +114,6 @@
     {
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
         return TomSelectInterop.RemoveItem(ElementId, valueOrHtmlElement, silent, linkedCts.Token);
-    }
-
-    public ValueTask AddItem(string value, bool silent = false, CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.AddItem(ElementId, value, silent, linkedCts.Token);
-    }
-
-    public ValueTask AddItems(IEnumerable<string> values, bool silent = false, CancellationToken cancellationToken = default)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        return TomSelectInterop.AddItems(ElementId, values, silent, linkedCts.Token);
     }
 
     public ValueTask AddOptionGroup(string id, object data, CancellationToken cancellationToken = default)

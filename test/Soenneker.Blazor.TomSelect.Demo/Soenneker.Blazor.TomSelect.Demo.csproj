@@ -14,13 +14,19 @@
       <PackageReference Include="Serilog" Version="4.0.0" />
       <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
       <PackageReference Include="Serilog.Sinks.BrowserConsole" Version="2.0.0" />
-      <PackageReference Include="Soenneker.SmartEnum.Abbreviated" Version="2.1.197" />
-      <PackageReference Include="Soenneker.Utils.AutoBogus" Version="2.1.239" />
+      <PackageReference Include="Soenneker.SmartEnum.Abbreviated" Version="2.1.203" />
+      <PackageReference Include="Soenneker.Utils.AutoBogus" Version="2.1.242" />
       <PackageReference Include="System.Net.Http.Json" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Soenneker.Blazor.TomSelect.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\sample-data\countries.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

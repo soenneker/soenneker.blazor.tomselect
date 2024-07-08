@@ -42,9 +42,10 @@
 
 <button @onclick="AddOption" >AddOption</button>
 <button @onclick="AddExistingItem" >AddExistingItem</button>
-<button @onclick="GetSelectedItems" >GetSelectedItems</button>
+<button @onclick="GetItems" >GetItems</button>
 <button @onclick="Render" >Render</button>
 <button @onclick="ClearViaData" >ClearViaData</button>
+<button @onclick="AddViaData">AddViaData</button>
 <button @onclick="async () => await ClearItems()" >ClearItems</button>
 <button @onclick="ClearOptions" >ClearOptions</button>
 <button @onclick="Reinitialize" >Reinitialize</button>
@@ -104,6 +105,12 @@
     private void ClearViaData()
     {
         _selectedItems.Clear();
+    }
+
+    private async Task AddViaData()
+    {
+        var countries = await Http.GetFromJsonAsync<List<Country>>("sample-data/countries.json");
+        _selectedItems.Add(countries!.GetRandom());
     }
 
     private async ValueTask ClearItems()
@@ -171,7 +178,7 @@
         await _tomSelect.AddOption(_autoFaker.Generate<Country>());
     }
 
-    private void GetSelectedItems()
+    private void GetItems()
     {
         if (_tomSelect.Items.Count == 0)
         {

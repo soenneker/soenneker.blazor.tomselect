@@ -121,6 +121,10 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         {
             LogDebug("OnParametersSet: Items hash differs, updating...");
 
+            await CleanItems();
+
+            _itemsHash = Items.GetAggregateHashCode();
+
             List<string> values = ConvertItemsToListString(Items);
             await TomSelectInterop.ClearAndAddItems(ElementId, values, true);
         }
@@ -381,7 +385,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     {
         AddItemType addItemType = await TryAddItem(valueOrText);
 
-        if (addItemType == AddItemType.NewItem)
+        if (addItemType == AddItemType.NewOption)
         {
             await OnOptionCreated_internal(valueOrText);
         }
@@ -439,7 +443,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             async e =>
             {
                 JsonDocument jsonDocument = JsonDocument.Parse(e);
-                (string, TomSelectOption) parameters = (
+                var parameters = (
                     jsonDocument.RootElement[0].Deserialize<string>()!,
                     jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!
                 );
@@ -657,7 +661,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             return false;
         }
 
-        LogDebug($"Adding option: {tomSelectOption.Text}, {tomSelectOption.Value} ...");
+        LogDebug($"Trying to add option: {tomSelectOption.Text}, {tomSelectOption.Value} ...");
 
         if (_workingOptions.Contains(c => c.Value == tomSelectOption.Value))
         {
@@ -679,7 +683,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             return AddItemType.Error;
         }
 
-        LogDebug($"Adding item: {valueOrText} ...");
+        LogDebug($"Trying to add item: {valueOrText} ...");
 
         TItem? item = default;
 
@@ -695,18 +699,22 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         if (item == null)
         {
             LogWarning($"Item ({valueOrText}) could not be found in existing options, must be a new option, skipping add");
-            return AddItemType.NewItem;
+            return AddItemType.NewOption;
         }
 
-        if (!Items.Contains(item))
+        foreach (var i in Items)
         {
-            Items.Add(item);
-            await SyncItems();
+            string? value = ToValueFromItem(i);
+
+            if (value == valueOrText)
+            {
+                LogWarning($"Item ({valueOrText}) already exists, skipping add");
+                return AddItemType.Error;
+            }
         }
-        else
-        {
-            LogWarning($"Item ({valueOrText}) already exists, skipping add");
-        }
+
+        Items.Add(item);
+        await SyncItems();
 
         return AddItemType.Normal;
     }
@@ -724,6 +732,8 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
         var cleaned = new Dictionary<string, TItem>();
 
+        var requiresSync = false;
+
         foreach (TItem item in Items)
         {
             string? value = ToValueFromItem(item);
@@ -731,17 +741,23 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             if (value.IsNullOrEmpty())
             {
                 LogWarning("Item value was null, removing from Items");
+                requiresSync = true;
                 continue;
             }
 
             if (!cleaned.TryAdd(value, item))
             {
                 LogWarning($"Item with value {value} already exists, removing from Items");
+                requiresSync = true;
             }
         }
 
-        Items = cleaned.Values.ToList();
-        await SyncItems();
+        if (requiresSync)
+        {
+            LogDebug("Clean requires a resync of Items");
+            Items = cleaned.Values.ToList();
+            await SyncItems();
+        }
     }
 
     private Task SyncItems()

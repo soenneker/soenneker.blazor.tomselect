@@ -48,17 +48,13 @@ public partial class BaseTomSelect : ComponentBase, IBaseTomSelect
 
     protected void LogWarning(string message)
     {
-        Console.WriteLine(message);
-
-      //  if (Debug)
-      //      Logger?.LogWarning(message);
+        if (Debug)
+            Console.WriteLine(message);
     }
 
     protected void LogDebug(string message)
     {
-        Console.WriteLine(message);
-
-     //   if (Debug)
-     //       Logger?.LogInformation(message);
+        if (Debug)
+            Console.WriteLine(message);
     }
 }

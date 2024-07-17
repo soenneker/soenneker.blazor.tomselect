@@ -17,7 +17,7 @@ public static class TomSelectRegistrar
     public static void AddTomSelect(this IServiceCollection services)
     {
         services.AddResourceLoader();
-        services.TryAddSingleton<ITomSelectInterop, TomSelectInterop>();
+        services.TryAddScoped<ITomSelectInterop, TomSelectInterop>();
         services.AddInteropEventListener();
     }
 }

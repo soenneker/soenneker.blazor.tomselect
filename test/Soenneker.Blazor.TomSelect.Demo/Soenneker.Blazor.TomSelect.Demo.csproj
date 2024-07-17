@@ -13,9 +13,9 @@
       <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.7" PrivateAssets="all" />
       <PackageReference Include="Serilog" Version="4.0.0" />
       <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
-      <PackageReference Include="Serilog.Sinks.BrowserConsole" Version="2.0.0" />
-      <PackageReference Include="Soenneker.SmartEnum.Abbreviated" Version="2.1.249" />
-      <PackageReference Include="Soenneker.Utils.AutoBogus" Version="2.1.271" />
+      <PackageReference Include="Serilog.Sinks.BrowserConsole" Version="8.0.0" />
+      <PackageReference Include="Soenneker.SmartEnum.Abbreviated" Version="2.1.257" />
+      <PackageReference Include="Soenneker.Utils.AutoBogus" Version="2.1.273" />
       <PackageReference Include="System.Net.Http.Json" Version="8.0.0" />
   </ItemGroup>
 

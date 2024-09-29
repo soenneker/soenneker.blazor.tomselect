@@ -46,7 +46,7 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.8" />
         <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="2.1.1892" />
         <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="2.1.402" />
-        <PackageReference Include="Soenneker.Extensions.List" Version="2.1.449" />
+        <PackageReference Include="Soenneker.Extensions.List" Version="2.1.450" />
         <PackageReference Include="Soenneker.Json.CollectionConverter" Version="2.1.452" />
     </ItemGroup>
 </Project>

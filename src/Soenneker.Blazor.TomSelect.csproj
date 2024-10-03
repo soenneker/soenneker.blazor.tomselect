@@ -44,7 +44,7 @@
     <ItemGroup>
         <PackageReference Include="Ardalis.SmartEnum.SystemTextJson" Version="8.1.0" />
         <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.8" />
-        <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="2.1.1946" />
+        <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="2.1.1950" />
         <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="2.1.434" />
         <PackageReference Include="Soenneker.Extensions.List" Version="2.1.462" />
         <PackageReference Include="Soenneker.Json.CollectionConverter" Version="2.1.461" />

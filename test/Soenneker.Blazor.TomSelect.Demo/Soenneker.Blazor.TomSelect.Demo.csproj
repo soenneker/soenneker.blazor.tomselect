@@ -16,7 +16,7 @@
       <PackageReference Include="Serilog.Sinks.BrowserConsole" Version="8.0.0" />
       <PackageReference Include="Soenneker.SmartEnum.Abbreviated" Version="2.1.556" />
       <PackageReference Include="Soenneker.Utils.AutoBogus" Version="2.1.396" />
-      <PackageReference Include="System.Net.Http.Json" Version="8.0.1" />
+      <PackageReference Include="System.Net.Http.Json" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>

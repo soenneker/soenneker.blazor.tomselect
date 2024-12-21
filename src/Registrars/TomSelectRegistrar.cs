@@ -14,10 +14,12 @@ public static class TomSelectRegistrar
     /// <summary>
     /// Adds <see cref="ITomSelectInterop"/> as a scoped service. <para/>
     /// </summary>
-    public static void AddTomSelect(this IServiceCollection services)
+    public static IServiceCollection AddTomSelectInteropAsScoped(this IServiceCollection services)
     {
         services.AddResourceLoader();
         services.TryAddScoped<ITomSelectInterop, TomSelectInterop>();
         services.AddInteropEventListener();
+
+        return services;
     }
 }

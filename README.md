@@ -20,7 +20,7 @@ dotnet add package Soenneker.Blazor.TomSelect
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
-    services.AddTomSelect();
+    services.AddTomSelectInteropAsScoped();
 }
 ```
 

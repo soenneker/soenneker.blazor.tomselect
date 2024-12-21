@@ -33,7 +33,7 @@ public class Program
                 BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
             });
 
-            builder.Services.AddTomSelect();
+            builder.Services.AddTomSelectInteropAsScoped();
 
             builder.Services
                 .AddBlazorise()

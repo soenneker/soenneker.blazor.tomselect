@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-      <PackageReference Include="Blazorise.Bootstrap" Version="1.7.2" />
+      <PackageReference Include="Blazorise.Bootstrap" Version="1.7.3" />
       <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.1" PrivateAssets="all" />
       <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.0" />
       <PackageReference Include="Serilog.Sinks.BrowserConsole" Version="8.0.0" />

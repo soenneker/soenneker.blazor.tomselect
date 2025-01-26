@@ -12,7 +12,7 @@
       <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.1" PrivateAssets="all" />
       <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.0" />
       <PackageReference Include="Serilog.Sinks.BrowserConsole" Version="8.0.0" />
-      <PackageReference Include="Soenneker.SmartEnum.Abbreviated" Version="3.0.928" />
+      <PackageReference Include="Soenneker.SmartEnum.Abbreviated" Version="3.0.929" />
       <PackageReference Include="Soenneker.Utils.AutoBogus" Version="3.0.631" />
       <PackageReference Include="System.Net.Http.Json" Version="9.0.1" />
   </ItemGroup>

@@ -462,7 +462,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
         await AddEventListener<string>(
             GetJsEventName(nameof(OnOptionClear)),
-            async (str, _) =>
+            async (_, _) =>
             {
                 OnOptionClear_internal();
 

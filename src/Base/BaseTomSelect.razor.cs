@@ -17,9 +17,9 @@ public partial class BaseTomSelect : ComponentBase, IBaseTomSelect
 {
     protected DotNetObjectReference<BaseTomSelect>? DotNetReference;
 
-    protected ITomSelectInterop TomSelectInterop = default!;
+    protected ITomSelectInterop TomSelectInterop = null!;
 
-    protected IInteropEventListener InteropEventListener = default!;
+    protected IInteropEventListener InteropEventListener = null!;
 
     /// <summary>
     /// The actual HTML element's id
@@ -30,7 +30,7 @@ public partial class BaseTomSelect : ComponentBase, IBaseTomSelect
 
     protected ElementReference ElementReference;
 
-    protected ILogger<BaseTomSelect> Logger = default!;
+    protected ILogger<BaseTomSelect> Logger = null!;
 
     /// <summary>
     /// Destroys the element.

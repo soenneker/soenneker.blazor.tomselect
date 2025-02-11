@@ -29,9 +29,8 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
         _scriptInitializer = new AsyncSingleton<object>(async (token, _) =>
         {
             await _resourceLoader.ImportModuleAndWaitUntilAvailable("Soenneker.Blazor.TomSelect/tomselectinterop.js", "TomSelectInterop", 100, token).NoSync();
-            await _resourceLoader.LoadStyle("https://cdn.jsdelivr.net/npm/tom-select@2.4.1/dist/css/tom-select.bootstrap5.min.css", "sha256-qFjOuXEZAgLZP4RASUHtlwAY7YHwBALlrGm/+AnvHbk=", cancellationToken: token).NoSync();
-            await _resourceLoader.LoadScriptAndWaitForVariable("https://cdn.jsdelivr.net/npm/tom-select@2.4.1/dist/js/tom-select.complete.min.js", "TomSelect", "sha256-5Ay2s7ymZ00Z+YWosdB7f+yaDOinoQZizY/y92yLwEQ=", cancellationToken: token).NoSync();
-
+            await _resourceLoader.LoadStyle("https://cdn.jsdelivr.net/npm/tom-select@2.4.2/dist/css/tom-select.bootstrap5.min.css", "sha256-lQMtfzgdbG8ufMCU5UThXG65Wsv5CIXGkHFGCHA68ME=", cancellationToken: token).NoSync();
+            await _resourceLoader.LoadScriptAndWaitForVariable("https://cdn.jsdelivr.net/npm/tom-select@2.4.2/dist/js/tom-select.complete.min.js", "TomSelect", "sha256-Z8KmnytERS7nsiVH4tuFcnz/2T/pOlcJKu/Avmq2nHU=", cancellationToken: token).NoSync();
             return new object();
         });
     }

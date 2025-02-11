@@ -27,10 +27,10 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     public IEnumerable<TItem>? Data { get; set; }
 
     [Parameter, EditorRequired]
-    public Func<TItem, string?> TextField { get; set; } = default!;
+    public Func<TItem, string?> TextField { get; set; } = null!;
 
     [Parameter, EditorRequired]
-    public Func<TItem, string?> ValueField { get; set; } = default!;
+    public Func<TItem, string?> ValueField { get; set; } = null!;
 
     [Parameter]
     public Func<string, TItem>? CreateFuncSync { get; set; }
@@ -51,7 +51,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     public bool Create { get; set; }
 
     [Parameter]
-    public List<TItem> Items { get; set; } = default!;
+    public List<TItem> Items { get; set; } = null!;
 
     [Parameter]
     public EventCallback<List<TItem>> ItemsChanged { get; set; }
@@ -298,9 +298,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
     private List<string> ConvertItemsToListString(IEnumerable<TItem> items)
     {
-        List<string> result = items.Select(ToValueFromItem).Where(value => !value.IsNullOrEmpty()).ToList()!;
-
-        return result;
+        return items.Select(ToValueFromItem).Where(value => !value.IsNullOrEmpty()).ToList()!;
     }
 
     private List<TomSelectOption> CreateOptionsFromItems(IEnumerable<TItem> items)
@@ -416,9 +414,9 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
     private async ValueTask OnItemRemove_Internal(string valueOrText)
     {
-        foreach (var item in _workingItems)
+        foreach (TItem item in _workingItems)
         {
-            var value = ToValueFromItem(item);
+            string? value = ToValueFromItem(item);
 
             if (value == valueOrText)
             {
@@ -442,9 +440,9 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         // OPTIONS ---
         await AddEventListener<string>(
             GetJsEventName(nameof(OnOptionAdd)),
-            async e =>
+            async (str, _) =>
             {
-                JsonDocument jsonDocument = JsonDocument.Parse(e);
+                JsonDocument jsonDocument = JsonDocument.Parse(str);
                 var parameters = (
                     jsonDocument.RootElement[0].Deserialize<string>()!,
                     jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!
@@ -456,15 +454,15 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
         await AddEventListener<string>(
             GetJsEventName(nameof(OnOptionRemove)),
-            async e =>
+            async (str, _) =>
             {
                 if (OnOptionRemove.HasDelegate)
-                    await OnOptionRemove.InvokeAsync(e);
+                    await OnOptionRemove.InvokeAsync(str);
             });
 
         await AddEventListener<string>(
             GetJsEventName(nameof(OnOptionClear)),
-            async (e) =>
+            async (str, _) =>
             {
                 OnOptionClear_internal();
 
@@ -476,9 +474,9 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
         await AddEventListener<string>(
             GetJsEventName(nameof(OnItemAdd)),
-            async e =>
+            async (str, _) =>
             {
-                JsonDocument jsonDocument = JsonDocument.Parse(e);
+                JsonDocument jsonDocument = JsonDocument.Parse(str);
                 (string, TomSelectOption) parameters = (
                     jsonDocument.RootElement[0].Deserialize<string>()!,
                     jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!
@@ -494,9 +492,9 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
         await AddEventListener<string>(
             GetJsEventName(nameof(OnItemRemove)),
-            async e =>
+            async (str, _) =>
             {
-                JsonDocument jsonDocument = JsonDocument.Parse(e);
+                JsonDocument jsonDocument = JsonDocument.Parse(str);
                 (string, TomSelectOption) parameters = (
                     jsonDocument.RootElement[0].Deserialize<string>()!,
                     jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!
@@ -512,9 +510,9 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
         await AddEventListener<string>(
             GetJsEventName(nameof(OnItemSelect)),
-            async e =>
+            async (str, _) =>
             {
-                TItem? item = ToItemFromValue(e);
+                TItem? item = ToItemFromValue(str);
 
                 if (item != null)
                 {
@@ -540,12 +538,12 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         {
             await AddEventListener<string>(
                 GetJsEventName(nameof(OnChange)),
-                async e =>
+                async (str, _) =>
                 {
                     if (_onModificationTask != null)
                         await _onModificationTask.Task.NoSync();
 
-                    await OnChange.InvokeAsync(e);
+                    await OnChange.InvokeAsync(str);
 
                     _onModificationTask = new TaskCompletionSource<bool>();
                 });
@@ -555,23 +553,23 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         {
             await AddEventListener<string>(
                 GetJsEventName(nameof(OnFocus)),
-                async e => { await OnFocus.InvokeAsync(); });
+                async (_, _) => { await OnFocus.InvokeAsync(); });
         }
 
         if (OnBlur.HasDelegate)
         {
             await AddEventListener<string>(
                 GetJsEventName(nameof(OnBlur)),
-                async (e) => { await OnBlur.InvokeAsync(); });
+                async (_, _) => { await OnBlur.InvokeAsync(); });
         }
 
         if (OnOptgroupAdd.HasDelegate)
         {
             await AddEventListener<string>(
                 GetJsEventName(nameof(OnOptgroupAdd)),
-                async e =>
+                async (str, _) =>
                 {
-                    JsonDocument jsonDocument = JsonDocument.Parse(e);
+                    JsonDocument jsonDocument = JsonDocument.Parse(str);
                     (string, TomSelectOption) parameters = (
                         jsonDocument.RootElement[0].Deserialize<string>()!,
                         jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!
@@ -585,49 +583,49 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         {
             await AddEventListener<string>(
                 GetJsEventName(nameof(OnOptgroupRemove)),
-                async e => { await OnOptgroupRemove.InvokeAsync(e); });
+                async (str, _) => { await OnOptgroupRemove.InvokeAsync(str); });
         }
 
         if (OnOptgroupClear.HasDelegate)
         {
             await AddEventListener<string>(
                 GetJsEventName(nameof(OnOptgroupClear)),
-                async (e) => { await OnOptgroupClear.InvokeAsync(); });
+                async (str, _) => { await OnOptgroupClear.InvokeAsync(); });
         }
 
         if (OnDropdownOpen.HasDelegate)
         {
             await AddEventListener<TomSelectOption>(
                 GetJsEventName(nameof(OnDropdownOpen)),
-                async e => { await OnDropdownOpen.InvokeAsync(e); });
+                async (str, _) => { await OnDropdownOpen.InvokeAsync(str); });
         }
 
         if (OnDropdownClose.HasDelegate)
         {
             await AddEventListener<TomSelectOption>(
                 GetJsEventName(nameof(OnDropdownClose)),
-                async e => { await OnDropdownClose.InvokeAsync(e); });
+                async (str, _) => { await OnDropdownClose.InvokeAsync(str); });
         }
 
         if (OnType.HasDelegate)
         {
             await AddEventListener<string>(
                 GetJsEventName(nameof(OnType)),
-                async e => { await OnType.InvokeAsync(e); });
+                async (str, _) => { await OnType.InvokeAsync(str); });
         }
 
         if (OnLoad.HasDelegate)
         {
             await AddEventListener<object>(
                 GetJsEventName(nameof(OnLoad)),
-                async e => { await OnLoad.InvokeAsync(e); });
+                async (str, _) => { await OnLoad.InvokeAsync(str); });
         }
 
         if (OnDestroy.HasDelegate)
         {
             await AddEventListener<string>(
                 GetJsEventName(nameof(OnDestroy)),
-                async e => { await OnDestroy.InvokeAsync(); });
+                async (_, _) => { await OnDestroy.InvokeAsync(); });
         }
     }
 
@@ -635,11 +633,10 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     {
         // Remove first two characters
         string subStr = callback[2..];
-        string result = subStr.ToSnakeCaseFromPascal();
-        return result;
+        return subStr.ToSnakeCaseFromPascal();
     }
 
-    private ValueTask AddEventListener<T>(string eventName, Func<T, ValueTask> callback)
+    private ValueTask AddEventListener<T>(string eventName, Func<T, CancellationToken, ValueTask> callback)
     {
         return InteropEventListener.Add("TomSelectInterop.addEventListener", ElementId, eventName, callback, CTs.Token);
     }
@@ -702,7 +699,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             return AddItemType.NewOption;
         }
 
-        foreach (var i in Items)
+        foreach (TItem i in Items)
         {
             string? value = ToValueFromItem(i);
 

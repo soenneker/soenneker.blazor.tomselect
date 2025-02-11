@@ -6,7 +6,7 @@ namespace Soenneker.Blazor.TomSelect.Demo.Dtos;
 public class Country
 {
     [JsonPropertyName("id")]
-    public string Id { get; set; } = default!;
+    public string Id { get; set; } = null!;
 
     [JsonPropertyName("name")]
     public string? Name { get; set; }

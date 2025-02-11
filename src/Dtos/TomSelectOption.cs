@@ -11,13 +11,13 @@ public class TomSelectOption
     /// The value of the option.
     /// </summary>
     [JsonPropertyName("value")]
-    public string Value { get; set; } = default!;
+    public string Value { get; set; } = null!;
 
     /// <summary>
     /// The display text of the option.
     /// </summary>
     [JsonPropertyName("text")]
-    public string Text { get; set; } = default!;
+    public string Text { get; set; } = null!;
 
     /// <summary>
     /// The underlying item of the option.

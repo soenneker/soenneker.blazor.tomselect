@@ -20,13 +20,13 @@ namespace Soenneker.Blazor.TomSelect;
 public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
 {
     private readonly IResourceLoader _resourceLoader;
-    private readonly AsyncSingleton<object> _scriptInitializer;
+    private readonly AsyncSingleton _scriptInitializer;
 
     public TomSelectInterop(IJSRuntime jSRuntime, IResourceLoader resourceLoader) : base(jSRuntime)
     {
         _resourceLoader = resourceLoader;
 
-        _scriptInitializer = new AsyncSingleton<object>(async (token, _) =>
+        _scriptInitializer = new AsyncSingleton(async (token, _) =>
         {
             await _resourceLoader.ImportModuleAndWaitUntilAvailable("Soenneker.Blazor.TomSelect/tomselectinterop.js", "TomSelectInterop", 100, token).NoSync();
             await _resourceLoader.LoadStyle("https://cdn.jsdelivr.net/npm/tom-select@2.4.2/dist/css/tom-select.bootstrap5.min.css", "sha256-lQMtfzgdbG8ufMCU5UThXG65Wsv5CIXGkHFGCHA68ME=", cancellationToken: token).NoSync();
@@ -37,7 +37,7 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
 
     public async ValueTask Initialize(CancellationToken cancellationToken = default)
     {
-        await _scriptInitializer.Get(cancellationToken).NoSync();
+        await _scriptInitializer.Init(cancellationToken).NoSync();
     }
 
     public ValueTask CreateObserver(string elementId, CancellationToken cancellationToken = default)
@@ -48,7 +48,7 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
     public async ValueTask Create(ElementReference elementReference, string elementId, DotNetObjectReference<BaseTomSelect> dotNetObjectRef, TomSelectConfiguration? configuration = null,
         CancellationToken cancellationToken = default)
     {
-        await _scriptInitializer.Get(cancellationToken).NoSync();
+        await _scriptInitializer.Init(cancellationToken).NoSync();
 
         string? json = null;
 
@@ -223,10 +223,13 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
         return JsRuntime.InvokeVoidAsync("TomSelectInterop.sync", cancellationToken, elementId);
     }
 
-    public ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         GC.SuppressFinalize(this);
 
-        return _resourceLoader.DisposeModule("Soenneker.Blazor.TomSelect/tomselectinterop.js");
+        await _resourceLoader.DisposeModule("Soenneker.Blazor.TomSelect/tomselectinterop.js").NoSync();
+
+        await _scriptInitializer.DisposeAsync()
+                        .NoSync();
     }
 }

@@ -19,25 +19,25 @@
     @if (_countries.Populated())
     {
         <TomSelect
-            TItem="Country"
-            TType="string"
-            OnInitialize="OnTomSelectInitialized"
-            OnOptionRemove="OnOptionRemove"
-            OnItemRemove="OnItemRemove"
-            OnOptionAdd="OnOptionAdd"
-            OnItemCreated="OnItemCreated"
-            OnItemAdd="OnItemAdd"
-            Data="@_countries"
-            TextField="item => item.Name"
-            ValueField="item => item.Id.ToString()"
-            CreateFuncSync="text => new Country {Name = text, Id = Guid.NewGuid().ToString()}"
-            @ref="_tomSelect"
-            @bind-Items="_selectedItems"
-            Multiple="true"
-            Create="true"
-            OnChange="OnChange"
-            Debug=true
-            Configuration="_configuration" >
+        TItem="Country"
+        TType="string"
+        OnInitialize="OnTomSelectInitialized"
+        OnOptionRemove="OnOptionRemove"
+        OnItemRemove="OnItemRemove"
+        OnOptionAdd="OnOptionAdd"
+        OnItemCreated="OnItemCreated"
+        OnItemAdd="OnItemAdd"
+        Data="@_countries"
+        TextField="item => item.Name"
+        ValueField="item => item.Id.ToString()"
+        CreateFuncSync="text => new Country {Name = text, Id = Guid.NewGuid().ToString()}"
+        @ref="_tomSelect"
+        @bind-Items="_selectedItems"
+        Multiple="true"
+        Create="true"
+        OnChange="OnChange"
+        Debug=true
+        Configuration="_configuration" >
         </TomSelect>
     }
 }
@@ -104,6 +104,7 @@
     {
         Logger.LogInformation("OnInitialized called");
     }
+
 
     private void ClearViaData()
     {

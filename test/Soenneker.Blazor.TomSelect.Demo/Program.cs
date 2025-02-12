@@ -12,6 +12,7 @@ using Serilog;
 using Serilog.Debugging;
 using Serilog.Events;
 using Soenneker.Blazor.TomSelect.Registrars;
+using Soenneker.Serilog.Sinks.Browser.Blazor.Registrars;
 
 namespace Soenneker.Blazor.TomSelect.Demo;
 
@@ -65,6 +66,7 @@ public class Program
         services.AddLogging(builder =>
         {
             builder.ClearProviders();
+            builder.AddFilter("Microsoft.AspNetCore.Components.RenderTree.*", LogLevel.None);
 
             builder.AddSerilog(dispose: true);
         });
@@ -75,11 +77,8 @@ public class Program
         const LogEventLevel logEventLevel = LogEventLevel.Verbose;
 
         var loggerConfig = new LoggerConfiguration();
-        loggerConfig.MinimumLevel.Is(logEventLevel);
 
-        loggerConfig.Enrich.FromLogContext();
-
-        loggerConfig.WriteTo.BrowserConsole(jsRuntime: jsRuntime, restrictedToMinimumLevel: logEventLevel);
+        loggerConfig.WriteTo.BlazorConsole(jsRuntime: jsRuntime, restrictedToMinimumLevel: logEventLevel);
 
         Log.Logger = loggerConfig.CreateLogger();
     }

@@ -87,7 +87,7 @@
         base.OnInitialized();
     }
 
-    public virtual ValueTask Reinitialize()
+    public virtual ValueTask Reinitialize(CancellationToken cancellationToken = default)
     {
         return ValueTask.CompletedTask;
     }

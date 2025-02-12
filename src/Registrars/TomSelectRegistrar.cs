@@ -16,9 +16,9 @@ public static class TomSelectRegistrar
     /// </summary>
     public static IServiceCollection AddTomSelectInteropAsScoped(this IServiceCollection services)
     {
-        services.AddResourceLoaderAsScoped();
-        services.TryAddScoped<ITomSelectInterop, TomSelectInterop>();
-        services.AddInteropEventListenerAsScoped();
+        services.AddResourceLoaderAsScoped()
+                .AddInteropEventListenerAsScoped()
+                .TryAddScoped<ITomSelectInterop, TomSelectInterop>();
 
         return services;
     }

@@ -72,7 +72,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
     protected override async Task OnInitializedAsync()
     {
-        await TomSelectInterop.Initialize();
+        await TomSelectInterop.Initialize().NoSync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -84,7 +84,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
             _isDataSet = false;
             InteropEventListener.Initialize(TomSelectInterop);
-            await Initialize();
+            await Initialize().NoSync();
             _isCreated = true;
         }
 
@@ -92,7 +92,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         {
             _isDataSet = true;
 
-            await InitializeData();
+            await InitializeData().NoSync();
         }
     }
 
@@ -112,7 +112,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
                 _dataHash = dataHashNew;
 
-                await ClearOptions();
+                await ClearOptions().NoSync();
                 await AddOptions(Data, false);
             }
         }
@@ -125,25 +125,25 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
             _workingItems = Items;
 
-            await CleanItems();
+            await CleanItems().NoSync();
 
             _itemsHash = Items.GetAggregateHashCode(false);
 
             List<string> values = ConvertItemsToListString(_workingItems);
-            await TomSelectInterop.ClearAndAddItems(ElementId, values, true);
+            await TomSelectInterop.ClearAndAddItems(ElementId, values, true).NoSync();
         }
     }
 
-    public override async ValueTask Reinitialize()
+    public override async ValueTask Reinitialize(CancellationToken cancellationToken = default)
     {
-        await ClearItems(true).NoSync();
+        await ClearItems(true, cancellationToken).NoSync();
 
-        await ClearOptions().NoSync();
+        await ClearOptions(cancellationToken).NoSync();
 
-        await InitializeData().NoSync();
+        await InitializeData(cancellationToken).NoSync();
     }
 
-    private async ValueTask InitializeData()
+    private async ValueTask InitializeData(CancellationToken cancellationToken = default)
     {
         if (Data == null)
         {
@@ -155,13 +155,13 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
         if (Data.Any())
         {
-            await AddOptions(Data, false);
+            await AddOptions(Data, false, cancellationToken).NoSync();
 
             _workingItems = Items;
 
-            await CleanItems();
+            await CleanItems().NoSync();
 
-            await AddItemsToDom(_workingItems, true, CancellationToken.None);
+            await AddItemsToDom(_workingItems, true, cancellationToken).NoSync();
         }
 
         _onModificationTask = new TaskCompletionSource<bool>();
@@ -175,11 +175,11 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         if (Create)
             Configuration.Create = true;
 
-        DotNetReference = DotNetObjectReference.Create((BaseTomSelect) this);
+        DotNetReference = DotNetObjectReference.Create<BaseTomSelect>(this);
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        await TomSelectInterop.Create(ElementReference, ElementId, DotNetReference, Configuration, linkedCts.Token);
-        await TomSelectInterop.CreateObserver(ElementId, cancellationToken);
+        await TomSelectInterop.Create(ElementReference, ElementId, DotNetReference, Configuration, linkedCts.Token).NoSync();
+        await TomSelectInterop.CreateObserver(ElementId, cancellationToken).NoSync();
 
         await AddEventListeners().NoSync();
     }
@@ -192,7 +192,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             return null;
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        await TomSelectInterop.AddOption(ElementId, option!, userCreated, linkedCts.Token);
+        await TomSelectInterop.AddOption(ElementId, option!, userCreated, linkedCts.Token).NoSync();
 
         return option;
     }
@@ -211,7 +211,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         }
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        await TomSelectInterop.AddOptions(ElementId, dedupedOptions, userCreated, linkedCts.Token);
+        await TomSelectInterop.AddOptions(ElementId, dedupedOptions, userCreated, linkedCts.Token).NoSync();
     }
 
     public ValueTask UpdateOption(string value, TItem item, CancellationToken cancellationToken = default)
@@ -242,13 +242,13 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     {
         string? value = ToValueFromItem(item);
 
-        AddItemType result = await TryAddItem(value);
+        AddItemType result = await TryAddItem(value, cancellationToken).NoSync();
 
         if (result != AddItemType.Normal)
             return;
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        await TomSelectInterop.AddItem(ElementId, value!, silent, linkedCts.Token);
+        await TomSelectInterop.AddItem(ElementId, value!, silent, linkedCts.Token).NoSync();
     }
 
     public ValueTask AddItems(IEnumerable<string> value, bool silent = false, CancellationToken cancellationToken = default)
@@ -261,7 +261,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     private ValueTask AddItemsToDom(IEnumerable<string> values, bool silent, CancellationToken cancellationToken)
     {
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(CTs.Token, cancellationToken);
-        return TomSelectInterop.AddItems(ElementId, values!, silent, linkedCts.Token);
+        return TomSelectInterop.AddItems(ElementId, values, silent, linkedCts.Token);
     }
 
     private ValueTask AddItemsToDom(IEnumerable<TItem> items, bool silent, CancellationToken cancellationToken)
@@ -285,7 +285,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         {
             string? value = ToValueFromItem(item);
 
-            int result = await TryAddItem(value);
+            int result = await TryAddItem(value, cancellationToken).NoSync();
 
             if (result == 1)
             {
@@ -293,7 +293,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             }
         }
 
-        await AddItemsToDom(values, silent, cancellationToken);
+        await AddItemsToDom(values, silent, cancellationToken).NoSync();
     }
 
     private List<string> ConvertItemsToListString(IEnumerable<TItem> items)
@@ -387,11 +387,11 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
     private async ValueTask OnItemAdd_internal(string valueOrText)
     {
-        AddItemType addItemType = await TryAddItem(valueOrText);
+        AddItemType addItemType = await TryAddItem(valueOrText).NoSync();
 
         if (addItemType == AddItemType.NewOption)
         {
-            await OnOptionCreated_internal(valueOrText);
+            await OnOptionCreated_internal(valueOrText).NoSync();
         }
     }
 
@@ -402,13 +402,13 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         TItem item = await CreateItemFromValue(value).NoSync();
 
         // Unfortunately we need to remove the option (stored via value) so we can re-add the properly built one from the component
-        await RemoveOption(value);
-        TomSelectOption? newOption = await AddOption(item, false);
+        await RemoveOption(value).NoSync();
+        TomSelectOption? newOption = await AddOption(item, false).NoSync();
 
         if (OnItemCreated.HasDelegate)
         {
             if (newOption != null)
-                await OnItemCreated.InvokeAsync((value, newOption));
+                await OnItemCreated.InvokeAsync((value, newOption)).NoSync();
         }
     }
 
@@ -421,7 +421,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             if (value == valueOrText)
             {
                 _workingItems.Remove(item);
-                await SyncItems();
+                await SyncItems().NoSync();
                 return;
             }
         }
@@ -440,7 +440,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         // OPTIONS ---
         await AddEventListener<string>(
             GetJsEventName(nameof(OnOptionAdd)),
-            async (str, _) =>
+            async str =>
             {
                 JsonDocument jsonDocument = JsonDocument.Parse(str);
                 var parameters = (
@@ -449,32 +449,32 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                 );
 
                 if (OnOptionAdd.HasDelegate)
-                    await OnOptionAdd.InvokeAsync(parameters);
+                    await OnOptionAdd.InvokeAsync(parameters).NoSync();
             });
 
         await AddEventListener<string>(
             GetJsEventName(nameof(OnOptionRemove)),
-            async (str, _) =>
+            async str =>
             {
                 if (OnOptionRemove.HasDelegate)
-                    await OnOptionRemove.InvokeAsync(str);
+                    await OnOptionRemove.InvokeAsync(str).NoSync();
             });
 
         await AddEventListener<string>(
             GetJsEventName(nameof(OnOptionClear)),
-            async (_, _) =>
+            async _ =>
             {
                 OnOptionClear_internal();
 
                 if (OnOptionClear.HasDelegate)
-                    await OnOptionClear.InvokeAsync();
+                    await OnOptionClear.InvokeAsync().NoSync();
             });
 
         // ITEMS ---
 
         await AddEventListener<string>(
             GetJsEventName(nameof(OnItemAdd)),
-            async (str, _) =>
+            async str =>
             {
                 JsonDocument jsonDocument = JsonDocument.Parse(str);
                 (string, TomSelectOption) parameters = (
@@ -482,17 +482,17 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                     jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!
                 );
 
-                await OnItemAdd_internal(parameters.Item1);
+                await OnItemAdd_internal(parameters.Item1).NoSync();
 
                 if (OnItemAdd.HasDelegate)
-                    await OnItemAdd.InvokeAsync(parameters);
+                    await OnItemAdd.InvokeAsync(parameters).NoSync();
 
                 _onModificationTask?.TrySetResult(true);
             });
 
         await AddEventListener<string>(
             GetJsEventName(nameof(OnItemRemove)),
-            async (str, _) =>
+            async str =>
             {
                 JsonDocument jsonDocument = JsonDocument.Parse(str);
                 (string, TomSelectOption) parameters = (
@@ -500,17 +500,17 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                     jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!
                 );
 
-                await OnItemRemove_Internal(parameters.Item1);
+                await OnItemRemove_Internal(parameters.Item1).NoSync();
 
                 if (OnItemRemove.HasDelegate)
-                    await OnItemRemove.InvokeAsync(parameters);
+                    await OnItemRemove.InvokeAsync(parameters).NoSync();
 
                 _onModificationTask?.TrySetResult(true);
             });
 
         await AddEventListener<string>(
             GetJsEventName(nameof(OnItemSelect)),
-            async (str, _) =>
+            async str =>
             {
                 TItem? item = ToItemFromValue(str);
 
@@ -519,7 +519,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                     TomSelectOption? option = CreateOptionFromItem(item);
 
                     if (OnItemSelect.HasDelegate)
-                        await OnItemSelect.InvokeAsync(option);
+                        await OnItemSelect.InvokeAsync(option).NoSync();
                 }
             });
 
@@ -538,12 +538,12 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         {
             await AddEventListener<string>(
                 GetJsEventName(nameof(OnChange)),
-                async (str, _) =>
+                async str =>
                 {
                     if (_onModificationTask != null)
                         await _onModificationTask.Task.NoSync();
 
-                    await OnChange.InvokeAsync(str);
+                    await OnChange.InvokeAsync(str).NoSync();
 
                     _onModificationTask = new TaskCompletionSource<bool>();
                 });
@@ -553,21 +553,21 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         {
             await AddEventListener<string>(
                 GetJsEventName(nameof(OnFocus)),
-                async (_, _) => { await OnFocus.InvokeAsync(); });
+                async _ => { await OnFocus.InvokeAsync().NoSync(); });
         }
 
         if (OnBlur.HasDelegate)
         {
             await AddEventListener<string>(
                 GetJsEventName(nameof(OnBlur)),
-                async (_, _) => { await OnBlur.InvokeAsync(); });
+                async _ => { await OnBlur.InvokeAsync().NoSync(); });
         }
 
         if (OnOptgroupAdd.HasDelegate)
         {
             await AddEventListener<string>(
                 GetJsEventName(nameof(OnOptgroupAdd)),
-                async (str, _) =>
+                async str =>
                 {
                     JsonDocument jsonDocument = JsonDocument.Parse(str);
                     (string, TomSelectOption) parameters = (
@@ -575,7 +575,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                         jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!
                     );
 
-                    await OnOptgroupAdd.InvokeAsync(parameters);
+                    await OnOptgroupAdd.InvokeAsync(parameters).NoSync();
                 });
         }
 
@@ -583,49 +583,54 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         {
             await AddEventListener<string>(
                 GetJsEventName(nameof(OnOptgroupRemove)),
-                async (str, _) => { await OnOptgroupRemove.InvokeAsync(str); });
+                async str => { 
+                    await OnOptgroupRemove.InvokeAsync(str).NoSync(); 
+                });
         }
 
         if (OnOptgroupClear.HasDelegate)
         {
             await AddEventListener<string>(
                 GetJsEventName(nameof(OnOptgroupClear)),
-                async (str, _) => { await OnOptgroupClear.InvokeAsync(); });
+                async str => { 
+                    await OnOptgroupClear.InvokeAsync().NoSync(); });
         }
 
         if (OnDropdownOpen.HasDelegate)
         {
             await AddEventListener<TomSelectOption>(
                 GetJsEventName(nameof(OnDropdownOpen)),
-                async (str, _) => { await OnDropdownOpen.InvokeAsync(str); });
+                async str => {
+                    await OnDropdownOpen.InvokeAsync(str).NoSync(); });
         }
 
         if (OnDropdownClose.HasDelegate)
         {
             await AddEventListener<TomSelectOption>(
                 GetJsEventName(nameof(OnDropdownClose)),
-                async (str, _) => { await OnDropdownClose.InvokeAsync(str); });
+                async str => { await OnDropdownClose.InvokeAsync(str).NoSync(); });
         }
 
         if (OnType.HasDelegate)
         {
             await AddEventListener<string>(
                 GetJsEventName(nameof(OnType)),
-                async (str, _) => { await OnType.InvokeAsync(str); });
+                async str => { await OnType.InvokeAsync(str).NoSync(); });
         }
 
         if (OnLoad.HasDelegate)
         {
             await AddEventListener<object>(
                 GetJsEventName(nameof(OnLoad)),
-                async (str, _) => { await OnLoad.InvokeAsync(str); });
+                async str => { 
+                    await OnLoad.InvokeAsync(str).NoSync(); });
         }
 
         if (OnDestroy.HasDelegate)
         {
             await AddEventListener<string>(
                 GetJsEventName(nameof(OnDestroy)),
-                async (_, _) => { await OnDestroy.InvokeAsync(); });
+                async _ => { await OnDestroy.InvokeAsync().NoSync(); });
         }
     }
 
@@ -636,7 +641,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         return subStr.ToSnakeCaseFromPascal();
     }
 
-    private ValueTask AddEventListener<T>(string eventName, Func<T, CancellationToken, ValueTask> callback)
+    private ValueTask AddEventListener<T>(string eventName, Func<T, ValueTask> callback)
     {
         return InteropEventListener.Add("TomSelectInterop.addEventListener", ElementId, eventName, callback, CTs.Token);
     }
@@ -644,10 +649,10 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     public async ValueTask ClearItems(bool silent = false, CancellationToken cancellationToken = default)
     {
         _workingItems.Clear();
-        await SyncItems();
+        await SyncItems().NoSync();
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        await TomSelectInterop.ClearItems(ElementId, silent, linkedCts.Token);
+        await TomSelectInterop.ClearItems(ElementId, silent, linkedCts.Token).NoSync();
     }
 
     private bool TryAddOption(TomSelectOption? tomSelectOption)
@@ -672,7 +677,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         return true;
     }
 
-    private async ValueTask<AddItemType> TryAddItem(string? valueOrText)
+    private async ValueTask<AddItemType> TryAddItem(string? valueOrText, CancellationToken cancellationToken = default)
     {
         if (valueOrText.IsNullOrEmpty())
         {
@@ -711,7 +716,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         }
 
         _workingItems.Add(item);
-        await SyncItems();
+        await SyncItems().NoSync();
 
         return AddItemType.Normal;
     }
@@ -753,7 +758,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         {
             LogDebug("Clean requires a resync of Items");
             _workingItems = cleaned.Values.ToList();
-            await SyncItems();
+            await SyncItems().NoSync();
         }
     }
 

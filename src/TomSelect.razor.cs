@@ -113,7 +113,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                 _dataHash = dataHashNew;
 
                 await ClearOptions().NoSync();
-                await AddOptions(Data, false);
+                await AddOptions(Data, false).NoSync();
             }
         }
 
@@ -450,7 +450,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
                 if (OnOptionAdd.HasDelegate)
                     await OnOptionAdd.InvokeAsync(parameters).NoSync();
-            });
+            }).NoSync();
 
         await AddEventListener<string>(
             GetJsEventName(nameof(OnOptionRemove)),
@@ -458,7 +458,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             {
                 if (OnOptionRemove.HasDelegate)
                     await OnOptionRemove.InvokeAsync(str).NoSync();
-            });
+            }).NoSync();
 
         await AddEventListener<string>(
             GetJsEventName(nameof(OnOptionClear)),
@@ -468,7 +468,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
                 if (OnOptionClear.HasDelegate)
                     await OnOptionClear.InvokeAsync().NoSync();
-            });
+            }).NoSync();
 
         // ITEMS ---
 
@@ -488,7 +488,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                     await OnItemAdd.InvokeAsync(parameters).NoSync();
 
                 _onModificationTask?.TrySetResult(true);
-            });
+            }).NoSync();
 
         await AddEventListener<string>(
             GetJsEventName(nameof(OnItemRemove)),
@@ -506,7 +506,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                     await OnItemRemove.InvokeAsync(parameters).NoSync();
 
                 _onModificationTask?.TrySetResult(true);
-            });
+            }).NoSync();
 
         await AddEventListener<string>(
             GetJsEventName(nameof(OnItemSelect)),
@@ -521,7 +521,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                     if (OnItemSelect.HasDelegate)
                         await OnItemSelect.InvokeAsync(option).NoSync();
                 }
-            });
+            }).NoSync();
 
         // TODO: There's a bug in the JS that raises the clear event when an item is selected 04/04/24
         //await AddEventListener<string>(
@@ -546,21 +546,21 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                     await OnChange.InvokeAsync(str).NoSync();
 
                     _onModificationTask = new TaskCompletionSource<bool>();
-                });
+                }).NoSync();
         }
 
         if (OnFocus.HasDelegate)
         {
             await AddEventListener<string>(
                 GetJsEventName(nameof(OnFocus)),
-                async _ => { await OnFocus.InvokeAsync().NoSync(); });
+                async _ => { await OnFocus.InvokeAsync().NoSync(); }).NoSync();
         }
 
         if (OnBlur.HasDelegate)
         {
             await AddEventListener<string>(
                 GetJsEventName(nameof(OnBlur)),
-                async _ => { await OnBlur.InvokeAsync().NoSync(); });
+                async _ => { await OnBlur.InvokeAsync().NoSync(); }).NoSync();
         }
 
         if (OnOptgroupAdd.HasDelegate)
@@ -576,7 +576,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                     );
 
                     await OnOptgroupAdd.InvokeAsync(parameters).NoSync();
-                });
+                }).NoSync();
         }
 
         if (OnOptgroupRemove.HasDelegate)
@@ -585,7 +585,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                 GetJsEventName(nameof(OnOptgroupRemove)),
                 async str => { 
                     await OnOptgroupRemove.InvokeAsync(str).NoSync(); 
-                });
+                }).NoSync();
         }
 
         if (OnOptgroupClear.HasDelegate)
@@ -593,7 +593,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             await AddEventListener<string>(
                 GetJsEventName(nameof(OnOptgroupClear)),
                 async str => { 
-                    await OnOptgroupClear.InvokeAsync().NoSync(); });
+                    await OnOptgroupClear.InvokeAsync().NoSync(); }).NoSync();
         }
 
         if (OnDropdownOpen.HasDelegate)
@@ -601,21 +601,21 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             await AddEventListener<TomSelectOption>(
                 GetJsEventName(nameof(OnDropdownOpen)),
                 async str => {
-                    await OnDropdownOpen.InvokeAsync(str).NoSync(); });
+                    await OnDropdownOpen.InvokeAsync(str).NoSync(); }).NoSync();
         }
 
         if (OnDropdownClose.HasDelegate)
         {
             await AddEventListener<TomSelectOption>(
                 GetJsEventName(nameof(OnDropdownClose)),
-                async str => { await OnDropdownClose.InvokeAsync(str).NoSync(); });
+                async str => { await OnDropdownClose.InvokeAsync(str).NoSync(); }).NoSync();
         }
 
         if (OnType.HasDelegate)
         {
             await AddEventListener<string>(
                 GetJsEventName(nameof(OnType)),
-                async str => { await OnType.InvokeAsync(str).NoSync(); });
+                async str => { await OnType.InvokeAsync(str).NoSync(); }).NoSync();
         }
 
         if (OnLoad.HasDelegate)
@@ -623,14 +623,14 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             await AddEventListener<object>(
                 GetJsEventName(nameof(OnLoad)),
                 async str => { 
-                    await OnLoad.InvokeAsync(str).NoSync(); });
+                    await OnLoad.InvokeAsync(str).NoSync(); }).NoSync();
         }
 
         if (OnDestroy.HasDelegate)
         {
             await AddEventListener<string>(
                 GetJsEventName(nameof(OnDestroy)),
-                async _ => { await OnDestroy.InvokeAsync().NoSync(); });
+                async _ => { await OnDestroy.InvokeAsync().NoSync(); }).NoSync();
         }
     }
 
@@ -725,7 +725,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     public async Task OnInitializedJs()
     {
         if (OnInitialize.HasDelegate)
-            await OnInitialize.InvokeAsync();
+            await OnInitialize.InvokeAsync().NoSync();
     }
 
     private async ValueTask CleanItems()

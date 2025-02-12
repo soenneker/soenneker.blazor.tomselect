@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using Serilog;
 using Serilog.Debugging;
-using Serilog.Events;
 using Soenneker.Blazor.TomSelect.Registrars;
 using Soenneker.Serilog.Sinks.Browser.Blazor.Registrars;
 
@@ -74,11 +73,9 @@ public class Program
 
     private static void SetGlobalLogger(IJSRuntime jsRuntime)
     {
-        const LogEventLevel logEventLevel = LogEventLevel.Verbose;
-
         var loggerConfig = new LoggerConfiguration();
 
-        loggerConfig.WriteTo.BlazorConsole(jsRuntime: jsRuntime, restrictedToMinimumLevel: logEventLevel);
+        loggerConfig.WriteTo.BlazorConsole(jsRuntime: jsRuntime);
 
         Log.Logger = loggerConfig.CreateLogger();
     }

@@ -55,7 +55,7 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
         if (configuration != null)
             json = JsonUtil.Serialize(configuration);
 
-        await JsRuntime.InvokeVoidAsync("TomSelectInterop.create", cancellationToken, elementReference, elementId, json, dotNetObjectRef);
+        await JsRuntime.InvokeVoidAsync("TomSelectInterop.create", cancellationToken, elementReference, elementId, json, dotNetObjectRef).NoSync();
     }
 
     public ValueTask Destroy(string elementId, CancellationToken cancellationToken = default)

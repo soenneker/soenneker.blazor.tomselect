@@ -14,7 +14,7 @@
       <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.0" />
       <PackageReference Include="Soenneker.Serilog.Sinks.Browser.Blazor" Version="3.0.12" />
       <PackageReference Include="Soenneker.SmartEnum.Abbreviated" Version="3.0.1013" />
-      <PackageReference Include="Soenneker.Utils.AutoBogus" Version="3.0.684" />
+      <PackageReference Include="Soenneker.Utils.AutoBogus" Version="3.0.686" />
       <PackageReference Include="System.Net.Http.Json" Version="9.0.2" />
   </ItemGroup>
 

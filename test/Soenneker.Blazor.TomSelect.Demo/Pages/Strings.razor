@@ -32,10 +32,7 @@
             ValueField="item => item"
             @ref="_tomSelect"
             @bind-Items="_selectedItems"
-            Multiple="true"
-            Create="true"
             OnChange="OnChange"
-            Debug=true
             Configuration="_configuration" >
         </TomSelect>
     }
@@ -167,6 +164,8 @@
 
     private async Task AddOption()
     {
+        _countries.Add("arstl//23p234_:>O<_(1).w32");
+
         await _tomSelect.AddOption(_autoFaker.Generate<string>());
     }
 

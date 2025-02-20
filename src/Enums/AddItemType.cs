@@ -1,14 +1,11 @@
-﻿using Ardalis.SmartEnum;
+﻿using Intellenum;
 
 namespace Soenneker.Blazor.TomSelect.Enums;
 
-public sealed class AddItemType : SmartEnum<AddItemType>
+[Intellenum<string>]
+public partial class AddItemType
 {
-    public static readonly AddItemType Normal = new(nameof(Normal), 0);
-    public static readonly AddItemType NewOption = new(nameof(NewOption), 1);
-    public static readonly AddItemType Error = new(nameof(Error), 2);
-
-    private AddItemType(string name, int value) : base(name, value)
-    {
-    }
+    public static readonly AddItemType Normal = new(nameof(Normal));
+    public static readonly AddItemType NewOption = new(nameof(NewOption));
+    public static readonly AddItemType Error = new(nameof(Error));
 }

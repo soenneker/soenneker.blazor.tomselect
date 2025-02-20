@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using Ardalis.SmartEnum.SystemTextJson;
 using Soenneker.Blazor.TomSelect.Dtos;
 using Soenneker.Blazor.TomSelect.Enums;
-using Soenneker.Json.CollectionConverter;
 
 namespace Soenneker.Blazor.TomSelect.Configuration;
 
@@ -19,7 +17,6 @@ public class TomSelectConfiguration
     public List<string> Items { get; set; } = [];
 
     [JsonPropertyName("plugins")]
-    [JsonConverter(typeof(CollectionConverter<SmartEnumNameConverter<TomSelectPluginType, int>>))]
     public List<TomSelectPluginType>? Plugins { get; set; }
 
     /// <summary>

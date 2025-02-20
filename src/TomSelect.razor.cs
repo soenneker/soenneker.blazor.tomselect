@@ -285,9 +285,9 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         {
             string? value = ToValueFromItem(item);
 
-            int result = await TryAddItem(value, cancellationToken).NoSync();
+            AddItemType result = await TryAddItem(value, cancellationToken).NoSync();
 
-            if (result == 1)
+            if (result != AddItemType.Error)
             {
                 values.Add(value);
             }
@@ -438,49 +438,39 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     private async ValueTask AddEventListeners()
     {
         // OPTIONS ---
-        await AddEventListener<string>(
-            GetJsEventName(nameof(OnOptionAdd)),
-            async str =>
+        await AddEventListener<string>(GetJsEventName(nameof(OnOptionAdd)), async str =>
             {
                 JsonDocument jsonDocument = JsonDocument.Parse(str);
-                var parameters = (
-                    jsonDocument.RootElement[0].Deserialize<string>()!,
-                    jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!
-                );
+                var parameters = (jsonDocument.RootElement[0].Deserialize<string>()!, jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!);
 
                 if (OnOptionAdd.HasDelegate)
                     await OnOptionAdd.InvokeAsync(parameters).NoSync();
-            }).NoSync();
+            })
+            .NoSync();
 
-        await AddEventListener<string>(
-            GetJsEventName(nameof(OnOptionRemove)),
-            async str =>
+        await AddEventListener<string>(GetJsEventName(nameof(OnOptionRemove)), async str =>
             {
                 if (OnOptionRemove.HasDelegate)
                     await OnOptionRemove.InvokeAsync(str).NoSync();
-            }).NoSync();
+            })
+            .NoSync();
 
-        await AddEventListener<string>(
-            GetJsEventName(nameof(OnOptionClear)),
-            async _ =>
+        await AddEventListener<string>(GetJsEventName(nameof(OnOptionClear)), async _ =>
             {
                 OnOptionClear_internal();
 
                 if (OnOptionClear.HasDelegate)
                     await OnOptionClear.InvokeAsync().NoSync();
-            }).NoSync();
+            })
+            .NoSync();
 
         // ITEMS ---
 
-        await AddEventListener<string>(
-            GetJsEventName(nameof(OnItemAdd)),
-            async str =>
+        await AddEventListener<string>(GetJsEventName(nameof(OnItemAdd)), async str =>
             {
                 JsonDocument jsonDocument = JsonDocument.Parse(str);
-                (string, TomSelectOption) parameters = (
-                    jsonDocument.RootElement[0].Deserialize<string>()!,
-                    jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!
-                );
+                (string, TomSelectOption) parameters = (jsonDocument.RootElement[0].Deserialize<string>()!,
+                    jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!);
 
                 await OnItemAdd_internal(parameters.Item1).NoSync();
 
@@ -488,17 +478,14 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                     await OnItemAdd.InvokeAsync(parameters).NoSync();
 
                 _onModificationTask?.TrySetResult(true);
-            }).NoSync();
+            })
+            .NoSync();
 
-        await AddEventListener<string>(
-            GetJsEventName(nameof(OnItemRemove)),
-            async str =>
+        await AddEventListener<string>(GetJsEventName(nameof(OnItemRemove)), async str =>
             {
                 JsonDocument jsonDocument = JsonDocument.Parse(str);
-                (string, TomSelectOption) parameters = (
-                    jsonDocument.RootElement[0].Deserialize<string>()!,
-                    jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!
-                );
+                (string, TomSelectOption) parameters = (jsonDocument.RootElement[0].Deserialize<string>()!,
+                    jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!);
 
                 await OnItemRemove_Internal(parameters.Item1).NoSync();
 
@@ -506,11 +493,10 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                     await OnItemRemove.InvokeAsync(parameters).NoSync();
 
                 _onModificationTask?.TrySetResult(true);
-            }).NoSync();
+            })
+            .NoSync();
 
-        await AddEventListener<string>(
-            GetJsEventName(nameof(OnItemSelect)),
-            async str =>
+        await AddEventListener<string>(GetJsEventName(nameof(OnItemSelect)), async str =>
             {
                 TItem? item = ToItemFromValue(str);
 
@@ -521,7 +507,8 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                     if (OnItemSelect.HasDelegate)
                         await OnItemSelect.InvokeAsync(option).NoSync();
                 }
-            }).NoSync();
+            })
+            .NoSync();
 
         // TODO: There's a bug in the JS that raises the clear event when an item is selected 04/04/24
         //await AddEventListener<string>(
@@ -536,9 +523,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
         if (OnChange.HasDelegate)
         {
-            await AddEventListener<string>(
-                GetJsEventName(nameof(OnChange)),
-                async str =>
+            await AddEventListener<string>(GetJsEventName(nameof(OnChange)), async str =>
                 {
                     if (_onModificationTask != null)
                         await _onModificationTask.Task.NoSync();
@@ -546,91 +531,69 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
                     await OnChange.InvokeAsync(str).NoSync();
 
                     _onModificationTask = new TaskCompletionSource<bool>();
-                }).NoSync();
+                })
+                .NoSync();
         }
 
         if (OnFocus.HasDelegate)
         {
-            await AddEventListener<string>(
-                GetJsEventName(nameof(OnFocus)),
-                async _ => { await OnFocus.InvokeAsync().NoSync(); }).NoSync();
+            await AddEventListener<string>(GetJsEventName(nameof(OnFocus)), async _ => { await OnFocus.InvokeAsync().NoSync(); }).NoSync();
         }
 
         if (OnBlur.HasDelegate)
         {
-            await AddEventListener<string>(
-                GetJsEventName(nameof(OnBlur)),
-                async _ => { await OnBlur.InvokeAsync().NoSync(); }).NoSync();
+            await AddEventListener<string>(GetJsEventName(nameof(OnBlur)), async _ => { await OnBlur.InvokeAsync().NoSync(); }).NoSync();
         }
 
         if (OnOptgroupAdd.HasDelegate)
         {
-            await AddEventListener<string>(
-                GetJsEventName(nameof(OnOptgroupAdd)),
-                async str =>
+            await AddEventListener<string>(GetJsEventName(nameof(OnOptgroupAdd)), async str =>
                 {
                     JsonDocument jsonDocument = JsonDocument.Parse(str);
-                    (string, TomSelectOption) parameters = (
-                        jsonDocument.RootElement[0].Deserialize<string>()!,
-                        jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!
-                    );
+                    (string, TomSelectOption) parameters = (jsonDocument.RootElement[0].Deserialize<string>()!,
+                        jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!);
 
                     await OnOptgroupAdd.InvokeAsync(parameters).NoSync();
-                }).NoSync();
+                })
+                .NoSync();
         }
 
         if (OnOptgroupRemove.HasDelegate)
         {
-            await AddEventListener<string>(
-                GetJsEventName(nameof(OnOptgroupRemove)),
-                async str => { 
-                    await OnOptgroupRemove.InvokeAsync(str).NoSync(); 
-                }).NoSync();
+            await AddEventListener<string>(GetJsEventName(nameof(OnOptgroupRemove)), async str => { await OnOptgroupRemove.InvokeAsync(str).NoSync(); })
+                .NoSync();
         }
 
         if (OnOptgroupClear.HasDelegate)
         {
-            await AddEventListener<string>(
-                GetJsEventName(nameof(OnOptgroupClear)),
-                async str => { 
-                    await OnOptgroupClear.InvokeAsync().NoSync(); }).NoSync();
+            await AddEventListener<string>(GetJsEventName(nameof(OnOptgroupClear)), async str => { await OnOptgroupClear.InvokeAsync().NoSync(); }).NoSync();
         }
 
         if (OnDropdownOpen.HasDelegate)
         {
-            await AddEventListener<TomSelectOption>(
-                GetJsEventName(nameof(OnDropdownOpen)),
-                async str => {
-                    await OnDropdownOpen.InvokeAsync(str).NoSync(); }).NoSync();
+            await AddEventListener<TomSelectOption>(GetJsEventName(nameof(OnDropdownOpen)), async str => { await OnDropdownOpen.InvokeAsync(str).NoSync(); })
+                .NoSync();
         }
 
         if (OnDropdownClose.HasDelegate)
         {
-            await AddEventListener<TomSelectOption>(
-                GetJsEventName(nameof(OnDropdownClose)),
-                async str => { await OnDropdownClose.InvokeAsync(str).NoSync(); }).NoSync();
+            await AddEventListener<TomSelectOption>(GetJsEventName(nameof(OnDropdownClose)), async str => { await OnDropdownClose.InvokeAsync(str).NoSync(); })
+                .NoSync();
         }
 
         if (OnType.HasDelegate)
         {
-            await AddEventListener<string>(
-                GetJsEventName(nameof(OnType)),
-                async str => { await OnType.InvokeAsync(str).NoSync(); }).NoSync();
+            await AddEventListener<string>(GetJsEventName(nameof(OnType)), async str => { await OnType.InvokeAsync(str).NoSync(); }).NoSync();
         }
 
         if (OnLoad.HasDelegate)
         {
-            await AddEventListener<object>(
-                GetJsEventName(nameof(OnLoad)),
-                async str => { 
-                    await OnLoad.InvokeAsync(str).NoSync(); }).NoSync();
+            await AddEventListener<object>(GetJsEventName(nameof(OnLoad)), async str => { await OnLoad.InvokeAsync(str).NoSync(); }).NoSync();
         }
 
         if (OnDestroy.HasDelegate)
         {
-            await AddEventListener<string>(
-                GetJsEventName(nameof(OnDestroy)),
-                async _ => { await OnDestroy.InvokeAsync().NoSync(); }).NoSync();
+            await AddEventListener<string>(GetJsEventName(nameof(OnDestroy)), async _ => { await OnDestroy.InvokeAsync().NoSync(); }).NoSync();
         }
     }
 

@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿@page "/strings"
 @using Microsoft.Extensions.Logging
 @using Soenneker.Blazor.TomSelect.Configuration
 @using Soenneker.Blazor.TomSelect.Demo.Dtos
@@ -19,7 +19,7 @@
     @if (_countries.Populated())
     {
         <TomSelect
-            TItem="Country"
+            TItem="string"
             TType="string"
             OnInitialize="OnTomSelectInitialized"
             OnOptionRemove="OnOptionRemove"
@@ -28,9 +28,8 @@
             OnItemCreated="OnItemCreated"
             OnItemAdd="OnItemAdd"
             Data="@_countries"
-            TextField="item => item.Name"
-            ValueField="item => item.Id.ToString()"
-            CreateFuncSync="text => new Country {Name = text, Id = Guid.NewGuid().ToString()}"
+            TextField="item => item"
+            ValueField="item => item"
             @ref="_tomSelect"
             @bind-Items="_selectedItems"
             Multiple="true"
@@ -42,33 +41,27 @@
     }
 }
 <br />
+<button @onclick="AddOption">AddOption</button>
+<button @onclick="AddExistingItem">AddExistingItem</button>
+<button @onclick="GetItems">GetItems</button>
+<button @onclick="Render">Render</button>
+<button @onclick="ClearViaData">ClearViaData</button>
+<button @onclick="async () => await ClearItems()">ClearItems</button>
+<button @onclick="ClearOptions">ClearOptions</button>
+<button @onclick="Reinitialize">Reinitialize</button>
+<button @onclick="SetOptionsAndItems">SetOptionsAndItems</button>
 
-<button @onclick="AddOption" >AddOption</button>
-<button @onclick="AddExistingItem" >AddExistingItem</button>
-<button @onclick="GetItems" >GetItems</button>
-<button @onclick="Render" >Render</button>
-<button @onclick="ClearViaData" >ClearViaData</button>
-<button @onclick="AddViaData" >AddViaData</button>
-<button @onclick="async () => await ClearItems()" >ClearItems</button>
-<button @onclick="ClearOptions" >ClearOptions</button>
-<button @onclick="Reinitialize" >Reinitialize</button>
-<button @onclick="SetOptionsAndItems" >SetOptionsAndItems</button>
-
-<button @onclick="OpenModal" >Open Modal</button>
-<NavLink href="/second" >Go to second page</NavLink>
 <hr />
 
-@* <TomSelectModal @ref="_tomSelectModal" ></TomSelectModal> *@
-
 @code{
-    private List<Country>? _countries;
+    private List<string>? _countries;
 
     private AutoFaker _autoFaker = null!;
 
     // private List<TomSelectOption>? _options;
-    private List<Country> _selectedItems = [];
+    private List<string> _selectedItems = [];
 
-    private TomSelect<Country, string> _tomSelect = null!;
+    private TomSelect<string, string> _tomSelect = null!;
 
     private bool _render = true;
 
@@ -91,7 +84,8 @@
 
     private async Task SetOptionsAndItems()
     {
-        _countries = await Http.GetFromJsonAsync<List<Country>>("sample-data/countries.json");
+        _countries = (await Http.GetFromJsonAsync<List<Country>>("sample-data/countries.json")).Select(c => c.Name).ToList();
+
         _selectedItems = _countries!.ToList();
     }
 
@@ -109,12 +103,6 @@
     private void ClearViaData()
     {
         _selectedItems.Clear();
-    }
-
-    private async Task AddViaData()
-    {
-        var countries = await Http.GetFromJsonAsync<List<Country>>("sample-data/countries.json");
-        _selectedItems.Add(countries!.GetRandom());
     }
 
     private async ValueTask ClearItems()
@@ -166,20 +154,20 @@
     {
         Logger.LogInformation("OnChange called");
 
-        foreach (Country item in _selectedItems)
+        foreach (string item in _selectedItems)
         {
-            Logger.LogInformation("Item is currently selected: {item}", item.Name);
+            Logger.LogInformation("Item is currently selected: {item}", item);
         }
     }
 
     private async Task AddExistingItem()
     {
-        await _tomSelect.AddItem(_tomSelect.Data.GetRandom()!.Id);
+        await _tomSelect.AddItem(_tomSelect.Data.GetRandom()!);
     }
 
     private async Task AddOption()
     {
-        await _tomSelect.AddOption(_autoFaker.Generate<Country>());
+        await _tomSelect.AddOption(_autoFaker.Generate<string>());
     }
 
     private void GetItems()
@@ -190,14 +178,14 @@
             return;
         }
 
-        foreach (Country item in _tomSelect.Items)
+        foreach (string item in _tomSelect.Items)
         {
-            Logger.LogInformation("_tomSelect.Item: {0}", item.Name);
+            Logger.LogInformation("_tomSelect.Item: {0}", item);
         }
 
-        foreach (Country item in _selectedItems)
+        foreach (string item in _selectedItems)
         {
-            Logger.LogInformation("_selectedItem: {0}", item.Name);
+            Logger.LogInformation("_selectedItem: {0}", item);
         }
     }
 

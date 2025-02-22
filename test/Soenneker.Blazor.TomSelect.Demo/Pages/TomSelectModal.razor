@@ -12,12 +12,12 @@
             <Field>
                 <FieldLabel>State</FieldLabel>
                 <TomSelect @ref="_tomSelectRef" TItem="StateType"
-                           TType="string"
-                           Data="_states"
-                           TextField="@(c => c.Name)"
-                           ValueField="@(c => c.Value.ToString())"
-                           Items="@_selectedStates"
-                           Multiple="true">
+                TType="string"
+                Data="_states"
+                TextField="@(c => c.Name)"
+                ValueField="@(c => c.Value.ToString())"
+                Items="@_selectedStates"
+                Multiple="true">
                 </TomSelect>
             </Field>
         </ModalBody>
@@ -33,7 +33,7 @@
 
     protected override void OnInitialized()
     {
-        _states = StateType.List.ToList();
+        _states = StateType.List().ToList();
     }
 
     public async Task Show()

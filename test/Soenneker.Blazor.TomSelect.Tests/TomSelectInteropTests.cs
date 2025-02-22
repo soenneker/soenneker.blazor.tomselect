@@ -13,10 +13,4 @@ public class TomSelectInteropTests : FixturedUnitTest
     {
         _util = Resolve<ITomSelectInterop>(true);
     }
-
-    [Fact]
-    public void Default()
-    {
-
-    }
 }

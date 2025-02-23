@@ -22,6 +22,8 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
     private readonly IResourceLoader _resourceLoader;
     private readonly AsyncSingleton _scriptInitializer;
 
+    private const string _module = "Soenneker.Blazor.TomSelect/js/tomselectinterop.js";
+
     public TomSelectInterop(IJSRuntime jSRuntime, IResourceLoader resourceLoader) : base(jSRuntime)
     {
         _resourceLoader = resourceLoader;
@@ -33,7 +35,7 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
             if (arr.Length > 0)
                 useCdn = (bool) arr[0];
 
-            await _resourceLoader.ImportModuleAndWaitUntilAvailable("Soenneker.Blazor.TomSelect/js/tomselectinterop.js", "TomSelectInterop", 100, token)
+            await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, "TomSelectInterop", 100, token)
                                  .NoSync();
 
             if (useCdn)
@@ -251,7 +253,7 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
     {
         GC.SuppressFinalize(this);
 
-        await _resourceLoader.DisposeModule("Soenneker.Blazor.TomSelect/tomselectinterop.js").NoSync();
+        await _resourceLoader.DisposeModule(_module).NoSync();
 
         await _scriptInitializer.DisposeAsync().NoSync();
     }

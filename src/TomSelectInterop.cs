@@ -26,18 +26,42 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
     {
         _resourceLoader = resourceLoader;
 
-        _scriptInitializer = new AsyncSingleton(async (token, _) =>
+        _scriptInitializer = new AsyncSingleton(async (token, arr) =>
         {
-            await _resourceLoader.ImportModuleAndWaitUntilAvailable("Soenneker.Blazor.TomSelect/tomselectinterop.js", "TomSelectInterop", 100, token).NoSync();
-            await _resourceLoader.LoadStyle("https://cdn.jsdelivr.net/npm/tom-select@2.4.2/dist/css/tom-select.bootstrap5.min.css", "sha256-lQMtfzgdbG8ufMCU5UThXG65Wsv5CIXGkHFGCHA68ME=", cancellationToken: token).NoSync();
-            await _resourceLoader.LoadScriptAndWaitForVariable("https://cdn.jsdelivr.net/npm/tom-select@2.4.2/dist/js/tom-select.complete.min.js", "TomSelect", "sha256-Z8KmnytERS7nsiVH4tuFcnz/2T/pOlcJKu/Avmq2nHU=", cancellationToken: token).NoSync();
+            var useCdn = true;
+
+            if (arr.Length > 0)
+                useCdn = (bool) arr[0];
+
+            await _resourceLoader.ImportModuleAndWaitUntilAvailable("Soenneker.Blazor.TomSelect/js/tomselectinterop.js", "TomSelectInterop", 100, token)
+                                 .NoSync();
+
+            if (useCdn)
+            {
+                await _resourceLoader.LoadStyle("https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.bootstrap5.min.css",
+                                         "sha256-t5cAXPIzePs4RIuA3FejMxOlxXe4QXZXQ7sfKJxNU+Y=", cancellationToken: token)
+                                     .NoSync();
+
+                await _resourceLoader.LoadScriptAndWaitForVariable("https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js",
+                                         "TomSelect", "sha256-lQMtfzgdbG8ufMCU5UThXG65Wsv5CIXGkHFGCHA68ME=", cancellationToken: token)
+                                     .NoSync();
+            }
+            else
+            {
+                await _resourceLoader.LoadStyle("_content/Soenneker.Blazor.TomSelect/css/tom-select.bootstrap5.min.css", cancellationToken: token).NoSync();
+
+                await _resourceLoader
+                      .LoadScriptAndWaitForVariable("_content/Soenneker.Blazor.TomSelect/js/tom-select.complete.min.js", "TomSelect", cancellationToken: token)
+                      .NoSync();
+            }
+
             return new object();
         });
     }
 
-    public async ValueTask Initialize(CancellationToken cancellationToken = default)
+    public ValueTask Initialize(bool useCdn = true, CancellationToken cancellationToken = default)
     {
-        await _scriptInitializer.Init(cancellationToken).NoSync();
+        return _scriptInitializer.Init(cancellationToken, useCdn);
     }
 
     public ValueTask CreateObserver(string elementId, CancellationToken cancellationToken = default)
@@ -45,10 +69,10 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
         return JsRuntime.InvokeVoidAsync("TomSelectInterop.createObserver", cancellationToken, elementId);
     }
 
-    public async ValueTask Create(ElementReference elementReference, string elementId, DotNetObjectReference<BaseTomSelect> dotNetObjectRef, TomSelectConfiguration? configuration = null,
-        CancellationToken cancellationToken = default)
+    public async ValueTask Create(ElementReference elementReference, string elementId, DotNetObjectReference<BaseTomSelect> dotNetObjectRef,
+        TomSelectConfiguration? configuration = null, CancellationToken cancellationToken = default)
     {
-        await _scriptInitializer.Init(cancellationToken).NoSync();
+        await _scriptInitializer.Init(cancellationToken, configuration?.UseCdn).NoSync();
 
         string? json = null;
 
@@ -229,7 +253,6 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
 
         await _resourceLoader.DisposeModule("Soenneker.Blazor.TomSelect/tomselectinterop.js").NoSync();
 
-        await _scriptInitializer.DisposeAsync()
-                        .NoSync();
+        await _scriptInitializer.DisposeAsync().NoSync();
     }
 }

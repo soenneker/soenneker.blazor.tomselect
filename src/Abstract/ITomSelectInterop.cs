@@ -19,9 +19,10 @@ public interface ITomSelectInterop : IEventListeningInterop, IAsyncDisposable
     /// <summary>
     /// Initializes the TomSelect interop by loading required scripts and styles.
     /// </summary>
+    /// <param name="useCdn"></param>
     /// <param name="cancellationToken">A token to cancel the initialization operation.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
-    ValueTask Initialize(CancellationToken cancellationToken = default);
+    ValueTask Initialize(bool useCdn, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Creates a MutationObserver for the element with the specified identifier.

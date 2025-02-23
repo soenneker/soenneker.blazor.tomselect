@@ -72,7 +72,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
     protected override async Task OnInitializedAsync()
     {
-        await TomSelectInterop.Initialize().NoSync();
+        await TomSelectInterop.Initialize(Configuration.UseCdn).NoSync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

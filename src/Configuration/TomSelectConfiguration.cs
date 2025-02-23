@@ -213,8 +213,8 @@ public class TomSelectConfiguration
     [JsonPropertyName("sortField")]
     public List<TomSelectSortField> SortField { get; set; } =
     [
-        new TomSelectSortField {Field = "$score"},
-        new TomSelectSortField {Field = "$order"}
+        new() {Field = "$score"},
+        new() {Field = "$order"}
     ];
 
     /// <summary>
@@ -240,4 +240,7 @@ public class TomSelectConfiguration
     /// </summary>
     [JsonPropertyName("copyClassesToDropdown")]
     public bool CopyClassesToDropdown { get; set; } = true;
+
+    [JsonPropertyName("useCdn")]
+    public bool UseCdn { get; set; } = true;
 }

@@ -123,14 +123,26 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         {
             LogDebug("OnParametersSet: Items hash differs, updating...");
 
-            _workingItems = Items;
+            List<TItem> oldWorkingItems = _workingItems.ToList(); // Save previous selections
+
+            _workingItems = Items ?? [];
 
             await CleanItems().NoSync();
 
-            _itemsHash = Items.GetAggregateHashCode(false);
+            _itemsHash = _workingItems.GetAggregateHashCode(false);
 
             List<string> values = ConvertItemsToListString(_workingItems);
             await TomSelectInterop.ClearAndAddItems(ElementId, values, true).NoSync();
+
+            // Restore previously selected items if possible
+            List<string?> preservedValues = oldWorkingItems.Select(ToValueFromItem).ToList();
+            List<string?> newValues = _workingItems.Select(ToValueFromItem).ToList();
+            List<string?> missingValues = preservedValues.Except(newValues).ToList();
+
+            if (missingValues.Count > 0)
+            {
+                await TomSelectInterop.AddItems(ElementId, missingValues, true).NoSync();
+            }
         }
     }
 

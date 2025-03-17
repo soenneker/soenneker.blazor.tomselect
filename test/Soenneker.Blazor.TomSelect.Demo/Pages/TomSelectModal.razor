@@ -1,25 +1,35 @@
-﻿@using Soenneker.Blazor.TomSelect.Demo.Enums
+﻿@using Microsoft.Extensions.Logging
+@using Soenneker.Blazor.TomSelect.Demo.Enums
 @using Soenneker.Extensions.List
 @using Soenneker.Blazor.TomSelect.Base
-@inject HttpClient Http
+@inject ILogger<TomSelectModal> Logger
 
-<Modal @ref="_modalRef">
-    <ModalContent Centered="true">
+<Modal @ref="_modalRef" >
+    <ModalContent Centered="true" >
         <ModalHeader>
-            <CloseButton/>
+            <CloseButton />
         </ModalHeader>
         <ModalBody>
             <Field>
                 <FieldLabel>State</FieldLabel>
                 <TomSelect @ref="_tomSelectRef" TItem="StateType"
-                TType="string"
-                Data="_states"
-                TextField="@(c => c.Name)"
-                ValueField="@(c => c.Value.ToString())"
-                Items="@_selectedStates"
-                Multiple="true">
+                           TType="string"
+                           Data="_states"
+                           TextField="@(c => c.Name)"
+                           ValueField="@(c => c.Value.ToString())"
+                           Items="@_selectedStates"
+                           Multiple="true" >
                 </TomSelect>
             </Field>
+            <Field>
+                <FieldLabel>Start time</FieldLabel>
+                <TimePicker @bind-Time="_timeSpan" TValue="TimeSpan?" DisplayFormat="h:i K" />
+            </Field>
+            @if (_existingModel)
+            {
+                <Button Clicked="Clicked" >Close</Button>
+            }
+            <Button Clicked="StateChange">StateChange</Button>
         </ModalBody>
     </ModalContent>
 </Modal>
@@ -31,6 +41,10 @@
     private Modal? _modalRef;
     private BaseTomSelect? _tomSelectRef;
 
+    TimeSpan? _timeSpan;
+
+    private bool _existingModel;
+
     protected override void OnInitialized()
     {
         _states = StateType.List().ToList();
@@ -38,9 +52,26 @@
 
     public async Task Show()
     {
-        _selectedStates = [_states!.GetRandom(), _states!.GetRandom()];
+        _selectedStates = [];
+
+        _existingModel = false;
 
         await _modalRef!.Show();
+    }
+
+    public async Task Clicked()
+    {
+        Logger.LogInformation("Selected States: {0}", _selectedStates);
+
+        await _modalRef!.Close(CloseReason.UserClosing);
+
+        StateHasChanged();
+    }
+
+    public void StateChange()
+    {
+        
+        StateHasChanged();
     }
 
 }

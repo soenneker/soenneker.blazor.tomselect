@@ -76,13 +76,17 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
+      - name: Install wasm-tools
+        run: |
+          dotnet workload install wasm-tools
+
       - name: Publish Blazor WebAssembly Demo
-        run: dotnet publish test/Soenneker.Blazor.TomSelect.Demo/Soenneker.Blazor.TomSelect.Demo.csproj -c Release -o dist
+        run: dotnet publish test/Soenneker.Blazor.TomSelect.Demo/Soenneker.Blazor.TomSelect.Demo.csproj -c Release
 
       - name: Upload GitHub Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist/bin/Release/net9.0/publish/wwwroot
+          path: test/Soenneker.Blazor.TomSelect.Demo/bin/Release/net9.0/publish/wwwroot
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4

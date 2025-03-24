@@ -1,12 +1,12 @@
-﻿using System.Threading;
-using System;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.TomSelect.Abstract;
 using Soenneker.Blazor.TomSelect.Base.Abstract;
 using Soenneker.Blazor.Utils.InteropEventListener.Abstract;
-using Soenneker.Blazor.TomSelect.Abstract;
-using Microsoft.Extensions.Logging;
 using Soenneker.Extensions.Task;
 using Soenneker.Extensions.ValueTask;
 
@@ -24,7 +24,9 @@ public partial class BaseTomSelect : ComponentBase, IBaseTomSelect
     /// <summary>
     /// The actual HTML element's id
     /// </summary>
-    protected readonly string ElementId = Guid.NewGuid().ToString();
+
+    private readonly string _elementId = Guid.NewGuid().ToString();
+    protected virtual string ElementId => _elementId;
 
     protected readonly CancellationTokenSource CTs = new();
 

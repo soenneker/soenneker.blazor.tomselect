@@ -1,22 +1,22 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
-using Soenneker.Blazor.TomSelect.Configuration;
-using Soenneker.Blazor.TomSelect.Dtos;
-using Soenneker.Extensions.String;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Soenneker.Blazor.TomSelect.Base;
-using Soenneker.Extensions.Enumerable;
-using Soenneker.Blazor.TomSelect.Abstract;
-using Soenneker.Extensions.List;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
+using Soenneker.Blazor.TomSelect.Abstract;
+using Soenneker.Blazor.TomSelect.Base;
+using Soenneker.Blazor.TomSelect.Configuration;
+using Soenneker.Blazor.TomSelect.Dtos;
 using Soenneker.Blazor.TomSelect.Enums;
-using Soenneker.Extensions.ValueTask;
+using Soenneker.Extensions.Enumerable;
+using Soenneker.Extensions.List;
+using Soenneker.Extensions.String;
 using Soenneker.Extensions.Task;
+using Soenneker.Extensions.ValueTask;
 
 namespace Soenneker.Blazor.TomSelect;
 
@@ -39,7 +39,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     public Func<string, ValueTask<TItem>>? CreateFunc { get; set; }
 
     [Parameter(CaptureUnmatchedValues = true)]
-    public Dictionary<string, object?>? Attributes { get; set; }
+    public Dictionary<string, object?>? Attributes { get; set; } = [];
 
     [Parameter]
     public TomSelectConfiguration Configuration { get; set; } = new();
@@ -56,6 +56,8 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     [Parameter]
     public EventCallback<List<TItem>> ItemsChanged { get; set; }
 
+    protected override string ElementId => Attributes?.TryGetValue("id", out object? value) == true ? value.ToString() : base.ElementId;
+
     private int _itemsHash;
     private int _workingOptionsHash;
     private int _dataHash;
@@ -70,15 +72,11 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
     private TaskCompletionSource<bool>? _onModificationTask = null;
 
-    protected override async Task OnInitializedAsync()
-    {
-        await TomSelectInterop.Initialize(Configuration.UseCdn).NoSync();
-    }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            await TomSelectInterop.Initialize(Configuration.UseCdn).NoSync();
             // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
             Items ??= [];
 
@@ -353,7 +351,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         foreach (TomSelectOption option in _workingOptions)
         {
             if (option.Value == text)
-                return (TItem) option.Item!;
+                return (TItem)option.Item!;
         }
 
         return default;
@@ -364,7 +362,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         foreach (TomSelectOption option in _workingOptions)
         {
             if (option.Value == value)
-                return (TItem) option.Item!;
+                return (TItem)option.Item!;
         }
 
         return default;
@@ -668,7 +666,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         {
             if (option.Value == valueOrText || option.Text == valueOrText)
             {
-                item = (TItem) option.Item!;
+                item = (TItem)option.Item!;
                 break;
             }
         }

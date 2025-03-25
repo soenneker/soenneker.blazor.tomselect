@@ -21,7 +21,7 @@ using Soenneker.Extensions.Task;
 namespace Soenneker.Blazor.TomSelect;
 
 ///<inheritdoc cref="ITomSelect{TItem, TType}"/>
-public partial class TomSelect<TItem, TType> : BaseTomSelect
+public partial class TomSelect<TItem, TType> : BaseTomSelect, ITomSelect<TItem, TType>
 {
     [Parameter, EditorRequired]
     public IEnumerable<TItem>? Data { get; set; }
@@ -57,18 +57,16 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     public EventCallback<List<TItem>> ItemsChanged { get; set; }
 
     private int _itemsHash;
-    private int _workingOptionsHash;
     private int _dataHash;
 
     private bool _isCreated;
     private bool _isDataSet;
-    private bool _cleaned;
 
     private readonly List<TomSelectOption> _workingOptions = [];
 
     private List<TItem> _workingItems = [];
 
-    private TaskCompletionSource<bool>? _onModificationTask = null;
+    private TaskCompletionSource<bool>? _onModificationTask;
 
     protected override async Task OnInitializedAsync()
     {
@@ -95,7 +93,6 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             await InitializeData().NoSync();
         }
     }
-
 
     protected override async Task OnParametersSetAsync()
     {
@@ -165,7 +162,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
         _dataHash = Data.GetAggregateHashCode();
 
-        if (Data.Any())
+        if (!Data.Empty())
         {
             await AddOptions(Data, false, cancellationToken).NoSync();
 
@@ -217,8 +214,9 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
         List<TomSelectOption> dedupedOptions = tomSelectOptions.RemoveDuplicates(c => c.Value).ToList();
 
-        foreach (TomSelectOption dedupedOption in dedupedOptions)
+        for (var i = 0; i < dedupedOptions.Count; i++)
         {
+            TomSelectOption dedupedOption = dedupedOptions[i];
             TryAddOption(dedupedOption);
         }
 
@@ -237,7 +235,6 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         }
 
         _workingOptions.Replace(c => c.Value == value, option);
-        SyncOptions();
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
         return TomSelectInterop.UpdateOption(ElementId, value, option, linkedCts.Token);
@@ -426,8 +423,9 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
     private async ValueTask OnItemRemove_Internal(string valueOrText)
     {
-        foreach (TItem item in _workingItems)
+        for (var i = 0; i < _workingItems.Count; i++)
         {
+            TItem item = _workingItems[i];
             string? value = ToValueFromItem(item);
 
             if (value == valueOrText)
@@ -444,7 +442,6 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     private void OnOptionClear_internal()
     {
         _workingOptions.Clear();
-        SyncOptions();
     }
 
     private async ValueTask AddEventListeners()
@@ -647,7 +644,6 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
         }
 
         _workingOptions.Add(tomSelectOption);
-        SyncOptions();
 
         return true;
     }
@@ -664,8 +660,9 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
         TItem? item = default;
 
-        foreach (TomSelectOption option in _workingOptions)
+        for (var optionIndex = 0; optionIndex < _workingOptions.Count; optionIndex++)
         {
+            TomSelectOption option = _workingOptions[optionIndex];
             if (option.Value == valueOrText || option.Text == valueOrText)
             {
                 item = (TItem) option.Item!;
@@ -679,8 +676,9 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
             return AddItemType.NewOption;
         }
 
-        foreach (TItem i in Items)
+        for (var itemIndex = 0; itemIndex < Items.Count; itemIndex++)
         {
+            TItem i = Items[itemIndex];
             string? value = ToValueFromItem(i);
 
             if (value == valueOrText)
@@ -711,8 +709,9 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
 
         var requiresSync = false;
 
-        foreach (TItem item in _workingItems)
+        for (var workingItemIndex = 0; workingItemIndex < _workingItems.Count; workingItemIndex++)
         {
+            TItem item = _workingItems[workingItemIndex];
             string? value = ToValueFromItem(item);
 
             if (value.IsNullOrEmpty())
@@ -741,10 +740,5 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect
     {
         _itemsHash = _workingItems.GetAggregateHashCode(false);
         return ItemsChanged.InvokeAsync(_workingItems);
-    }
-
-    private void SyncOptions()
-    {
-        _workingOptionsHash = _workingOptions.GetAggregateHashCode();
     }
 }

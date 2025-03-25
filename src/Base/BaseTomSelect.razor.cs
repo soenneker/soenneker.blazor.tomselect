@@ -8,7 +8,6 @@ using Soenneker.Blazor.Utils.InteropEventListener.Abstract;
 using Soenneker.Blazor.TomSelect.Abstract;
 using Microsoft.Extensions.Logging;
 using Soenneker.Extensions.Task;
-using Soenneker.Extensions.ValueTask;
 
 namespace Soenneker.Blazor.TomSelect.Base;
 
@@ -43,7 +42,6 @@ public partial class BaseTomSelect : ComponentBase, IBaseTomSelect
         InteropEventListener.DisposeForElement(ElementId);
 
         await CTs.CancelAsync().NoSync();
-        await TomSelectInterop.Destroy(ElementId).NoSync();
     }
 
     protected void LogWarning(string message)

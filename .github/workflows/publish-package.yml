@@ -59,7 +59,7 @@ jobs:
           --api-key ${{ secrets.GH_TOKEN }}
 
   deploy-demo:
-    needs: publish-package  # Run only after publishing the package
+    needs: publish-package
     runs-on: ubuntu-latest
 
     permissions:

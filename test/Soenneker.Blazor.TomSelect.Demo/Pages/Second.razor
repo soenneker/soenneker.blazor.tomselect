@@ -123,7 +123,7 @@
 
     private async Task AddItem()
     {
-        await _tomSelect.AddItem(_tomSelect.Data.GetRandom()!.Id.ToString());
+        await _tomSelect.AddItem(_tomSelect.Data.GetRandom()!.Id);
     }
 
     private async Task AddOption()

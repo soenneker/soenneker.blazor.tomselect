@@ -2,6 +2,7 @@
 using System.Threading;
 using Soenneker.Blazor.TomSelect.Dtos;
 using Microsoft.AspNetCore.Components;
+using System;
 
 namespace Soenneker.Blazor.TomSelect.Base.Abstract;
 
@@ -9,7 +10,7 @@ namespace Soenneker.Blazor.TomSelect.Base.Abstract;
 /// Represents the base object for TomSelect.
 /// </summary>
 /// <remarks>We need a base object because we have generic type parameters on TomSelect.</remarks>
-public interface IBaseTomSelect
+public interface IBaseTomSelect : IAsyncDisposable
 {
     #region Events
 

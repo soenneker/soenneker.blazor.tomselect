@@ -1,10 +1,11 @@
-﻿using System.Threading.Tasks;
-using System.Threading;
+﻿using Microsoft.AspNetCore.Components;
+using Soenneker.Blazor.TomSelect.Base.Abstract;
 using Soenneker.Blazor.TomSelect.Configuration;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Components;
-using System;
 using Soenneker.Blazor.TomSelect.Dtos;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Soenneker.Blazor.TomSelect.Abstract;
 
@@ -13,7 +14,7 @@ namespace Soenneker.Blazor.TomSelect.Abstract;
 /// </summary>
 /// <typeparam name="TItem">The type of data item.</typeparam>
 /// <typeparam name="TType">The type of value associated with the item.</typeparam>
-public interface ITomSelect<TItem, TType>
+public interface ITomSelect<TItem, TType> : IBaseTomSelect
 {
     /// <summary>
     /// Gets or sets the data source for the TomSelect component.

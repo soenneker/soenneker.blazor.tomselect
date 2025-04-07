@@ -23,6 +23,7 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
     private readonly AsyncSingleton _scriptInitializer;
 
     private const string _module = "Soenneker.Blazor.TomSelect/js/tomselectinterop.js";
+    private const string _moduleName = "TomSelectInterop";
 
     public TomSelectInterop(IJSRuntime jSRuntime, IResourceLoader resourceLoader) : base(jSRuntime)
     {
@@ -34,9 +35,6 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
 
             if (arr.Length > 0)
                 useCdn = (bool) arr[0];
-
-            await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, "TomSelectInterop", 100, token)
-                                 .NoSync();
 
             if (useCdn)
             {
@@ -52,10 +50,12 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
             {
                 await _resourceLoader.LoadStyle("_content/Soenneker.Blazor.TomSelect/css/tom-select.bootstrap5.min.css", cancellationToken: token).NoSync();
 
-                await _resourceLoader
-                      .LoadScriptAndWaitForVariable("_content/Soenneker.Blazor.TomSelect/js/tom-select.complete.min.js", "TomSelect", cancellationToken: token)
-                      .NoSync();
+                await _resourceLoader.LoadScriptAndWaitForVariable("_content/Soenneker.Blazor.TomSelect/js/tom-select.complete.min.js", "TomSelect",
+                                         cancellationToken: token)
+                                     .NoSync();
             }
+
+            await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token).NoSync();
 
             return new object();
         });
@@ -68,7 +68,7 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
 
     public ValueTask CreateObserver(string elementId, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.createObserver", cancellationToken, elementId);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.createObserver", cancellationToken, elementId);
     }
 
     public async ValueTask Create(ElementReference elementReference, string elementId, DotNetObjectReference<BaseTomSelect> dotNetObjectRef,
@@ -81,172 +81,172 @@ public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
         if (configuration != null)
             json = JsonUtil.Serialize(configuration);
 
-        await JsRuntime.InvokeVoidAsync("TomSelectInterop.create", cancellationToken, elementReference, elementId, json, dotNetObjectRef).NoSync();
+        await JsRuntime.InvokeVoidAsync($"{_moduleName}.create", cancellationToken, elementReference, elementId, json, dotNetObjectRef).NoSync();
     }
 
     public ValueTask Destroy(string elementId, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.destroy", cancellationToken, elementId);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.destroy", cancellationToken, elementId);
     }
 
     public ValueTask AddOption(string elementId, TomSelectOption tomSelectOption, bool userCreated = false, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.addOption", cancellationToken, elementId, tomSelectOption, userCreated);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.addOption", cancellationToken, elementId, tomSelectOption, userCreated);
     }
 
     public ValueTask AddOptions(string elementId, IEnumerable<TomSelectOption> data, bool userCreated = false, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.addOptions", cancellationToken, elementId, data, userCreated);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.addOptions", cancellationToken, elementId, data, userCreated);
     }
 
     public ValueTask UpdateOption(string elementId, string value, TomSelectOption data, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.updateOption", cancellationToken, elementId, value, data);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.updateOption", cancellationToken, elementId, value, data);
     }
 
     public ValueTask RemoveOption(string elementId, string value, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.removeOption", cancellationToken, elementId, value);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.removeOption", cancellationToken, elementId, value);
     }
 
     public ValueTask RefreshOptions(string elementId, bool triggerDropdown, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.refreshOptions", cancellationToken, elementId, triggerDropdown);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.refreshOptions", cancellationToken, elementId, triggerDropdown);
     }
 
     public ValueTask ClearOptions(string elementId, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.clearOptions", cancellationToken, elementId);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.clearOptions", cancellationToken, elementId);
     }
 
     public ValueTask ClearItems(string elementId, bool silent = false, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.clearItems", cancellationToken, elementId, silent);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.clearItems", cancellationToken, elementId, silent);
     }
 
     public ValueTask ClearAndAddItems(string elementId, IEnumerable<string> values, bool silent = false, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.clearAndAddItems", cancellationToken, elementId, values, silent);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.clearAndAddItems", cancellationToken, elementId, values, silent);
     }
 
     public ValueTask ClearAndAddOptions(string elementId, IEnumerable<TomSelectOption> data, bool silent = false, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.clearAndAddOptions", cancellationToken, elementId, data, silent);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.clearAndAddOptions", cancellationToken, elementId, data, silent);
     }
 
     public ValueTask AddItem(string elementId, string value, bool silent = false, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.addItem", cancellationToken, elementId, value, silent);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.addItem", cancellationToken, elementId, value, silent);
     }
 
     public ValueTask AddItems(string elementId, IEnumerable<string> values, bool silent = false, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.addItems", cancellationToken, elementId, values, silent);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.addItems", cancellationToken, elementId, values, silent);
     }
 
     public ValueTask RemoveItem(string elementId, string valueOrHtmlElement, bool silent = false, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.removeItem", cancellationToken, elementId, valueOrHtmlElement, silent);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.removeItem", cancellationToken, elementId, valueOrHtmlElement, silent);
     }
 
     public ValueTask RefreshItems(string elementId, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.refreshItems", cancellationToken, elementId);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.refreshItems", cancellationToken, elementId);
     }
 
     public ValueTask AddOptionGroup(string elementId, string id, object data, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.addOptionGroup", cancellationToken, elementId, id, data);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.addOptionGroup", cancellationToken, elementId, id, data);
     }
 
     public ValueTask RemoveOptionGroup(string elementId, string id, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.removeOptionGroup", cancellationToken, elementId, id);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.removeOptionGroup", cancellationToken, elementId, id);
     }
 
     public ValueTask ClearOptionGroups(string elementId, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.clearOptionGroups", cancellationToken, elementId);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.clearOptionGroups", cancellationToken, elementId);
     }
 
     public ValueTask OpenDropdown(string elementId, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.open", cancellationToken, elementId);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.open", cancellationToken, elementId);
     }
 
     public ValueTask CloseDropdown(string elementId, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.close", cancellationToken, elementId);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.close", cancellationToken, elementId);
     }
 
     public ValueTask PositionDropdown(string elementId, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.positionDropdown", cancellationToken, elementId);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.positionDropdown", cancellationToken, elementId);
     }
 
     public ValueTask Focus(string elementId, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.focus", cancellationToken, elementId);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.focus", cancellationToken, elementId);
     }
 
     public ValueTask Blur(string elementId, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.blur", cancellationToken, elementId);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.blur", cancellationToken, elementId);
     }
 
     public ValueTask Lock(string elementId, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.lock", cancellationToken, elementId);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.lock", cancellationToken, elementId);
     }
 
     public ValueTask Unlock(string elementId, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.unlock", cancellationToken, elementId);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.unlock", cancellationToken, elementId);
     }
 
     public ValueTask Enable(string elementId, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.enable", cancellationToken, elementId);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.enable", cancellationToken, elementId);
     }
 
     public ValueTask Disable(string elementId, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.disable", cancellationToken, elementId);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.disable", cancellationToken, elementId);
     }
 
     public ValueTask SetValue(string elementId, TomSelectOption value, bool silent = false, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.setValue", cancellationToken, elementId, value, silent);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.setValue", cancellationToken, elementId, value, silent);
     }
 
     public ValueTask<TomSelectOption> GetValue(string elementId, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeAsync<TomSelectOption>("TomSelectInterop.getValue", cancellationToken, elementId);
+        return JsRuntime.InvokeAsync<TomSelectOption>($"{_moduleName}.getValue", cancellationToken, elementId);
     }
 
     public ValueTask SetCaret(string elementId, int index, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.setCaret", cancellationToken, elementId, index);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.setCaret", cancellationToken, elementId, index);
     }
 
     public ValueTask<bool> IsFull(string elementId, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeAsync<bool>("TomSelectInterop.isFull", cancellationToken, elementId);
+        return JsRuntime.InvokeAsync<bool>($"{_moduleName}.isFull", cancellationToken, elementId);
     }
 
     public ValueTask ClearCache(string elementId, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.clearCache", cancellationToken, elementId);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.clearCache", cancellationToken, elementId);
     }
 
     public ValueTask SetTextboxValue(string elementId, string str, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.setTextboxValue", cancellationToken, elementId, str);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.setTextboxValue", cancellationToken, elementId, str);
     }
 
     public ValueTask Sync(string elementId, CancellationToken cancellationToken = default)
     {
-        return JsRuntime.InvokeVoidAsync("TomSelectInterop.sync", cancellationToken, elementId);
+        return JsRuntime.InvokeVoidAsync($"{_moduleName}.sync", cancellationToken, elementId);
     }
 
     public async ValueTask DisposeAsync()

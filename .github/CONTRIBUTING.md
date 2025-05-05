@@ -1,4 +1,4 @@
-# Contributing to Soenneker.Blazor.TomSelect
+﻿# Contributing to Soenneker.Blazor.TomSelect
 
 We're excited that you're interested in contributing!
 

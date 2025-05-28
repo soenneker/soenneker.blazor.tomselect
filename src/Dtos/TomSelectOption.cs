@@ -5,7 +5,7 @@ namespace Soenneker.Blazor.TomSelect.Dtos;
 /// <summary>
 /// Represents a single option in the configuration.
 /// </summary>
-public class TomSelectOption
+public sealed class TomSelectOption
 {
     /// <summary>
     /// The value of the option.

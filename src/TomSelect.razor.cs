@@ -96,6 +96,14 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect, ITomSelect<TItem, 
         }
     }
 
+    protected override void OnParametersSet()
+    {
+        if (Placeholder.HasContent())
+            Configuration.Placeholder = Placeholder!;
+
+        base.OnParametersSet();
+    }
+
     protected override async Task OnParametersSetAsync()
     {
         if (!_isDataSet || !_isCreated)

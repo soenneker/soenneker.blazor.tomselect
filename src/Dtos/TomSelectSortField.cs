@@ -5,7 +5,7 @@ namespace Soenneker.Blazor.TomSelect.Dtos;
 /// <summary>
 /// Represents how items are sorted in the dropdown.
 /// </summary>
-public class TomSelectSortField
+public sealed class TomSelectSortField
 {
     /// <summary>
     /// Gets or sets the field used for sorting.

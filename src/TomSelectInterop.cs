@@ -17,7 +17,7 @@ using System;
 namespace Soenneker.Blazor.TomSelect;
 
 /// <inheritdoc cref="ITomSelectInterop"/>
-public class TomSelectInterop : EventListeningInterop, ITomSelectInterop
+public sealed class TomSelectInterop : EventListeningInterop, ITomSelectInterop
 {
     private readonly IResourceLoader _resourceLoader;
     private readonly AsyncSingleton _scriptInitializer;

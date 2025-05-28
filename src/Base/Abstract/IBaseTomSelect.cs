@@ -117,6 +117,11 @@ public interface IBaseTomSelect : IAsyncDisposable
     /// </summary>
     bool Debug { get; set; }
 
+    /// <summary>
+    /// Placeholder text that TomSelect will display when nothing is selected.
+    /// </summary>
+    public string? Placeholder { get; set; }
+
     #endregion Events
 
     /// <summary>

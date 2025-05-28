@@ -3,7 +3,7 @@
 namespace Soenneker.Blazor.TomSelect.Enums;
 
 [Intellenum<string>]
-public partial class TomSelectPluginType
+public sealed partial class TomSelectPluginType
 {
     public static readonly TomSelectPluginType CaretPosition = new("caret_position");
     public static readonly TomSelectPluginType ChangeListener = new("change_listener");

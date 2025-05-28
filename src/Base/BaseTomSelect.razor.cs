@@ -23,7 +23,7 @@ public partial class BaseTomSelect : ComponentBase, IBaseTomSelect
     /// <summary>
     /// The actual HTML element's id
     /// </summary>
-    protected readonly string ElementId = Guid.NewGuid().ToString();
+    protected readonly string ElementId = $"tomselect-{Guid.NewGuid().ToString()}";
 
     protected readonly CancellationTokenSource CTs = new();
 

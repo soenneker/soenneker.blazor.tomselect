@@ -1,0 +1,51 @@
+﻿@page "/minimal"
+@using Microsoft.Extensions.Logging
+@using Soenneker.Blazor.TomSelect.Configuration
+@using Soenneker.Blazor.TomSelect.Demo.Dtos
+@using Soenneker.Extensions.Enumerable
+
+@inject ILogger<Index> Logger
+@inject HttpClient Http
+
+<img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" />
+<h1>Soenneker.Blazor.TomSelect demo</h1>
+<p>This page demonstrates some of the uses of the TomSelect component.</p>
+
+@if (_countries.Populated())
+{
+    <TomSelect
+        TItem="string"
+        TType="string"
+        Data="@_countries"
+        TextField="item => item"
+        ValueField="item => item"
+        Configuration="_configuration"
+        Multiple="false"
+        OnChange="OnChange" >
+
+    </TomSelect>
+}
+
+@code{
+    private List<string>? _countries;
+
+    private readonly TomSelectConfiguration _configuration = new()
+    {
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await SetOptionsAndItems();
+    }
+
+    private async Task SetOptionsAndItems()
+    {
+        _countries = (await Http.GetFromJsonAsync<List<Country>>("sample-data/countries.json")).Select(c => c.Name).ToList();
+    }
+
+    private void OnChange()
+    {
+        Logger.LogInformation("OnChange called");
+    }
+
+}

@@ -9,12 +9,12 @@ export class TomSelectInterop {
 
         if (options) {
             const opt = JSON.parse(options);
-            opt.onInitialize = () => dotNetCallback.invokeMethodAsync("OnInitializedJs");
+            opt.onInitialize = async () => await dotNetCallback.invokeMethodAsync("OnInitializedJs");
             tomSelect = new TomSelect(element, opt);
             this.options[elementId] = opt;
         } else {
             tomSelect = new TomSelect(element, {
-                onInitialize: () => dotNetCallback.invokeMethodAsync("OnInitializedJs")
+                onInitialize: async () => await dotNetCallback.invokeMethodAsync("OnInitializedJs")
             });
         }
 

@@ -43,9 +43,10 @@
         _countries = (await Http.GetFromJsonAsync<List<Country>>("sample-data/countries.json")).Select(c => c.Name).ToList();
     }
 
-    private void OnChange()
+    private void OnChange(List<string> values)
     {
-        Logger.LogInformation("OnChange called");
+        string flattened = string.Join(", ", values);
+        Logger.LogInformation("OnChange called ({value})", flattened);
     }
 
 }

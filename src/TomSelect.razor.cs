@@ -18,6 +18,7 @@ using Soenneker.Blazor.TomSelect.Enums;
 using Soenneker.Extensions.ValueTask;
 using Soenneker.Extensions.Task;
 using Soenneker.Blazor.Extensions.EventCallback;
+using Soenneker.Utils.Json;
 
 namespace Soenneker.Blazor.TomSelect;
 
@@ -538,7 +539,9 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect, ITomSelect<TItem, 
                     if (_onModificationTask != null)
                         await _onModificationTask.Task.NoSync();
 
-                    await OnChange.InvokeAsync(str).NoSync();
+                    var values = JsonUtil.Deserialize<List<string>>(str);
+
+                    await OnChange.InvokeAsync(values).NoSync();
 
                     _onModificationTask = new TaskCompletionSource<bool>();
                 })

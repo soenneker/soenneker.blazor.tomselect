@@ -212,7 +212,7 @@ export class TomSelectInterop {
             if (eventName === "item_select") {
                 return dotNetCallback.invokeMethodAsync("Invoke", args[0].textContent);
             } else {
-                const json = this.getJsonFromArguments(...args);
+                var json = this.getJsonFromArguments(...args);
                 return dotNetCallback.invokeMethodAsync("Invoke", json);
             }
         });

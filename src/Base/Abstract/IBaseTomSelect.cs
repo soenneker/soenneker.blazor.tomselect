@@ -1,8 +1,9 @@
-﻿using System.Threading.Tasks;
-using System.Threading;
+﻿using Microsoft.AspNetCore.Components;
 using Soenneker.Blazor.TomSelect.Dtos;
-using Microsoft.AspNetCore.Components;
 using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Soenneker.Blazor.TomSelect.Base.Abstract;
 
@@ -22,7 +23,7 @@ public interface IBaseTomSelect : IAsyncDisposable
     /// <summary>
     /// Event triggered when the selected value changes.
     /// </summary>
-    EventCallback<string> OnChange { get; set; }
+    EventCallback<List<string>> OnChange { get; set; }
 
     /// <summary>
     /// Event triggered when the component gains focus.

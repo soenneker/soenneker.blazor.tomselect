@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿@page "/multiple"
 @using Microsoft.Extensions.Logging
 @using Soenneker.Blazor.TomSelect.Configuration
 @using Soenneker.Blazor.TomSelect.Demo.Dtos
@@ -31,8 +31,6 @@
             TextField="item => item.Name"
             ValueField="item => item.Id.ToString()"
             CreateFuncSync="text => new Country {Name = text, Id = Guid.NewGuid().ToString()}"
-            @ref="_tomSelect"
-            @bind-Items="_selectedItems"
             Multiple="true"
             Create="true"
             OnChange="OnChange"
@@ -40,7 +38,25 @@
             Configuration="_configuration" >
         </TomSelect>
 
-
+        <TomSelect
+            TItem="Country"
+            TType="string"
+            OnInitialize="OnTomSelectInitialized"
+            OnOptionRemove="OnOptionRemove"
+            OnItemRemove="OnItemRemove"
+            OnOptionAdd="OnOptionAdd"
+            OnItemCreated="OnItemCreated"
+            OnItemAdd="OnItemAdd"
+            Data="@_countries"
+            TextField="item => item.Name"
+            ValueField="item => item.Id.ToString()"
+            CreateFuncSync="text => new Country {Name = text, Id = Guid.NewGuid().ToString()}"
+            Multiple="true"
+            Create="true"
+            OnChange="OnChange"
+            Debug=true
+            Configuration="_configuration" >
+        </TomSelect>
     }
 }
 <br />
@@ -67,9 +83,6 @@
 
     private AutoFaker _autoFaker = null!;
 
-    // private List<TomSelectOption>? _options;
-    private List<Country> _selectedItems = [];
-
     private TomSelect<Country, string> _tomSelect = null!;
 
     private bool _render = true;
@@ -95,7 +108,6 @@
     private async Task SetOptionsAndItems()
     {
         _countries = await Http.GetFromJsonAsync<List<Country>>("sample-data/countries.json");
-        _selectedItems = _countries!.ToList();
     }
 
     private async Task OpenModal()
@@ -111,13 +123,12 @@
 
     private void ClearViaData()
     {
-        _selectedItems.Clear();
+
     }
 
     private async Task AddViaData()
     {
         var countries = await Http.GetFromJsonAsync<List<Country>>("sample-data/countries.json");
-        _selectedItems.Add(countries!.GetRandom());
     }
 
     private async ValueTask ClearItems()
@@ -168,11 +179,6 @@
     private void OnChange()
     {
         Logger.LogInformation("OnChange called");
-
-        foreach (Country item in _selectedItems)
-        {
-            Logger.LogInformation("Item is currently selected: {item}", item.Name);
-        }
     }
 
     private async Task AddExistingItem()
@@ -196,11 +202,6 @@
         foreach (Country item in _tomSelect.Items)
         {
             Logger.LogInformation("_tomSelect.Item: {0}", item.Name);
-        }
-
-        foreach (Country item in _selectedItems)
-        {
-            Logger.LogInformation("_selectedItem: {0}", item.Name);
         }
     }
 

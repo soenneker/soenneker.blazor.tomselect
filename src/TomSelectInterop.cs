@@ -251,8 +251,6 @@ public sealed class TomSelectInterop : EventListeningInterop, ITomSelectInterop
 
     public async ValueTask DisposeAsync()
     {
-        GC.SuppressFinalize(this);
-
         await _resourceLoader.DisposeModule(_module).NoSync();
 
         await _scriptInitializer.DisposeAsync().NoSync();

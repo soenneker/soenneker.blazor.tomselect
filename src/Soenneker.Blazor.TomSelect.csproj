@@ -48,6 +48,6 @@
         <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="3.0.3669" />
         <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="3.0.1480" />
         <PackageReference Include="Soenneker.Extensions.List" Version="3.0.928" />
-        <PackageReference Include="Soenneker.Json.CollectionConverter" Version="3.0.760" />
+        <PackageReference Include="Soenneker.Json.CollectionConverter" Version="3.0.761" />
     </ItemGroup>
 </Project>

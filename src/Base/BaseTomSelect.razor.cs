@@ -8,11 +8,13 @@ using Soenneker.Blazor.Utils.InteropEventListener.Abstract;
 using Soenneker.Blazor.TomSelect.Abstract;
 using Microsoft.Extensions.Logging;
 using Soenneker.Extensions.Task;
+using Soenneker.Quark.Components.Cancellable;
+using Soenneker.Extensions.ValueTask;
 
 namespace Soenneker.Blazor.TomSelect.Base;
 
 ///<inheritdoc cref="IBaseTomSelect"/>
-public partial class BaseTomSelect : ComponentBase, IBaseTomSelect
+public partial class BaseTomSelect : CancellableComponent, IBaseTomSelect
 {
     protected DotNetObjectReference<BaseTomSelect>? DotNetReference;
 
@@ -25,23 +27,16 @@ public partial class BaseTomSelect : ComponentBase, IBaseTomSelect
     /// </summary>
     protected readonly string ElementId = $"tomselect-{Guid.NewGuid().ToString()}";
 
-    protected readonly CancellationTokenSource CTs = new();
-
     protected ElementReference ElementReference;
 
     protected ILogger<BaseTomSelect> Logger = null!;
 
-    /// <summary>
-    /// Destroys the element.
-    /// </summary>
-    public async ValueTask DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
-        GC.SuppressFinalize(this);
+        await base.DisposeAsync().NoSync();
 
         DotNetReference?.Dispose();
         InteropEventListener.DisposeForElement(ElementId);
-
-        await CTs.CancelAsync().NoSync();
     }
 
     protected void LogWarning(string message)

@@ -19,6 +19,7 @@ using Soenneker.Extensions.ValueTask;
 using Soenneker.Extensions.Task;
 using Soenneker.Blazor.Extensions.EventCallback;
 using Soenneker.Utils.Json;
+using Soenneker.Extensions.CancellationTokens;
 
 namespace Soenneker.Blazor.TomSelect;
 
@@ -72,7 +73,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect, ITomSelect<TItem, 
 
     protected override async Task OnInitializedAsync()
     {
-        await TomSelectInterop.Initialize(Configuration.UseCdn, CTs.Token).NoSync();
+        await TomSelectInterop.Initialize(Configuration.UseCdn, CancellationToken).NoSync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -196,9 +197,12 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect, ITomSelect<TItem, 
 
         DotNetReference = DotNetObjectReference.Create<BaseTomSelect>(this);
 
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        await TomSelectInterop.Create(ElementReference, ElementId, DotNetReference, Configuration, linkedCts.Token).NoSync();
-        await TomSelectInterop.CreateObserver(ElementId, cancellationToken).NoSync();
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
+        using (cts)
+        {
+            await TomSelectInterop.Create(ElementReference, ElementId, DotNetReference, Configuration, linked).NoSync();
+            await TomSelectInterop.CreateObserver(ElementId, linked).NoSync();
+        }
 
         await AddEventListeners().NoSync();
     }
@@ -210,8 +214,9 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect, ITomSelect<TItem, 
         if (!TryAddOption(option))
             return null;
 
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        await TomSelectInterop.AddOption(ElementId, option!, userCreated, linkedCts.Token).NoSync();
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
+        using (cts)
+            await TomSelectInterop.AddOption(ElementId, option!, userCreated, linked).NoSync();
 
         return option;
     }
@@ -230,8 +235,9 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect, ITomSelect<TItem, 
             TryAddOption(dedupedOption);
         }
 
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        await TomSelectInterop.AddOptions(ElementId, dedupedOptions, userCreated, linkedCts.Token).NoSync();
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
+        using (cts)
+            await TomSelectInterop.AddOptions(ElementId, dedupedOptions, userCreated, linked).NoSync();
     }
 
     public async ValueTask UpdateOption(string value, TItem item, CancellationToken cancellationToken = default)
@@ -246,8 +252,9 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect, ITomSelect<TItem, 
 
         _workingOptions.Replace(c => c.Value == value, option);
 
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        await TomSelectInterop.UpdateOption(ElementId, value, option, linkedCts.Token).NoSync();
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
+        using (cts)
+            await TomSelectInterop.UpdateOption(ElementId, value, option, linked).NoSync();
     }
 
     public ValueTask AddItem(string value, bool silent = false, CancellationToken cancellationToken = default)
@@ -266,8 +273,9 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect, ITomSelect<TItem, 
         if (result != AddItemType.Normal)
             return;
 
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        await TomSelectInterop.AddItem(ElementId, value!, silent, linkedCts.Token).NoSync();
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
+        using (cts)
+            await TomSelectInterop.AddItem(ElementId, value!, silent, linked).NoSync();
     }
 
     public ValueTask AddItems(IEnumerable<string> value, bool silent = false, CancellationToken cancellationToken = default)
@@ -279,16 +287,18 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect, ITomSelect<TItem, 
 
     private async ValueTask AddItemsToDom(IEnumerable<string> values, bool silent, CancellationToken cancellationToken)
     {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(CTs.Token, cancellationToken);
-        await TomSelectInterop.AddItems(ElementId, values, silent, linkedCts.Token).NoSync();
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
+        using (cts)
+            await TomSelectInterop.AddItems(ElementId, values, silent, linked).NoSync();
     }
 
     private async ValueTask AddItemsToDom(IEnumerable<TItem> items, bool silent, CancellationToken cancellationToken)
     {
         IEnumerable<string?> values = items.Select(ToValueFromItem);
 
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(CTs.Token, cancellationToken);
-        await TomSelectInterop.AddItems(ElementId, values!, silent, linkedCts.Token).NoSync();
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
+        using (cts)
+            await TomSelectInterop.AddItems(ElementId, values!, silent, linked).NoSync();
     }
 
     public async ValueTask AddItems(IEnumerable<TItem> items, bool silent = false, CancellationToken cancellationToken = default)
@@ -627,7 +637,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect, ITomSelect<TItem, 
 
     private ValueTask AddEventListener<T>(string eventName, Func<T, ValueTask> callback)
     {
-        return InteropEventListener.Add("TomSelectInterop.addEventListener", ElementId, eventName, callback, CTs.Token);
+        return InteropEventListener.Add("TomSelectInterop.addEventListener", ElementId, eventName, callback, CancellationToken);
     }
 
     public async ValueTask ClearItems(bool silent = false, CancellationToken cancellationToken = default)
@@ -635,8 +645,9 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect, ITomSelect<TItem, 
         _workingItems.Clear();
         await SyncItems().NoSync();
 
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, CTs.Token);
-        await TomSelectInterop.ClearItems(ElementId, silent, linkedCts.Token).NoSync();
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
+        using (cts)
+            await TomSelectInterop.ClearItems(ElementId, silent, linked).NoSync();
     }
 
     private bool TryAddOption(TomSelectOption? tomSelectOption)

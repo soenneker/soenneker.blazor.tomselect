@@ -12,7 +12,6 @@ using Soenneker.Blazor.TomSelect.Base;
 using Soenneker.Utils.AsyncSingleton;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using Soenneker.Extensions.ValueTask;
-using System;
 
 namespace Soenneker.Blazor.TomSelect;
 

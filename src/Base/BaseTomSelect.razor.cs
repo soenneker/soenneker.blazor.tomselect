@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -7,7 +6,6 @@ using Soenneker.Blazor.TomSelect.Base.Abstract;
 using Soenneker.Blazor.Utils.InteropEventListener.Abstract;
 using Soenneker.Blazor.TomSelect.Abstract;
 using Microsoft.Extensions.Logging;
-using Soenneker.Extensions.Task;
 using Soenneker.Quark.Components.Cancellable;
 using Soenneker.Extensions.ValueTask;
 

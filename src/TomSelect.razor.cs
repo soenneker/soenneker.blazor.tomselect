@@ -198,6 +198,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect, ITomSelect<TItem, 
         DotNetReference = DotNetObjectReference.Create<BaseTomSelect>(this);
 
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
+
         using (cts)
         {
             await TomSelectInterop.Create(ElementReference, ElementId, DotNetReference, Configuration, linked).NoSync();
@@ -215,6 +216,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect, ITomSelect<TItem, 
             return null;
 
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
+
         using (cts)
             await TomSelectInterop.AddOption(ElementId, option!, userCreated, linked).NoSync();
 
@@ -236,6 +238,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect, ITomSelect<TItem, 
         }
 
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
+
         using (cts)
             await TomSelectInterop.AddOptions(ElementId, dedupedOptions, userCreated, linked).NoSync();
     }
@@ -253,6 +256,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect, ITomSelect<TItem, 
         _workingOptions.Replace(c => c.Value == value, option);
 
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
+
         using (cts)
             await TomSelectInterop.UpdateOption(ElementId, value, option, linked).NoSync();
     }
@@ -274,6 +278,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect, ITomSelect<TItem, 
             return;
 
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
+
         using (cts)
             await TomSelectInterop.AddItem(ElementId, value!, silent, linked).NoSync();
     }
@@ -285,20 +290,16 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect, ITomSelect<TItem, 
         return AddItems(items, silent, cancellationToken);
     }
 
-    private async ValueTask AddItemsToDom(IEnumerable<string> values, bool silent, CancellationToken cancellationToken)
+    private ValueTask AddItemsToDom(IEnumerable<string> values, bool silent, CancellationToken cancellationToken)
     {
-        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
-        using (cts)
-            await TomSelectInterop.AddItems(ElementId, values, silent, linked).NoSync();
+        return TomSelectInterop.AddItems(ElementId, values, silent, cancellationToken);
     }
 
-    private async ValueTask AddItemsToDom(IEnumerable<TItem> items, bool silent, CancellationToken cancellationToken)
+    private ValueTask AddItemsToDom(IEnumerable<TItem> items, bool silent, CancellationToken cancellationToken)
     {
         IEnumerable<string?> values = items.Select(ToValueFromItem);
 
-        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
-        using (cts)
-            await TomSelectInterop.AddItems(ElementId, values!, silent, linked).NoSync();
+        return TomSelectInterop.AddItems(ElementId, values!, silent, cancellationToken);
     }
 
     public async ValueTask AddItems(IEnumerable<TItem> items, bool silent = false, CancellationToken cancellationToken = default)
@@ -310,19 +311,24 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect, ITomSelect<TItem, 
 
         List<string?> values = [];
 
-        foreach (TItem item in items)
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
+
+        using (cts)
         {
-            string? value = ToValueFromItem(item);
-
-            AddItemType result = await TryAddItem(value, cancellationToken).NoSync();
-
-            if (result != AddItemType.Error)
+            foreach (TItem item in items)
             {
-                values.Add(value);
-            }
-        }
+                string? value = ToValueFromItem(item);
 
-        await AddItemsToDom(values, silent, cancellationToken).NoSync();
+                AddItemType result = await TryAddItem(value, linked).NoSync();
+
+                if (result != AddItemType.Error)
+                {
+                    values.Add(value);
+                }
+            }
+
+            await AddItemsToDom(values, silent, linked).NoSync();
+        }
     }
 
     private List<string> ConvertItemsToListString(IEnumerable<TItem> items)
@@ -646,6 +652,7 @@ public partial class TomSelect<TItem, TType> : BaseTomSelect, ITomSelect<TItem, 
         await SyncItems().NoSync();
 
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
+
         using (cts)
             await TomSelectInterop.ClearItems(ElementId, silent, linked).NoSync();
     }

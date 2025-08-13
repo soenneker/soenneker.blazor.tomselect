@@ -2,6 +2,7 @@ export class TomSelectInterop {
     constructor() {
         this.tomSelects = {};
         this.options = {};
+        this.debug = false;
     }
 
     create(element, elementId, options, dotNetCallback) {
@@ -11,14 +12,18 @@ export class TomSelectInterop {
         }
 
         let tomSelect;
+        let debug = false;
 
         if (options) {
             const opt = JSON.parse(options);
+            debug = opt.debug || false;
             opt.onInitialize = async () => {
                 try {
                     await dotNetCallback.invokeMethodAsync("OnInitializedJs");
                 } catch (error) {
-                    console.warn(`Error calling OnInitializedJs for element ${elementId}:`, error);
+                    if (debug) {
+                        console.warn(`Error calling OnInitializedJs for element ${elementId}:`, error);
+                    }
                 }
             };
             tomSelect = new TomSelect(element, opt);
@@ -29,13 +34,16 @@ export class TomSelectInterop {
                     try {
                         await dotNetCallback.invokeMethodAsync("OnInitializedJs");
                     } catch (error) {
-                        console.warn(`Error calling OnInitializedJs for element ${elementId}:`, error);
+                        if (debug) {
+                            console.warn(`Error calling OnInitializedJs for element ${elementId}:`, error);
+                        }
                     }
                 }
             });
         }
 
         this.tomSelects[elementId] = tomSelect;
+        this.debug = debug;
     }
 
     addOption(elementId, data, userCreated) {
@@ -193,7 +201,9 @@ export class TomSelectInterop {
                 tomSelect.off();
                 tomSelect.destroy();
             } catch (error) {
-                console.warn(`Error destroying TomSelect for element ${elementId}:`, error);
+                if (this.debug) {
+                    console.warn(`Error destroying TomSelect for element ${elementId}:`, error);
+                }
             } finally {
                 delete this.tomSelects[elementId];
                 delete this.options[elementId];
@@ -244,7 +254,9 @@ export class TomSelectInterop {
             } catch (error) {
                 // Handle case where DotNetObjectReference is disposed
                 if (error.message && error.message.includes("There is no tracked object")) {
-                    console.warn(`DotNetObjectReference disposed for element ${elementId}, removing event listener`);
+                    if (this.debug) {
+                        console.warn(`DotNetObjectReference disposed for element ${elementId}, removing event listener`);
+                    }
                     tomSelect.off(eventName);
                     return;
                 }
@@ -290,7 +302,9 @@ export class TomSelectInterop {
     createObserver(elementId) {
         const target = document.getElementById(elementId);
         if (!target) {
-            console.warn(`Element with id ${elementId} not found for observer`);
+            if (this.debug) {
+                console.warn(`Element with id ${elementId} not found for observer`);
+            }
             return;
         }
 
@@ -301,7 +315,9 @@ export class TomSelectInterop {
                 try {
                     this.destroy(elementId);
                 } catch (error) {
-                    console.warn(`Error in mutation observer for element ${elementId}:`, error);
+                    if (this.debug) {
+                        console.warn(`Error in mutation observer for element ${elementId}:`, error);
+                    }
                 }
 
                 if (this.observer) {

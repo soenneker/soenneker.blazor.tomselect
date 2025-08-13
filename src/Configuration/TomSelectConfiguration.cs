@@ -322,11 +322,11 @@ public sealed class TomSelectConfiguration
     /// </remarks>
     [JsonPropertyName("sortField")]
     public List<TomSelectSortField> SortField { get; set; } =
-        new List<TomSelectSortField>
-        {
-            new() { Field = "$score" },
-            new() { Field = "$order" }
-        };
+    [
+        new() {Field = "$score"},
+
+        new() {Field = "$order"}
+    ];
 
     /// <summary>
     /// The list of property names used when filtering options by search.
@@ -335,7 +335,7 @@ public sealed class TomSelectConfiguration
     /// Maps to <c>searchField</c>. Default is ["text"].
     /// </remarks>
     [JsonPropertyName("searchField")]
-    public List<string> SearchField { get; set; } = new List<string> { "text" };
+    public List<string> SearchField { get; set; } = ["text"];
 
     /// <summary>
     /// The operator used when combining multiple search terms ("and" or "or").
@@ -372,4 +372,14 @@ public sealed class TomSelectConfiguration
     /// </remarks>
     [JsonPropertyName("useCdn")]
     public bool UseCdn { get; set; } = true;
+
+    /// <summary>
+    /// When true, enables debug logging to the browser console.
+    /// </summary>
+    /// <remarks>
+    /// Controls whether console.warn, console.log, and console.error statements are executed.
+    /// Default is <c>false</c>.
+    /// </remarks>
+    [JsonPropertyName("debug")]
+    public bool Debug { get; set; }
 }

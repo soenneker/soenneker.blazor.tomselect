@@ -5,16 +5,33 @@ export class TomSelectInterop {
     }
 
     create(element, elementId, options, dotNetCallback) {
+        // Destroy any existing instance first
+        if (this.tomSelects[elementId]) {
+            this.destroy(elementId);
+        }
+
         let tomSelect;
 
         if (options) {
             const opt = JSON.parse(options);
-            opt.onInitialize = async () => await dotNetCallback.invokeMethodAsync("OnInitializedJs");
+            opt.onInitialize = async () => {
+                try {
+                    await dotNetCallback.invokeMethodAsync("OnInitializedJs");
+                } catch (error) {
+                    console.warn(`Error calling OnInitializedJs for element ${elementId}:`, error);
+                }
+            };
             tomSelect = new TomSelect(element, opt);
             this.options[elementId] = opt;
         } else {
             tomSelect = new TomSelect(element, {
-                onInitialize: async () => await dotNetCallback.invokeMethodAsync("OnInitializedJs")
+                onInitialize: async () => {
+                    try {
+                        await dotNetCallback.invokeMethodAsync("OnInitializedJs");
+                    } catch (error) {
+                        console.warn(`Error calling OnInitializedJs for element ${elementId}:`, error);
+                    }
+                }
             });
         }
 
@@ -171,8 +188,16 @@ export class TomSelectInterop {
     destroy(elementId) {
         const tomSelect = this.tomSelects[elementId];
         if (tomSelect) {
-            tomSelect.destroy();
-            delete this.tomSelects[elementId];
+            try {
+                // Remove all event listeners before destroying
+                tomSelect.off();
+                tomSelect.destroy();
+            } catch (error) {
+                console.warn(`Error destroying TomSelect for element ${elementId}:`, error);
+            } finally {
+                delete this.tomSelects[elementId];
+                delete this.options[elementId];
+            }
         }
     }
 
@@ -208,12 +233,22 @@ export class TomSelectInterop {
 
     addEventListener(elementId, eventName, dotNetCallback) {
         const tomSelect = this.tomSelects[elementId];
-        tomSelect.on(eventName, (...args) => {
-            if (eventName === "item_select") {
-                return dotNetCallback.invokeMethodAsync("Invoke", args[0].textContent);
-            } else {
-                var json = this.getJsonFromArguments(...args);
-                return dotNetCallback.invokeMethodAsync("Invoke", json);
+        tomSelect.on(eventName, async (...args) => {
+            try {
+                if (eventName === "item_select") {
+                    return await dotNetCallback.invokeMethodAsync("Invoke", args[0].textContent);
+                } else {
+                    var json = this.getJsonFromArguments(...args);
+                    return await dotNetCallback.invokeMethodAsync("Invoke", json);
+                }
+            } catch (error) {
+                // Handle case where DotNetObjectReference is disposed
+                if (error.message && error.message.includes("There is no tracked object")) {
+                    console.warn(`DotNetObjectReference disposed for element ${elementId}, removing event listener`);
+                    tomSelect.off(eventName);
+                    return;
+                }
+                throw error;
             }
         });
     }
@@ -254,19 +289,31 @@ export class TomSelectInterop {
 
     createObserver(elementId) {
         const target = document.getElementById(elementId);
+        if (!target) {
+            console.warn(`Element with id ${elementId} not found for observer`);
+            return;
+        }
 
         this.observer = new MutationObserver((mutations) => {
             const targetRemoved = mutations.some(mutation => Array.from(mutation.removedNodes).indexOf(target) !== -1);
 
             if (targetRemoved) {
-                this.destroy(elementId);
+                try {
+                    this.destroy(elementId);
+                } catch (error) {
+                    console.warn(`Error in mutation observer for element ${elementId}:`, error);
+                }
 
-                this.observer && this.observer.disconnect();
-                delete this.observer;
+                if (this.observer) {
+                    this.observer.disconnect();
+                    delete this.observer;
+                }
             }
         });
 
-        this.observer.observe(target.parentNode, { childList: true });
+        if (target.parentNode) {
+            this.observer.observe(target.parentNode, { childList: true });
+        }
     }
 }
 

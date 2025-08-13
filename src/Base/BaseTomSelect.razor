@@ -5,6 +5,9 @@
 @using Soenneker.Blazor.Utils.InteropEventListener.Abstract
 @using Soenneker.Extensions.ValueTask
 @using Soenneker.Extensions.CancellationTokens
+@using Microsoft.JSInterop
+@using Soenneker.Blazor.TomSelect.Base.Abstract
+@using Soenneker.Quark.Components.Cancellable
 
 @* ReSharper disable InconsistentNaming *@
 @inject ITomSelectInterop _tomSelectInterop
@@ -86,6 +89,25 @@
 
     #endregion Events
 
+    #region Protected Fields
+
+    protected DotNetObjectReference<BaseTomSelect>? DotNetReference;
+
+    protected ITomSelectInterop TomSelectInterop = null!;
+
+    protected IInteropEventListener InteropEventListener = null!;
+
+    /// <summary>
+    /// The actual HTML element's id
+    /// </summary>
+    protected readonly string ElementId = $"tomselect-{Guid.NewGuid().ToString()}";
+
+    protected ElementReference ElementReference;
+
+    protected ILogger<BaseTomSelect> Logger = null!;
+
+    #endregion Protected Fields
+
     protected override void OnInitialized()
     {
         InteropEventListener = _interopEventListener;
@@ -93,6 +115,30 @@
         Logger = _logger;
 
         base.OnInitialized();
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        await base.DisposeAsync().NoSync();
+
+        if (DotNetReference != null)
+        {
+            DotNetReference.Dispose();
+            DotNetReference = null;
+        }
+        InteropEventListener.DisposeForElement(ElementId);
+    }
+
+    protected void LogWarning(string message)
+    {
+        if (Debug)
+            Console.WriteLine(message);
+    }
+
+    protected void LogDebug(string message)
+    {
+        if (Debug)
+            Console.WriteLine(message);
     }
 
     public virtual ValueTask Reinitialize(CancellationToken cancellationToken = default)

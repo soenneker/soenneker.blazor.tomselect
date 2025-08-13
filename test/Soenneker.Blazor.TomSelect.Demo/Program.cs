@@ -11,6 +11,7 @@ using Microsoft.JSInterop;
 using Serilog;
 using Serilog.Debugging;
 using Soenneker.Blazor.TomSelect.Registrars;
+using Soenneker.Blazor.Utils.Navigation.Registrars;
 using Soenneker.Serilog.Sinks.Browser.Blazor.Registrars;
 
 namespace Soenneker.Blazor.TomSelect.Demo;
@@ -36,6 +37,7 @@ public class Program
             builder.Services.AddTomSelectInteropAsScoped();
 
             builder.Services
+                .AddNavigationUtilAsScoped()
                 .AddBlazorise()
                 .AddBootstrapProviders();
 

@@ -4,11 +4,15 @@
 @using Soenneker.Blazor.TomSelect.Demo.Dtos
 @using Soenneker.Blazor.TomSelect.Dtos
 @using Soenneker.Blazor.TomSelect.Enums
+@using Soenneker.Blazor.Utils.Navigation.Abstract
 @using Soenneker.Extensions.Enumerable
 @using Soenneker.Utils.AutoBogus
 
+@inherits Soenneker.Quark.Components.Cancellable.CancellableComponent 
+
 @inject ILogger<Index> Logger
 @inject HttpClient Http
+@inject INavigationUtil NavigationUtil
 
 <img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" />
 <h1>Soenneker.Blazor.TomSelect demo</h1>
@@ -57,6 +61,7 @@
 
 <button @onclick="OpenModal" >Open Modal</button>
 <NavLink href="/second" >Go to second page</NavLink>
+<Button Clicked="GoToSecond">Go to second page</Button>
 <hr />
 
 <TomSelectModal @ref="_tomSelectModal" ></TomSelectModal>
@@ -182,6 +187,12 @@
     private async Task AddOption()
     {
         await _tomSelect.AddOption(_autoFaker.Generate<Country>());
+    }
+
+    public async Task GoToSecond()
+    {
+        await Cancel();
+        NavigationUtil.NavigateTo("second");
     }
 
     private void GetItems()

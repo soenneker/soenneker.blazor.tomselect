@@ -73,7 +73,7 @@ public sealed class TomSelectInterop : EventListeningInterop, ITomSelectInterop
     public async ValueTask Create(ElementReference elementReference, string elementId, DotNetObjectReference<BaseTomSelect> dotNetObjectRef,
         TomSelectConfiguration? configuration = null, CancellationToken cancellationToken = default)
     {
-        await _scriptInitializer.Init(cancellationToken, configuration?.UseCdn).NoSync();
+        await _scriptInitializer.Init(cancellationToken, configuration?.UseCdn ?? true).NoSync();
 
         string? json = null;
 

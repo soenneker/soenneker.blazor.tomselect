@@ -10,83 +10,187 @@
 @inject ILogger<Index> Logger
 @inject HttpClient Http
 
-<img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" />
-<h1>Soenneker.Blazor.TomSelect demo</h1>
-<p>This page demonstrates some of the uses of the TomSelect component.</p>
+<div class="page-header">
+    <h1 class="page-title">Multiple TomSelect Components</h1>
+    <p class="page-subtitle">Demonstrating multiple TomSelect components on the same page with different configurations and the ability to create new options.</p>
+</div>
 
 @if (_render)
 {
-    @if (_countries.Populated())
-    {
-        <TomSelect
-            TItem="Country"
-            TType="string"
-            OnInitialize="OnTomSelectInitialized"
-            OnOptionRemove="OnOptionRemove"
-            OnItemRemove="OnItemRemove"
-            OnOptionAdd="OnOptionAdd"
-            OnItemCreated="OnItemCreated"
-            OnItemAdd="OnItemAdd"
-            Data="@_countries"
-            TextField="item => item.Name"
-            ValueField="item => item.Id.ToString()"
-            CreateFuncSync="text => new Country {Name = text, Id = Guid.NewGuid().ToString()}"
-            Multiple="true"
-            Create="true"
-            OnChange="OnChange"
-            Debug=true
-            Configuration="_configuration" >
-        </TomSelect>
+    <div class="demo-section fade-in">
+        <h2>Multiple Components Example</h2>
+        <p class="demo-description">This page shows two identical TomSelect components with multi-select and create functionality. Each component operates independently.</p>
+        
+        @if (_countries.Populated())
+        {
+            <div class="card mb-6">
+                <div class="card-header">
+                    <h3 class="card-title">First TomSelect Component</h3>
+                </div>
+                <div class="card-body">
+                    <div class="tomselect-container">
+                        <TomSelect
+                            TItem="Country"
+                            TType="string"
+                            OnInitialize="OnTomSelectInitialized"
+                            OnOptionRemove="OnOptionRemove"
+                            OnItemRemove="OnItemRemove"
+                            OnOptionAdd="OnOptionAdd"
+                            OnItemCreated="OnItemCreated"
+                            OnItemAdd="OnItemAdd"
+                            Data="@_countries"
+                            TextField="item => item.Name"
+                            ValueField="item => item.Id.ToString()"
+                            CreateFuncSync="text => new Country {Name = text, Id = Guid.NewGuid().ToString()}"
+                            Multiple="true"
+                            Create="true"
+                            OnChange="OnChange"
+                            Debug=true
+                            PlaceHolder="Select or create countries..."
+                            Configuration="_configuration" >
+                        </TomSelect>
+                    </div>
+                </div>
+            </div>
 
-        <TomSelect
-            TItem="Country"
-            TType="string"
-            OnInitialize="OnTomSelectInitialized"
-            OnOptionRemove="OnOptionRemove"
-            OnItemRemove="OnItemRemove"
-            OnOptionAdd="OnOptionAdd"
-            OnItemCreated="OnItemCreated"
-            OnItemAdd="OnItemAdd"
-            Data="@_countries"
-            TextField="item => item.Name"
-            ValueField="item => item.Id.ToString()"
-            CreateFuncSync="text => new Country {Name = text, Id = Guid.NewGuid().ToString()}"
-            Multiple="true"
-            Create="true"
-            OnChange="OnChange"
-            Debug=true
-            Configuration="_configuration" >
-        </TomSelect>
-    }
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Second TomSelect Component</h3>
+                </div>
+                <div class="card-body">
+                    <div class="tomselect-container">
+                        <TomSelect
+                            TItem="Country"
+                            TType="string"
+                            OnInitialize="OnTomSelectInitialized"
+                            OnOptionRemove="OnOptionRemove"
+                            OnItemRemove="OnItemRemove"
+                            OnOptionAdd="OnOptionAdd"
+                            OnItemCreated="OnItemCreated"
+                            OnItemAdd="OnItemAdd"
+                            Data="@_countries"
+                            TextField="item => item.Name"
+                            ValueField="item => item.Id.ToString()"
+                            CreateFuncSync="text => new Country {Name = text, Id = Guid.NewGuid().ToString()}"
+                            Multiple="true"
+                            Create="true"
+                            OnChange="OnChange"
+                            Debug=true
+                            PlaceHolder="Select or create countries..."
+                            Configuration="_configuration" >
+                        </TomSelect>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="demo-section">
+        <h2>Component Controls</h2>
+        <p class="demo-description">These controls affect the first TomSelect component. Each component maintains its own state independently.</p>
+        
+        <div class="btn-group">
+            <button class="btn btn-primary" @onclick="AddOption">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                </svg>
+                Add Option
+            </button>
+            <button class="btn btn-secondary" @onclick="AddExistingItem">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="m8 4.5 2.5 2.5L8 9.5l-.5-.5L9.5 7 7.5 5l.5-.5z"/>
+                </svg>
+                Add Existing Item
+            </button>
+            <button class="btn btn-secondary" @onclick="GetItems">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z"/>
+                    <path d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0zM7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0z"/>
+                </svg>
+                Get Items
+            </button>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-secondary" @onclick="Render">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                </svg>
+                Toggle Render
+            </button>
+            <button class="btn btn-secondary" @onclick="ClearViaData">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                </svg>
+                Clear Via Data
+            </button>
+            <button class="btn btn-secondary" @onclick="AddViaData">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="m8 4.5 2.5 2.5L8 9.5l-.5-.5L9.5 7 7.5 5l.5-.5z"/>
+                </svg>
+                Add Via Data
+            </button>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-danger" @onclick="async () => await ClearItems()">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                </svg>
+                Clear Items
+            </button>
+            <button class="btn btn-danger" @onclick="ClearOptions">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                </svg>
+                Clear Options
+            </button>
+            <button class="btn btn-secondary" @onclick="Reinitialize">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                </svg>
+                Reinitialize
+            </button>
+            <button class="btn btn-secondary" @onclick="SetOptionsAndItems">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="m8 4.5 2.5 2.5L8 9.5l-.5-.5L9.5 7 7.5 5l.5-.5z"/>
+                </svg>
+                Reset Data
+            </button>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Modal Example</h2>
+        <p class="demo-description">Open a modal dialog to see how TomSelect works within a modal context.</p>
+        
+        <div class="btn-group">
+            <button class="btn btn-primary" @onclick="OpenModal">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="m8 4.5 2.5 2.5L8 9.5l-.5-.5L9.5 7 7.5 5l.5-.5z"/>
+                </svg>
+                Open Modal
+            </button>
+        </div>
+    </div>
 }
-<br />
 
-<button @onclick="AddOption" >AddOption</button>
-<button @onclick="AddExistingItem" >AddExistingItem</button>
-<button @onclick="GetItems" >GetItems</button>
-<button @onclick="Render" >Render</button>
-<button @onclick="ClearViaData" >ClearViaData</button>
-<button @onclick="AddViaData" >AddViaData</button>
-<button @onclick="async () => await ClearItems()" >ClearItems</button>
-<button @onclick="ClearOptions" >ClearOptions</button>
-<button @onclick="Reinitialize" >Reinitialize</button>
-<button @onclick="SetOptionsAndItems" >SetOptionsAndItems</button>
-
-<button @onclick="OpenModal" >Open Modal</button>
-<NavLink href="/second" >Go to second page</NavLink>
-<hr />
-
-<TomSelectModal @ref="_tomSelectModal" ></TomSelectModal>
+<TomSelectModal @ref="_tomSelectModal" />
 
 @code{
     private List<Country>? _countries;
-
     private AutoFaker _autoFaker = null!;
-
     private TomSelect<Country, string> _tomSelect = null!;
-
     private bool _render = true;
-
     private TomSelectModal? _tomSelectModal;
 
     private readonly TomSelectConfiguration _configuration = new()
@@ -120,15 +224,15 @@
         Logger.LogInformation("OnInitialized called");
     }
 
-
     private void ClearViaData()
     {
-
+        // Implementation for clearing via data
     }
 
     private async Task AddViaData()
     {
         var countries = await Http.GetFromJsonAsync<List<Country>>("sample-data/countries.json");
+        // Implementation for adding via data
     }
 
     private async ValueTask ClearItems()
@@ -204,5 +308,4 @@
             Logger.LogInformation("_tomSelect.Item: {0}", item.Name);
         }
     }
-
 }

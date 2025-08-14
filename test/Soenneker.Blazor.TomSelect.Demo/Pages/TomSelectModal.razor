@@ -3,45 +3,174 @@
 @using Soenneker.Blazor.TomSelect.Base
 @inject ILogger<TomSelectModal> Logger
 
-<Modal @ref="_modalRef" >
-    <ModalContent Centered="true" >
-        <ModalHeader>
-            <CloseButton />
+<Modal @ref="_modalRef" class="tomselect-modal">
+    <ModalContent Centered="true" class="modal-content">
+        <ModalHeader class="modal-header">
+            <h3 class="modal-title">TomSelect in Modal</h3>
+            <CloseButton class="close-button" />
         </ModalHeader>
-        <ModalBody>
-            <Field>
-                <FieldLabel>State</FieldLabel>
-                <TomSelect @ref="_tomSelectRef" TItem="StateType"
-                           TType="string"
-                           Data="_states"
-                           TextField="@(c => c.Name)"
-                           ValueField="@(c => c.Value.ToString())"
-                           Items="@_selectedStates"
-                           Multiple="true" >
-                </TomSelect>
-            </Field>
-            <Field>
-                <FieldLabel>Start time</FieldLabel>
-                <TimePicker @bind-Time="_timeSpan" TValue="TimeSpan?" DisplayFormat="h:i K" />
-            </Field>
-            @if (_existingModel)
-            {
-                <Button Clicked="Clicked" >Close</Button>
-            }
-            <Button Clicked="StateChange">StateChange</Button>
+        <ModalBody class="modal-body">
+            <div class="form-section">
+                <div class="form-group">
+                    <label class="form-label">State Selection</label>
+                    <div class="tomselect-container">
+                        <TomSelect @ref="_tomSelectRef" 
+                                   TItem="StateType"
+                                   TType="string"
+                                   Data="_states"
+                                   TextField="@(c => c.Name)"
+                                   ValueField="@(c => c.Value.ToString())"
+                                   Items="@_selectedStates"
+                                   Multiple="true"
+                                   PlaceHolder="Select states..."
+                                   OnChange="OnStateChange">
+                        </TomSelect>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Start Time</label>
+                    <div class="time-picker-container">
+                        <TimePicker @bind-Time="_timeSpan" 
+                                   TValue="TimeSpan?" 
+                                   DisplayFormat="h:i K" />
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                @if (_existingModel)
+                {
+                    <button class="btn btn-primary" @onclick="Clicked">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            <path d="m8 4.5 2.5 2.5L8 9.5l-.5-.5L9.5 7 7.5 5l.5-.5z"/>
+                        </svg>
+                        Close
+                    </button>
+                }
+                <button class="btn btn-secondary" @onclick="StateChange">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                        <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                    </svg>
+                    Update State
+                </button>
+            </div>
         </ModalBody>
     </ModalContent>
 </Modal>
 
+<style>
+    .tomselect-modal .modal-content {
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-xl);
+        border: 1px solid var(--gray-200);
+        max-width: 600px;
+        width: 90%;
+    }
+
+    .tomselect-modal .modal-header {
+        background: var(--gray-50);
+        border-bottom: 1px solid var(--gray-200);
+        padding: var(--spacing-6);
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .tomselect-modal .modal-title {
+        font-size: var(--font-size-xl);
+        font-weight: 600;
+        color: var(--gray-900);
+        margin: 0;
+    }
+
+    .tomselect-modal .close-button {
+        background: none;
+        border: none;
+        font-size: var(--font-size-lg);
+        color: var(--gray-500);
+        cursor: pointer;
+        padding: var(--spacing-2);
+        border-radius: var(--radius-md);
+        transition: all 0.2s ease;
+    }
+
+    .tomselect-modal .close-button:hover {
+        background-color: var(--gray-100);
+        color: var(--gray-700);
+    }
+
+    .tomselect-modal .modal-body {
+        padding: var(--spacing-6);
+    }
+
+    .tomselect-modal .form-section {
+        margin-bottom: var(--spacing-6);
+    }
+
+    .tomselect-modal .form-group {
+        margin-bottom: var(--spacing-6);
+    }
+
+    .tomselect-modal .form-label {
+        display: block;
+        font-weight: 500;
+        color: var(--gray-700);
+        margin-bottom: var(--spacing-2);
+        font-size: var(--font-size-sm);
+    }
+
+    .tomselect-modal .tomselect-container {
+        margin-bottom: 0;
+    }
+
+    .tomselect-modal .time-picker-container {
+        border: 1px solid var(--gray-300);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-3) var(--spacing-4);
+        min-height: 44px;
+        background: white;
+        transition: all 0.2s ease;
+    }
+
+    .tomselect-modal .time-picker-container:focus-within {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
+    }
+
+    .tomselect-modal .modal-actions {
+        display: flex;
+        gap: var(--spacing-3);
+        justify-content: flex-end;
+        padding-top: var(--spacing-4);
+        border-top: 1px solid var(--gray-200);
+    }
+
+    @@media (max-width: 768px) {
+        .tomselect-modal .modal-content {
+            width: 95%;
+            margin: var(--spacing-4);
+        }
+        
+        .tomselect-modal .modal-actions {
+            flex-direction: column;
+        }
+        
+        .tomselect-modal .modal-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+
 @code {
     private List<StateType>? _states;
     private List<StateType> _selectedStates = [];
-
     private Modal? _modalRef;
     private BaseTomSelect? _tomSelectRef;
-
-    TimeSpan? _timeSpan;
-
+    private TimeSpan? _timeSpan;
     private bool _existingModel;
 
     protected override void OnInitialized()
@@ -52,25 +181,24 @@
     public async Task Show()
     {
         _selectedStates = [];
-
         _existingModel = false;
-
         await _modalRef!.Show();
     }
 
     public async Task Clicked()
     {
-        Logger.LogInformation("Selected States: {0}", _selectedStates);
-
+        Logger.LogInformation("Selected States: {0}", string.Join(", ", _selectedStates.Select(s => s.Name)));
         await _modalRef!.Close(CloseReason.UserClosing);
-
         StateHasChanged();
     }
 
     public void StateChange()
     {
-        
         StateHasChanged();
     }
 
+    private void OnStateChange()
+    {
+        Logger.LogInformation("State selection changed");
+    }
 }

@@ -7,24 +7,82 @@
 @inject ILogger<Index> Logger
 @inject HttpClient Http
 
-<img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" />
-<h1>Soenneker.Blazor.TomSelect demo</h1>
-<p>This page demonstrates some of the uses of the TomSelect component.</p>
+<div class="page-header">
+    <h1 class="page-title">Minimal TomSelect Example</h1>
+    <p class="page-subtitle">A simple, single-select TomSelect component with basic functionality. This demonstrates the most straightforward implementation.</p>
+</div>
 
-@if (_countries.Populated())
-{
-    <TomSelect
-        TItem="string"
-        TType="string"
-        Data="@_countries"
-        TextField="item => item"
-        ValueField="item => item"
-        Configuration="_configuration"
-        Multiple="false"
-        OnChange="OnChange" >
+<div class="demo-section fade-in">
+    <h2>Basic Single Select</h2>
+    <p class="demo-description">This is the simplest form of TomSelect - a single-select dropdown with predefined options. No creation, no multiple selection, just clean and simple.</p>
+    
+    @if (_countries.Populated())
+    {
+        <div class="tomselect-container">
+            <TomSelect
+                TItem="string"
+                TType="string"
+                Data="@_countries"
+                TextField="item => item"
+                ValueField="item => item"
+                Configuration="_configuration"
+                Multiple="false"
+                OnChange="OnChange"
+                PlaceHolder="Select a country...">
+            </TomSelect>
+        </div>
+    }
+</div>
 
-    </TomSelect>
-}
+<div class="demo-section">
+    <h2>Features Demonstrated</h2>
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Single Selection</h3>
+        </div>
+        <div class="card-body">
+            <p>Only one option can be selected at a time. Perfect for simple forms and basic data entry.</p>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Search Functionality</h3>
+        </div>
+        <div class="card-body">
+            <p>Type to search through the available options. The dropdown filters in real-time as you type.</p>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Keyboard Navigation</h3>
+        </div>
+        <div class="card-body">
+            <p>Use arrow keys to navigate through options and Enter to select. Full keyboard accessibility.</p>
+        </div>
+    </div>
+</div>
+
+<div class="demo-section">
+    <h2>Code Example</h2>
+    <p class="demo-description">Here's the minimal code required to implement this TomSelect component:</p>
+    
+    <div class="card">
+        <div class="card-body">
+            <pre style="background: var(--gray-100); padding: var(--spacing-4); border-radius: var(--radius-md); overflow-x: auto; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: var(--font-size-sm);">
+&lt;TomSelect
+    TItem="string"
+    TType="string"
+    Data="@_countries"
+    TextField="item => item"
+    ValueField="item => item"
+    Multiple="false"
+    PlaceHolder="Select a country..."&gt;
+&lt;/TomSelect&gt;</pre>
+        </div>
+    </div>
+</div>
 
 @code{
     private List<string>? _countries;
@@ -49,5 +107,4 @@
         string flattened = string.Join(", ", values);
         Logger.LogInformation("OnChange called ({value})", flattened);
     }
-
 }

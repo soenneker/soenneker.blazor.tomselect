@@ -10,58 +10,162 @@
 @inject ILogger<Index> Logger
 @inject HttpClient Http
 
-<img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" />
-<h1>Soenneker.Blazor.TomSelect demo</h1>
-<p>This page demonstrates some of the uses of the TomSelect component.</p>
+<div class="page-header">
+    <h1 class="page-title">String-Based TomSelect</h1>
+    <p class="page-subtitle">Demonstrating TomSelect with simple string data instead of complex objects. This shows how the component works with basic data types.</p>
+</div>
 
 @if (_render)
 {
-    @if (_countries.Populated())
-    {
-        <TomSelect
-            TItem="string"
-            TType="string"
-            OnInitialize="OnTomSelectInitialized"
-            OnOptionRemove="OnOptionRemove"
-            OnItemRemove="OnItemRemove"
-            OnOptionAdd="OnOptionAdd"
-            OnItemCreated="OnItemCreated"
-            OnItemAdd="OnItemAdd"
-            Data="@_countries"
-            TextField="item => item"
-            ValueField="item => item"
-            @ref="_tomSelect"
-            @bind-Items="_selectedItems"
-            OnChange="OnChange"
-            Configuration="_configuration" >
-        </TomSelect>
-    }
-}
-<br />
-<button @onclick="AddOption">AddOption</button>
-<button @onclick="AddExistingItem">AddExistingItem</button>
-<button @onclick="GetItems">GetItems</button>
-<button @onclick="Render">Render</button>
-<button @onclick="ClearViaData">ClearViaData</button>
-<button @onclick="async () => await ClearItems()">ClearItems</button>
-<button @onclick="ClearOptions">ClearOptions</button>
-<button @onclick="Reinitialize">Reinitialize</button>
-<button @onclick="SetOptionsAndItems">SetOptionsAndItems</button>
+    <div class="demo-section fade-in">
+        <h2>String Data Example</h2>
+        <p class="demo-description">This example uses a list of strings (country names) instead of complex objects. The component automatically handles the string values for both display and selection.</p>
+        
+        @if (_countries.Populated())
+        {
+            <div class="tomselect-container">
+                <TomSelect
+                    TItem="string"
+                    TType="string"
+                    OnInitialize="OnTomSelectInitialized"
+                    OnOptionRemove="OnOptionRemove"
+                    OnItemRemove="OnItemRemove"
+                    OnOptionAdd="OnOptionAdd"
+                    OnItemCreated="OnItemCreated"
+                    OnItemAdd="OnItemAdd"
+                    Data="@_countries"
+                    TextField="item => item"
+                    ValueField="item => item"
+                    @ref="_tomSelect"
+                    @bind-Items="_selectedItems"
+                    OnChange="OnChange"
+                    PlaceHolder="Select countries..."
+                    Configuration="_configuration" >
+                </TomSelect>
+            </div>
+        }
+    </div>
 
-<hr />
+    <div class="demo-section">
+        <h2>Component Controls</h2>
+        <p class="demo-description">Use these buttons to interact with the TomSelect component and see how it responds to different operations with string data.</p>
+        
+        <div class="btn-group">
+            <button class="btn btn-primary" @onclick="AddOption">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                </svg>
+                Add Option
+            </button>
+            <button class="btn btn-secondary" @onclick="AddExistingItem">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="m8 4.5 2.5 2.5L8 9.5l-.5-.5L9.5 7 7.5 5l.5-.5z"/>
+                </svg>
+                Add Existing Item
+            </button>
+            <button class="btn btn-secondary" @onclick="GetItems">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z"/>
+                    <path d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0zM7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0z"/>
+                </svg>
+                Get Items
+            </button>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-secondary" @onclick="Render">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                </svg>
+                Toggle Render
+            </button>
+            <button class="btn btn-secondary" @onclick="ClearViaData">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                </svg>
+                Clear Via Data
+            </button>
+            <button class="btn btn-danger" @onclick="async () => await ClearItems()">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                </svg>
+                Clear Items
+            </button>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-danger" @onclick="ClearOptions">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                </svg>
+                Clear Options
+            </button>
+            <button class="btn btn-secondary" @onclick="Reinitialize">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                </svg>
+                Reinitialize
+            </button>
+            <button class="btn btn-secondary" @onclick="SetOptionsAndItems">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="m8 4.5 2.5 2.5L8 9.5l-.5-.5L9.5 7 7.5 5l.5-.5z"/>
+                </svg>
+                Reset Data
+            </button>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>String vs Object Comparison</h2>
+        <p class="demo-description">Understanding the differences between using string data and complex objects in TomSelect.</p>
+        
+        <div class="card mb-6">
+            <div class="card-header">
+                <h3 class="card-title">String Data (Current Example)</h3>
+            </div>
+            <div class="card-body">
+                <p><strong>Advantages:</strong></p>
+                <ul>
+                    <li>Simpler implementation</li>
+                    <li>Less memory usage</li>
+                    <li>Direct value binding</li>
+                    <li>Easier serialization</li>
+                </ul>
+                <p><strong>Use Case:</strong> When you only need the display text and don't require additional properties.</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Object Data (Other Examples)</h3>
+            </div>
+            <div class="card-body">
+                <p><strong>Advantages:</strong></p>
+                <ul>
+                    <li>Rich data structure</li>
+                    <li>Additional properties available</li>
+                    <li>More flexible for complex scenarios</li>
+                    <li>Better for data relationships</li>
+                </ul>
+                <p><strong>Use Case:</strong> When you need to store additional information with each option.</p>
+            </div>
+        </div>
+    </div>
+}
 
 @code{
     private List<string>? _countries;
-
     private AutoFaker _autoFaker = null!;
-
-    // private List<TomSelectOption>? _options;
     private List<string> _selectedItems = [];
-
     private TomSelect<string, string> _tomSelect = null!;
-
     private bool _render = true;
-
     private TomSelectModal? _tomSelectModal;
 
     private readonly TomSelectConfiguration _configuration = new()
@@ -82,7 +186,6 @@
     private async Task SetOptionsAndItems()
     {
         _countries = (await Http.GetFromJsonAsync<List<Country>>("sample-data/countries.json")).Select(c => c.Name).ToList();
-
         _selectedItems = _countries!.ToList();
     }
 
@@ -95,7 +198,6 @@
     {
         Logger.LogInformation("OnInitialized called");
     }
-
 
     private void ClearViaData()
     {
@@ -165,7 +267,6 @@
     private async Task AddOption()
     {
         _countries.Add("arstl//23p234_:>O<_(1).w32");
-
         await _tomSelect.AddOption(_autoFaker.Generate<string>());
     }
 
@@ -187,5 +288,4 @@
             Logger.LogInformation("_selectedItem: {0}", item);
         }
     }
-
 }

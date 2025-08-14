@@ -1,5 +1,29 @@
 ﻿@inherits LayoutComponentBase
 
-<main>
-    @Body
-</main>
+<div class="layout">
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" alt="TomSelect Logo" />
+                    <span class="logo-text">TomSelect Demo</span>
+                </a>
+                <nav>
+                    <ul class="nav-menu">
+                        <li><NavLink href="/" class="nav-link" Match="NavLinkMatch.All">Overview</NavLink></li>
+                        <li><NavLink href="/minimal" class="nav-link">Minimal</NavLink></li>
+                        <li><NavLink href="/multiple" class="nav-link">Multiple</NavLink></li>
+                        <li><NavLink href="/strings" class="nav-link">Strings</NavLink></li>
+                        <li><NavLink href="/second" class="nav-link">Advanced</NavLink></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            @Body
+        </div>
+    </main>
+</div>

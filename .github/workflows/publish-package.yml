@@ -117,7 +117,7 @@ jobs:
         run: touch test/Soenneker.Blazor.TomSelect.Demo/bin/Release/net9.0/publish/wwwroot/.nojekyll
 
       - name: Upload GitHub Pages Artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: test/Soenneker.Blazor.TomSelect.Demo/bin/Release/net9.0/publish/wwwroot
 

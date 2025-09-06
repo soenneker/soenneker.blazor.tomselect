@@ -1,4 +1,4 @@
-﻿@using System.Threading
+@using System.Threading
 @using Microsoft.Extensions.Logging
 @using Soenneker.Blazor.TomSelect.Abstract
 @using Soenneker.Blazor.TomSelect.Dtos
@@ -119,7 +119,7 @@
 
     public override async ValueTask DisposeAsync()
     {
-        await base.DisposeAsync().NoSync();
+        await base.DisposeAsync();
 
         if (DotNetReference != null)
         {
@@ -151,7 +151,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.RemoveOption(ElementId, value, linked).NoSync();
+            await TomSelectInterop.RemoveOption(ElementId, value, linked);
     }
 
     public async ValueTask RefreshOptions(bool triggerDropdown = false, CancellationToken cancellationToken = default)
@@ -159,7 +159,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.RefreshOptions(ElementId, triggerDropdown, linked).NoSync();
+            await TomSelectInterop.RefreshOptions(ElementId, triggerDropdown, linked);
     }
 
     public async ValueTask ClearOptions(CancellationToken cancellationToken = default)
@@ -167,7 +167,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.ClearOptions(ElementId, linked).NoSync();
+            await TomSelectInterop.ClearOptions(ElementId, linked);
     }
 
     public async ValueTask RemoveItem(string valueOrHtmlElement, bool silent = false, CancellationToken cancellationToken = default)
@@ -175,7 +175,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.RemoveItem(ElementId, valueOrHtmlElement, silent, linked).NoSync();
+            await TomSelectInterop.RemoveItem(ElementId, valueOrHtmlElement, silent, linked);
     }
 
     public async ValueTask AddOptionGroup(string id, object data, CancellationToken cancellationToken = default)
@@ -183,7 +183,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.AddOptionGroup(ElementId, id, data, linked).NoSync();
+            await TomSelectInterop.AddOptionGroup(ElementId, id, data, linked);
     }
 
     public async ValueTask RemoveOptionGroup(string id, CancellationToken cancellationToken = default)
@@ -191,7 +191,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.RemoveOptionGroup(ElementId, id, linked).NoSync();
+            await TomSelectInterop.RemoveOptionGroup(ElementId, id, linked);
     }
 
     public async ValueTask ClearOptionGroups(CancellationToken cancellationToken = default)
@@ -199,7 +199,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.ClearOptionGroups(ElementId, linked).NoSync();
+            await TomSelectInterop.ClearOptionGroups(ElementId, linked);
     }
 
     public async ValueTask OpenDropdown(CancellationToken cancellationToken = default)
@@ -207,7 +207,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.OpenDropdown(ElementId, linked).NoSync();
+            await TomSelectInterop.OpenDropdown(ElementId, linked);
     }
 
     public async ValueTask CloseDropdown(CancellationToken cancellationToken = default)
@@ -215,7 +215,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.CloseDropdown(ElementId, linked).NoSync();
+            await TomSelectInterop.CloseDropdown(ElementId, linked);
     }
 
     public async ValueTask PositionDropdown(CancellationToken cancellationToken = default)
@@ -223,7 +223,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.PositionDropdown(ElementId, linked).NoSync();
+            await TomSelectInterop.PositionDropdown(ElementId, linked);
     }
 
     public async ValueTask Focus(CancellationToken cancellationToken = default)
@@ -231,7 +231,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.Focus(ElementId, linked).NoSync();
+            await TomSelectInterop.Focus(ElementId, linked);
     }
 
     public async ValueTask Blur(CancellationToken cancellationToken = default)
@@ -239,7 +239,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.Blur(ElementId, linked).NoSync();
+            await TomSelectInterop.Blur(ElementId, linked);
     }
 
     public async ValueTask Lock(CancellationToken cancellationToken = default)
@@ -247,7 +247,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.Lock(ElementId, linked).NoSync();
+            await TomSelectInterop.Lock(ElementId, linked);
     }
 
     public async ValueTask Unlock(CancellationToken cancellationToken = default)
@@ -255,7 +255,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.Unlock(ElementId, linked).NoSync();
+            await TomSelectInterop.Unlock(ElementId, linked);
     }
 
     public async ValueTask Enable(CancellationToken cancellationToken = default)
@@ -263,7 +263,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.Enable(ElementId, linked).NoSync();
+            await TomSelectInterop.Enable(ElementId, linked);
     }
 
     public async ValueTask Disable(CancellationToken cancellationToken = default)
@@ -271,7 +271,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.Disable(ElementId, linked).NoSync();
+            await TomSelectInterop.Disable(ElementId, linked);
     }
 
     public async ValueTask SetValue(TomSelectOption value, bool silent = false, CancellationToken cancellationToken = default)
@@ -279,7 +279,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.SetValue(ElementId, value, silent, linked).NoSync();
+            await TomSelectInterop.SetValue(ElementId, value, silent, linked);
     }
 
     public async ValueTask<TomSelectOption> GetValue(CancellationToken cancellationToken = default)
@@ -287,7 +287,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            return await TomSelectInterop.GetValue(ElementId, linked).NoSync();
+            return await TomSelectInterop.GetValue(ElementId, linked);
     }
 
     public async ValueTask SetCaret(int index, CancellationToken cancellationToken = default)
@@ -295,7 +295,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.SetCaret(ElementId, index, linked).NoSync();
+            await TomSelectInterop.SetCaret(ElementId, index, linked);
     }
 
     public async ValueTask<bool> IsFull(CancellationToken cancellationToken = default)
@@ -303,7 +303,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            return await TomSelectInterop.IsFull(ElementId, linked).NoSync();
+            return await TomSelectInterop.IsFull(ElementId, linked);
     }
 
     public async ValueTask ClearCache(CancellationToken cancellationToken = default)
@@ -311,7 +311,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.ClearCache(ElementId, linked).NoSync();
+            await TomSelectInterop.ClearCache(ElementId, linked);
     }
 
     public async ValueTask SetTextboxValue(string str, CancellationToken cancellationToken = default)
@@ -319,7 +319,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.SetTextboxValue(ElementId, str, linked).NoSync();
+            await TomSelectInterop.SetTextboxValue(ElementId, str, linked);
     }
 
     public async ValueTask Sync(CancellationToken cancellationToken = default)
@@ -327,7 +327,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.Sync(ElementId, linked).NoSync();
+            await TomSelectInterop.Sync(ElementId, linked);
     }
 
     public async ValueTask Destroy(CancellationToken cancellationToken = default)
@@ -335,7 +335,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.Destroy(ElementId, linked).NoSync();
+            await TomSelectInterop.Destroy(ElementId, linked);
     }
 
 }

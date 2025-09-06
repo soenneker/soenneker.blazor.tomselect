@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components;
 using Soenneker.Blazor.TomSelect.Dtos;
 using System;
 using System.Collections.Generic;

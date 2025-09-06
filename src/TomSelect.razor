@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components
 @using Microsoft.JSInterop
 @using Soenneker.Blazor.TomSelect.Configuration
 @using Soenneker.Blazor.TomSelect.Dtos
@@ -84,7 +84,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await TomSelectInterop.Initialize(Configuration.UseCdn, CancellationToken).NoSync();
+        await TomSelectInterop.Initialize(Configuration.UseCdn, CancellationToken);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -96,7 +96,7 @@ else
 
             _isDataSet = false;
             InteropEventListener.Initialize(TomSelectInterop);
-            await Initialize().NoSync();
+            await Initialize();
             _isCreated = true;
         }
 
@@ -104,7 +104,7 @@ else
         {
             _isDataSet = true;
 
-            await InitializeData().NoSync();
+            await InitializeData();
         }
     }
 
@@ -131,8 +131,8 @@ else
 
                 _dataHash = dataHashNew;
 
-                await ClearOptions().NoSync();
-                await AddOptions(Data, false).NoSync();
+                await ClearOptions();
+                await AddOptions(Data, false);
             }
         }
 
@@ -146,12 +146,12 @@ else
 
             _workingItems = Items ?? [];
 
-            await CleanItems().NoSync();
+            await CleanItems();
 
             _itemsHash = _workingItems.GetAggregateHashCode(false);
 
             List<string> values = ConvertItemsToListString(_workingItems);
-            await TomSelectInterop.ClearAndAddItems(ElementId, values, true).NoSync();
+            await TomSelectInterop.ClearAndAddItems(ElementId, values, true);
 
             // Restore previously selected items if possible
             List<string?> preservedValues = oldWorkingItems.Select(ToValueFromItem).ToList();
@@ -161,18 +161,18 @@ else
             if (missingValues.Count > 0)
             {
                 List<string> nonNullMissingValues = missingValues.Where(v => v != null).Select(v => v!).ToList();
-                await TomSelectInterop.AddItems(ElementId, nonNullMissingValues, true).NoSync();
+                await TomSelectInterop.AddItems(ElementId, nonNullMissingValues, true);
             }
         }
     }
 
     public override async ValueTask Reinitialize(CancellationToken cancellationToken = default)
     {
-        await ClearItems(true, cancellationToken).NoSync();
+        await ClearItems(true, cancellationToken);
 
-        await ClearOptions(cancellationToken).NoSync();
+        await ClearOptions(cancellationToken);
 
-        await InitializeData(cancellationToken).NoSync();
+        await InitializeData(cancellationToken);
     }
 
     private async ValueTask InitializeData(CancellationToken cancellationToken = default)
@@ -187,13 +187,13 @@ else
 
         if (!Data.Empty())
         {
-            await AddOptions(Data, false, cancellationToken).NoSync();
+            await AddOptions(Data, false, cancellationToken);
 
             _workingItems = Items;
 
-            await CleanItems().NoSync();
+            await CleanItems();
 
-            await AddItemsToDom(_workingItems, true, cancellationToken).NoSync();
+            await AddItemsToDom(_workingItems, true, cancellationToken);
         }
 
         _onModificationTask = new TaskCompletionSource<bool>();
@@ -220,11 +220,11 @@ else
 
         using (cts)
         {
-            await TomSelectInterop.Create(ElementReference, ElementId, DotNetReference, Configuration, linked).NoSync();
-            await TomSelectInterop.CreateObserver(ElementId, linked).NoSync();
+            await TomSelectInterop.Create(ElementReference, ElementId, DotNetReference, Configuration, linked);
+            await TomSelectInterop.CreateObserver(ElementId, linked);
         }
 
-        await AddEventListeners().NoSync();
+        await AddEventListeners();
     }
 
     public async ValueTask<TomSelectOption?> AddOption(TItem item, bool userCreated = true, CancellationToken cancellationToken = default)
@@ -237,7 +237,7 @@ else
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.AddOption(ElementId, option!, userCreated, linked).NoSync();
+            await TomSelectInterop.AddOption(ElementId, option!, userCreated, linked);
 
         return option;
     }
@@ -259,7 +259,7 @@ else
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.AddOptions(ElementId, dedupedOptions, userCreated, linked).NoSync();
+            await TomSelectInterop.AddOptions(ElementId, dedupedOptions, userCreated, linked);
     }
 
     public async ValueTask UpdateOption(string value, TItem item, CancellationToken cancellationToken = default)
@@ -277,7 +277,7 @@ else
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.UpdateOption(ElementId, value, option, linked).NoSync();
+            await TomSelectInterop.UpdateOption(ElementId, value, option, linked);
     }
 
     public ValueTask AddItem(string value, bool silent = false, CancellationToken cancellationToken = default)
@@ -294,7 +294,7 @@ else
     {
         string? value = ToValueFromItem(item);
 
-        AddItemType result = await TryAddItem(value, cancellationToken).NoSync();
+        AddItemType result = await TryAddItem(value, cancellationToken);
 
         if (result != AddItemType.Normal)
             return;
@@ -302,7 +302,7 @@ else
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.AddItem(ElementId, value!, silent, linked).NoSync();
+            await TomSelectInterop.AddItem(ElementId, value!, silent, linked);
     }
 
     public ValueTask AddItems(IEnumerable<string> value, bool silent = false, CancellationToken cancellationToken = default)
@@ -343,7 +343,7 @@ else
 
                 if (value != null)
                 {
-                    AddItemType result = await TryAddItem(value, linked).NoSync();
+                    AddItemType result = await TryAddItem(value, linked);
 
                     if (result != AddItemType.Error)
                     {
@@ -352,7 +352,7 @@ else
                 }
             }
 
-            await AddItemsToDom(values, silent, linked).NoSync();
+            await AddItemsToDom(values, silent, linked);
         }
     }
 
@@ -440,18 +440,18 @@ else
             return CreateFuncSync.Invoke(text);
 
         if (CreateFunc != null)
-            return await CreateFunc.Invoke(text).NoSync();
+            return await CreateFunc.Invoke(text);
 
         return default!;
     }
 
     private async ValueTask OnItemAdd_internal(string valueOrText)
     {
-        AddItemType addItemType = await TryAddItem(valueOrText).NoSync();
+        AddItemType addItemType = await TryAddItem(valueOrText);
 
         if (addItemType == AddItemType.NewOption)
         {
-            await OnOptionCreated_internal(valueOrText).NoSync();
+            await OnOptionCreated_internal(valueOrText);
         }
     }
 
@@ -459,16 +459,16 @@ else
     {
         LogDebug($"Adding new option ({value}) ...");
 
-        TItem item = await CreateItemFromValue(value).NoSync();
+        TItem item = await CreateItemFromValue(value);
 
         // Unfortunately we need to remove the option (stored via value) so we can re-add the properly built one from the component
-        await RemoveOption(value).NoSync();
-        TomSelectOption? newOption = await AddOption(item, false).NoSync();
+        await RemoveOption(value);
+        TomSelectOption? newOption = await AddOption(item, false);
 
         if (OnItemCreated.HasDelegate)
         {
             if (newOption != null)
-                await OnItemCreated.InvokeAsync((value, newOption)).NoSync();
+                await OnItemCreated.InvokeAsync((value, newOption));
         }
     }
 
@@ -482,7 +482,7 @@ else
             if (value == valueOrText)
             {
                 _workingItems.Remove(item);
-                await SyncItems().NoSync();
+                await SyncItems();
                 return;
             }
         }
@@ -504,25 +504,25 @@ else
                 var parameters = (jsonDocument.RootElement[0].Deserialize<string>()!, jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!);
 
                 if (OnOptionAdd.HasDelegate)
-                    await OnOptionAdd.InvokeAsync(parameters).NoSync();
+                    await OnOptionAdd.InvokeAsync(parameters);
             })
-            .NoSync();
+            ;
 
         await AddEventListener<string>(GetJsEventName(nameof(OnOptionRemove)), async str =>
             {
                 if (OnOptionRemove.HasDelegate)
-                    await OnOptionRemove.InvokeAsync(str).NoSync();
+                    await OnOptionRemove.InvokeAsync(str);
             })
-            .NoSync();
+            ;
 
         await AddEventListener<string>(GetJsEventName(nameof(OnOptionClear)), async _ =>
             {
                 OnOptionClear_internal();
 
                 if (OnOptionClear.HasDelegate)
-                    await OnOptionClear.InvokeAsync().NoSync();
+                    await OnOptionClear.InvokeAsync();
             })
-            .NoSync();
+            ;
 
         // ITEMS ---
 
@@ -532,14 +532,14 @@ else
                 (string, TomSelectOption) parameters = (jsonDocument.RootElement[0].Deserialize<string>()!,
                     jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!);
 
-                await OnItemAdd_internal(parameters.Item1).NoSync();
+                await OnItemAdd_internal(parameters.Item1);
 
                 if (OnItemAdd.HasDelegate)
-                    await OnItemAdd.InvokeAsync(parameters).NoSync();
+                    await OnItemAdd.InvokeAsync(parameters);
 
                 _onModificationTask?.TrySetResult(true);
             })
-            .NoSync();
+            ;
 
         await AddEventListener<string>(GetJsEventName(nameof(OnItemRemove)), async str =>
             {
@@ -547,14 +547,14 @@ else
                 (string, TomSelectOption) parameters = (jsonDocument.RootElement[0].Deserialize<string>()!,
                     jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!);
 
-                await OnItemRemove_Internal(parameters.Item1).NoSync();
+                await OnItemRemove_Internal(parameters.Item1);
 
                 if (OnItemRemove.HasDelegate)
-                    await OnItemRemove.InvokeAsync(parameters).NoSync();
+                    await OnItemRemove.InvokeAsync(parameters);
 
                 _onModificationTask?.TrySetResult(true);
             })
-            .NoSync();
+            ;
 
         await AddEventListener<string>(GetJsEventName(nameof(OnItemSelect)), async str =>
             {
@@ -565,10 +565,10 @@ else
                     TomSelectOption? option = CreateOptionFromItem(item);
 
                     if (OnItemSelect.HasDelegate)
-                        await OnItemSelect.InvokeAsync(option).NoSync();
+                        await OnItemSelect.InvokeAsync(option);
                 }
             })
-            .NoSync();
+            ;
 
         // TODO: There's a bug in the JS that raises the clear event when an item is selected 04/04/24
         //await AddEventListener<string>(
@@ -586,25 +586,25 @@ else
             await AddEventListener<string>(GetJsEventName(nameof(OnChange)), async str =>
                 {
                     if (_onModificationTask != null)
-                        await _onModificationTask.Task.NoSync();
+                        await _onModificationTask.Task;
 
                     var values = JsonUtil.Deserialize<List<string>>(str);
 
-                    await OnChange.InvokeAsync(values).NoSync();
+                    await OnChange.InvokeAsync(values);
 
                     _onModificationTask = new TaskCompletionSource<bool>();
                 })
-                .NoSync();
+                ;
         }
 
         if (OnFocus.HasDelegate)
         {
-            await AddEventListener<string>(GetJsEventName(nameof(OnFocus)), async _ => { await OnFocus.InvokeAsync().NoSync(); }).NoSync();
+            await AddEventListener<string>(GetJsEventName(nameof(OnFocus)), async _ => { await OnFocus.InvokeAsync(); });
         }
 
         if (OnBlur.HasDelegate)
         {
-            await AddEventListener<string>(GetJsEventName(nameof(OnBlur)), async _ => { await OnBlur.InvokeAsync().NoSync(); }).NoSync();
+            await AddEventListener<string>(GetJsEventName(nameof(OnBlur)), async _ => { await OnBlur.InvokeAsync(); });
         }
 
         if (OnOptgroupAdd.HasDelegate)
@@ -615,47 +615,47 @@ else
                     (string, TomSelectOption) parameters = (jsonDocument.RootElement[0].Deserialize<string>()!,
                         jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!);
 
-                    await OnOptgroupAdd.InvokeAsync(parameters).NoSync();
+                    await OnOptgroupAdd.InvokeAsync(parameters);
                 })
-                .NoSync();
+                ;
         }
 
         if (OnOptgroupRemove.HasDelegate)
         {
-            await AddEventListener<string>(GetJsEventName(nameof(OnOptgroupRemove)), async str => { await OnOptgroupRemove.InvokeAsync(str).NoSync(); })
-                .NoSync();
+            await AddEventListener<string>(GetJsEventName(nameof(OnOptgroupRemove)), async str => { await OnOptgroupRemove.InvokeAsync(str); })
+                ;
         }
 
         if (OnOptgroupClear.HasDelegate)
         {
-            await AddEventListener<string>(GetJsEventName(nameof(OnOptgroupClear)), async str => { await OnOptgroupClear.InvokeAsync().NoSync(); }).NoSync();
+            await AddEventListener<string>(GetJsEventName(nameof(OnOptgroupClear)), async str => { await OnOptgroupClear.InvokeAsync(); });
         }
 
         if (OnDropdownOpen.HasDelegate)
         {
-            await AddEventListener<TomSelectOption>(GetJsEventName(nameof(OnDropdownOpen)), async str => { await OnDropdownOpen.InvokeAsync(str).NoSync(); })
-                .NoSync();
+            await AddEventListener<TomSelectOption>(GetJsEventName(nameof(OnDropdownOpen)), async str => { await OnDropdownOpen.InvokeAsync(str); })
+                ;
         }
 
         if (OnDropdownClose.HasDelegate)
         {
-            await AddEventListener<TomSelectOption>(GetJsEventName(nameof(OnDropdownClose)), async str => { await OnDropdownClose.InvokeAsync(str).NoSync(); })
-                .NoSync();
+            await AddEventListener<TomSelectOption>(GetJsEventName(nameof(OnDropdownClose)), async str => { await OnDropdownClose.InvokeAsync(str); })
+                ;
         }
 
         if (OnType.HasDelegate)
         {
-            await AddEventListener<string>(GetJsEventName(nameof(OnType)), async str => { await OnType.InvokeAsync(str).NoSync(); }).NoSync();
+            await AddEventListener<string>(GetJsEventName(nameof(OnType)), async str => { await OnType.InvokeAsync(str); });
         }
 
         if (OnLoad.HasDelegate)
         {
-            await AddEventListener<object>(GetJsEventName(nameof(OnLoad)), async str => { await OnLoad.InvokeAsync(str).NoSync(); }).NoSync();
+            await AddEventListener<object>(GetJsEventName(nameof(OnLoad)), async str => { await OnLoad.InvokeAsync(str); });
         }
 
         if (OnDestroy.HasDelegate)
         {
-            await AddEventListener<string>(GetJsEventName(nameof(OnDestroy)), async _ => { await OnDestroy.InvokeAsync().NoSync(); }).NoSync();
+            await AddEventListener<string>(GetJsEventName(nameof(OnDestroy)), async _ => { await OnDestroy.InvokeAsync(); });
         }
     }
 
@@ -674,12 +674,12 @@ else
     public async ValueTask ClearItems(bool silent = false, CancellationToken cancellationToken = default)
     {
         _workingItems.Clear();
-        await SyncItems().NoSync();
+        await SyncItems();
 
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.ClearItems(ElementId, silent, linked).NoSync();
+            await TomSelectInterop.ClearItems(ElementId, silent, linked);
     }
 
     private bool TryAddOption(TomSelectOption? tomSelectOption)
@@ -744,7 +744,7 @@ else
         }
 
         _workingItems.Add(item);
-        await SyncItems().NoSync();
+        await SyncItems();
 
         return AddItemType.Normal;
     }
@@ -786,7 +786,7 @@ else
         {
             LogDebug("Clean requires a resync of Items");
             _workingItems = cleaned.Values.ToList();
-            await SyncItems().NoSync();
+            await SyncItems();
         }
     }
 
@@ -806,6 +806,6 @@ else
         }
 
         // Call base disposal which will handle other cleanup
-        await base.DisposeAsync().NoSync();
+        await base.DisposeAsync();
     }
 }

@@ -39,22 +39,22 @@ public sealed class TomSelectInterop : EventListeningInterop, ITomSelectInterop
             {
                 await _resourceLoader.LoadStyle("https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.bootstrap5.min.css",
                                          "sha256-lQMtfzgdbG8ufMCU5UThXG65Wsv5CIXGkHFGCHA68ME=", cancellationToken: token)
-                                     .NoSync();
+                                     ;
 
                 await _resourceLoader.LoadScriptAndWaitForVariable("https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js",
                                          "TomSelect", "sha256-t5cAXPIzePs4RIuA3FejMxOlxXe4QXZXQ7sfKJxNU+Y=", cancellationToken: token)
-                                     .NoSync();
+                                     ;
             }
             else
             {
-                await _resourceLoader.LoadStyle("_content/Soenneker.Blazor.TomSelect/css/tom-select.bootstrap5.min.css", cancellationToken: token).NoSync();
+                await _resourceLoader.LoadStyle("_content/Soenneker.Blazor.TomSelect/css/tom-select.bootstrap5.min.css", cancellationToken: token);
 
                 await _resourceLoader.LoadScriptAndWaitForVariable("_content/Soenneker.Blazor.TomSelect/js/tom-select.complete.min.js", "TomSelect",
                                          cancellationToken: token)
-                                     .NoSync();
+                                     ;
             }
 
-            await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token).NoSync();
+            await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token);
 
             return new object();
         });
@@ -73,14 +73,14 @@ public sealed class TomSelectInterop : EventListeningInterop, ITomSelectInterop
     public async ValueTask Create(ElementReference elementReference, string elementId, DotNetObjectReference<BaseTomSelect> dotNetObjectRef,
         TomSelectConfiguration? configuration = null, CancellationToken cancellationToken = default)
     {
-        await _scriptInitializer.Init(cancellationToken, configuration?.UseCdn ?? true).NoSync();
+        await _scriptInitializer.Init(cancellationToken, configuration?.UseCdn ?? true);
 
         string? json = null;
 
         if (configuration != null)
             json = JsonUtil.Serialize(configuration);
 
-        await JsRuntime.InvokeVoidAsync($"{_moduleName}.create", cancellationToken, elementReference, elementId, json, dotNetObjectRef).NoSync();
+        await JsRuntime.InvokeVoidAsync($"{_moduleName}.create", cancellationToken, elementReference, elementId, json, dotNetObjectRef);
     }
 
     public ValueTask Destroy(string elementId, CancellationToken cancellationToken = default)
@@ -250,8 +250,8 @@ public sealed class TomSelectInterop : EventListeningInterop, ITomSelectInterop
 
     public async ValueTask DisposeAsync()
     {
-        await _resourceLoader.DisposeModule(_module).NoSync();
+        await _resourceLoader.DisposeModule(_module);
 
-        await _scriptInitializer.DisposeAsync().NoSync();
+        await _scriptInitializer.DisposeAsync();
     }
 }

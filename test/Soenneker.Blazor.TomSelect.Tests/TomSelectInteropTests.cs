@@ -1,5 +1,4 @@
 using Soenneker.Blazor.TomSelect.Abstract;
-using Soenneker.Blazor.TomSelect.Configuration;
 using Soenneker.Tests.FixturedUnit;
 using Xunit;
 

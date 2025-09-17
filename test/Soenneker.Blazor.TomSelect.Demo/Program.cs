@@ -1,8 +1,6 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Blazorise;
-using Blazorise.Bootstrap;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +9,6 @@ using Microsoft.JSInterop;
 using Serilog;
 using Serilog.Debugging;
 using Soenneker.Blazor.TomSelect.Registrars;
-using Soenneker.Blazor.Utils.Navigation.Registrars;
 using Soenneker.Serilog.Sinks.Browser.Blazor.Registrars;
 
 namespace Soenneker.Blazor.TomSelect.Demo;
@@ -35,11 +32,6 @@ public class Program
             });
 
             builder.Services.AddTomSelectInteropAsScoped();
-
-            builder.Services
-                .AddNavigationUtilAsScoped()
-                .AddBlazorise()
-                .AddBootstrapProviders();
 
             WebAssemblyHost host = builder.Build();
 

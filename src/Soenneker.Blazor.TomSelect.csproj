@@ -42,13 +42,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.9" />
-        <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="3.0.424" />
         <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="3.0.3722" />
         <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="3.0.1503" />
         <PackageReference Include="Soenneker.Extensions.CancellationTokens" Version="3.0.3" />
         <PackageReference Include="Soenneker.Extensions.List" Version="3.0.934" />
         <PackageReference Include="Soenneker.Json.CollectionConverter" Version="3.0.776" />
-        <PackageReference Include="Soenneker.Quark.Components.Cancellable" Version="3.0.17" />
+        <PackageReference Include="Soenneker.Quark.Components.Cancellable" Version="3.0.18" />
     </ItemGroup>
 </Project>

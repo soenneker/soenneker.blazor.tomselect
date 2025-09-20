@@ -21,11 +21,11 @@
 
 @if (Multiple)
 {
-    <input id="@ElementId" @ref="ElementReference" @attributes="Attributes" />
+    <input id="@Id" @ref="ElementReference" @attributes="Attributes" />
 }
 else
 {
-    <select id="@ElementId" @ref="ElementReference" @attributes="Attributes"></select>
+    <select id="@Id" @ref="ElementReference" @attributes="Attributes"></select>
 }
 
 @code {
@@ -44,9 +44,6 @@ else
 
     [Parameter]
     public Func<string, ValueTask<TItem>>? CreateFunc { get; set; }
-
-    [Parameter(CaptureUnmatchedValues = true)]
-    public Dictionary<string, object?>? Attributes { get; set; }
 
     [Parameter]
     public TomSelectConfiguration Configuration { get; set; } = new();
@@ -144,7 +141,7 @@ else
             _itemsHash = _workingItems.GetAggregateHashCode(false);
 
             List<string> values = ConvertItemsToListString(_workingItems);
-            await TomSelectInterop.ClearAndAddItems(ElementId, values, true);
+            await TomSelectInterop.ClearAndAddItems(Id!, values, true);
 
             // Restore previously selected items if possible
             List<string?> preservedValues = oldWorkingItems.Select(ToValueFromItem).ToList();
@@ -154,7 +151,7 @@ else
             if (missingValues.Count > 0)
             {
                 List<string> nonNullMissingValues = missingValues.Where(v => v != null).Select(v => v!).ToList();
-                await TomSelectInterop.AddItems(ElementId, nonNullMissingValues, true);
+                await TomSelectInterop.AddItems(Id!, nonNullMissingValues, true);
             }
         }
     }
@@ -213,8 +210,8 @@ else
 
         using (cts)
         {
-            await TomSelectInterop.Create(ElementReference, ElementId, DotNetReference, Configuration, linked);
-            await TomSelectInterop.CreateObserver(ElementId, linked);
+            await TomSelectInterop.Create(ElementReference, Id!, DotNetReference, Configuration, linked);
+            await TomSelectInterop.CreateObserver(Id!, linked);
         }
 
         await AddEventListeners();
@@ -230,7 +227,7 @@ else
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.AddOption(ElementId, option!, userCreated, linked);
+            await TomSelectInterop.AddOption(Id!, option!, userCreated, linked);
 
         return option;
     }
@@ -252,7 +249,7 @@ else
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.AddOptions(ElementId, dedupedOptions, userCreated, linked);
+            await TomSelectInterop.AddOptions(Id!, dedupedOptions, userCreated, linked);
     }
 
     public async ValueTask UpdateOption(string value, TItem item, CancellationToken cancellationToken = default)
@@ -270,7 +267,7 @@ else
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.UpdateOption(ElementId, value, option, linked);
+            await TomSelectInterop.UpdateOption(Id!, value, option, linked);
     }
 
     public ValueTask AddItem(string value, bool silent = false, CancellationToken cancellationToken = default)
@@ -295,7 +292,7 @@ else
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.AddItem(ElementId, value!, silent, linked);
+            await TomSelectInterop.AddItem(Id!, value!, silent, linked);
     }
 
     public ValueTask AddItems(IEnumerable<string> value, bool silent = false, CancellationToken cancellationToken = default)
@@ -307,14 +304,14 @@ else
 
     private ValueTask AddItemsToDom(IEnumerable<string> values, bool silent, CancellationToken cancellationToken)
     {
-        return TomSelectInterop.AddItems(ElementId, values, silent, cancellationToken);
+        return TomSelectInterop.AddItems(Id!, values, silent, cancellationToken);
     }
 
     private ValueTask AddItemsToDom(IEnumerable<TItem> items, bool silent, CancellationToken cancellationToken)
     {
         IEnumerable<string> values = items.Select(ToValueFromItem).Where(v => v != null).Select(v => v!);
 
-        return TomSelectInterop.AddItems(ElementId, values, silent, cancellationToken);
+        return TomSelectInterop.AddItems(Id!, values, silent, cancellationToken);
     }
 
     public async ValueTask AddItems(IEnumerable<TItem> items, bool silent = false, CancellationToken cancellationToken = default)
@@ -661,7 +658,7 @@ else
 
     private ValueTask AddEventListener<T>(string eventName, Func<T, ValueTask> callback)
     {
-        return InteropEventListener.Add("TomSelectInterop.addEventListener", ElementId, eventName, callback, CancellationToken);
+        return InteropEventListener.Add("TomSelectInterop.addEventListener", Id!, eventName, callback, CancellationToken);
     }
 
     public async ValueTask ClearItems(bool silent = false, CancellationToken cancellationToken = default)
@@ -672,7 +669,7 @@ else
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.ClearItems(ElementId, silent, linked);
+            await TomSelectInterop.ClearItems(Id!, silent, linked);
     }
 
     private bool TryAddOption(TomSelectOption? tomSelectOption)

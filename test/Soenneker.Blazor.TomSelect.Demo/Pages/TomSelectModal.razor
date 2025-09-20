@@ -3,7 +3,7 @@
 @using Soenneker.Blazor.TomSelect.Base
 @inject ILogger<TomSelectModal> Logger
 
-<Modal @ref="_modalRef" class="tomselect-modal">
+@* <Modal @ref="_modalRef" class="tomselect-modal">
     <ModalContent Centered="true" class="modal-content">
         <ModalHeader class="modal-header">
             <h3 class="modal-title">TomSelect in Modal</h3>
@@ -59,7 +59,7 @@
             </div>
         </ModalBody>
     </ModalContent>
-</Modal>
+</Modal> *@
 
 <style>
     .tomselect-modal .modal-content {
@@ -188,7 +188,7 @@
     public async Task Clicked()
     {
         Logger.LogInformation("Selected States: {0}", string.Join(", ", _selectedStates.Select(s => s.Name)));
-        await _modalRef!.Close(CloseReason.UserClosing);
+        await _modalRef!.Show();
         StateHasChanged();
     }
 

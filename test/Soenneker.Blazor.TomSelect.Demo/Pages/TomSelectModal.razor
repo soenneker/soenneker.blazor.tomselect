@@ -1,7 +1,6 @@
 @using Microsoft.Extensions.Logging
 @using Soenneker.Blazor.TomSelect.Demo.Enums
 @using Soenneker.Blazor.TomSelect.Base
-@using Soenneker.Quark
 @inject ILogger<TomSelectModal> Logger
 
 @* <Modal @ref="_modalRef" class="tomselect-modal">
@@ -169,7 +168,7 @@
 @code {
     private List<StateType>? _states;
     private List<StateType> _selectedStates = [];
-    private Modal? _modalRef;
+    // private Modal? _modalRef;
     private BaseTomSelect? _tomSelectRef;
     private TimeSpan? _timeSpan;
     private bool _existingModel;
@@ -183,13 +182,13 @@
     {
         _selectedStates = [];
         _existingModel = false;
-        await _modalRef!.Show();
+        //await _modalRef!.Show();
     }
 
     public async Task Clicked()
     {
         Logger.LogInformation("Selected States: {0}", string.Join(", ", _selectedStates.Select(s => s.Name)));
-        await _modalRef!.Show();
+      //  await _modalRef!.Show();
         StateHasChanged();
     }
 

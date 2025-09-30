@@ -24,4 +24,16 @@ public sealed class TomSelectOption
     /// </summary>
     [JsonPropertyName("item")]
     public object? Item { get; set; }
+
+    /// <summary>
+    /// Optional pre-rendered HTML for the dropdown option row.
+    /// </summary>
+    [JsonPropertyName("htmlOption")]
+    public string? HtmlOption { get; set; }
+
+    /// <summary>
+    /// Optional pre-rendered HTML for the selected item chip/value.
+    /// </summary>
+    [JsonPropertyName("htmlItem")]
+    public string? HtmlItem { get; set; }
 }

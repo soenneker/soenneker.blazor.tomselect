@@ -28,6 +28,20 @@ else
     <select id="@Id" @ref="ElementReference" @attributes="Attributes"></select>
 }
 
+@if (OptionTemplate != null)
+{
+    <div id="@($"{Id}-option-template")" style="display:none">
+        @OptionTemplate
+    </div>
+}
+
+@if (ItemTemplate != null)
+{
+    <div id="@($"{Id}-item-template")" style="display:none">
+        @ItemTemplate
+    </div>
+}
+
 @code {
 
     [Parameter, EditorRequired]
@@ -71,6 +85,30 @@ else
     private List<TItem> _workingItems = [];
 
     private TaskCompletionSource<bool>? _onModificationTask;
+
+    [Parameter]
+    public Func<string, IEnumerable<TItem>>? LoadFuncSync { get; set; }
+
+    [Parameter]
+    public Func<string, ValueTask<IEnumerable<TItem>>>? LoadFunc { get; set; }
+
+    [Parameter]
+    public Func<TItem, string>? RenderOptionHtml { get; set; }
+
+    [Parameter]
+    public Func<TItem, ValueTask<string>>? RenderOptionHtmlAsync { get; set; }
+
+    [Parameter]
+    public Func<TItem, string>? RenderItemHtml { get; set; }
+
+    [Parameter]
+    public Func<TItem, ValueTask<string>>? RenderItemHtmlAsync { get; set; }
+
+    [Parameter]
+    public RenderFragment? OptionTemplate { get; set; }
+
+    [Parameter]
+    public RenderFragment? ItemTemplate { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -197,6 +235,13 @@ else
         if (Create)
             Configuration.Create = true;
 
+        // Auto-enable .NET-driven load and DOM templates when delegates/fragments are provided
+        if (LoadFunc != null || LoadFuncSync != null)
+            Configuration.UseDotNetLoad = true;
+
+        if (OptionTemplate != null || ItemTemplate != null)
+            Configuration.TemplatesFromDom = true;
+
         // Dispose any existing DotNetReference before creating a new one
         if (DotNetReference != null)
         {
@@ -216,6 +261,46 @@ else
 
         await AddEventListeners();
     }
+
+    [JSInvokable("LoadOptions")]
+    public async Task<List<TomSelectOption>> LoadOptionsJs(string query)
+    {
+        if (LoadFunc == null && LoadFuncSync == null)
+            return [];
+
+        if (LoadFunc != null && LoadFuncSync != null)
+            throw new Exception("`LoadFunc` and `LoadFuncSync` cannot both be defined on the TomSelect");
+
+        IEnumerable<TItem> items;
+
+        if (LoadFuncSync != null)
+            items = LoadFuncSync.Invoke(query);
+        else
+            items = await LoadFunc!.Invoke(query);
+
+        List<TomSelectOption> options = CreateOptionsFromItems(items);
+
+        // Attach async-rendered HTML if provided
+        if (RenderOptionHtmlAsync != null || RenderItemHtmlAsync != null)
+        {
+            for (var i = 0; i < options.Count; i++)
+            {
+                TomSelectOption option = options[i];
+                if (option.Item is TItem typedItem)
+                {
+                    if (RenderOptionHtmlAsync != null)
+                        option.HtmlOption ??= await RenderOptionHtmlAsync.Invoke(typedItem);
+
+                    if (RenderItemHtmlAsync != null)
+                        option.HtmlItem ??= await RenderItemHtmlAsync.Invoke(typedItem);
+                }
+            }
+        }
+
+        return options;
+    }
+
+    
 
     public async ValueTask<TomSelectOption?> AddOption(TItem item, bool userCreated = true, CancellationToken cancellationToken = default)
     {
@@ -380,7 +465,9 @@ else
         {
             Text = text,
             Value = value,
-            Item = item
+            Item = item,
+            HtmlOption = RenderOptionHtml?.Invoke(item),
+            HtmlItem = RenderItemHtml?.Invoke(item)
         };
 
         return tomSelectOption;

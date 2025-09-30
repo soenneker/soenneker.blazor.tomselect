@@ -1,0 +1,143 @@
+@page "/remote"
+@using Microsoft.Extensions.Logging
+@using Soenneker.Blazor.TomSelect.Configuration
+@using Soenneker.Blazor.TomSelect.Demo.Dtos
+
+@inherits Soenneker.Quark.CoreCancellableComponent
+
+@inject ILogger<Remote> Logger
+@inject HttpClient Http
+
+<div class="page-header">
+    <h1 class="page-title">Remote Loading (C#)</h1>
+    <p class="page-subtitle">Type to search GitHub repositories. Data is fetched in C# and rendered with custom HTML.</p>
+    <a href="/" class="btn btn-secondary">Back to Home</a>
+    <a href="https://tom-select.js.org/examples/remote/" target="_blank" class="btn btn-link">Remote examples</a>
+ </div>
+
+<div class="demo-section fade-in">
+    <h2>GitHub Repository Search — Template Rendering</h2>
+    <p class="demo-description">Start typing (2+ chars). Results load via <code>LoadFunc</code> in C#. Rendering uses <code>OptionTemplate</code>/<code>ItemTemplate</code> only.</p>
+
+    <TomSelect
+        TItem="GitHubRepo"
+        TType="string"
+        Data="[]"
+        TextField="r => r.Name"
+        ValueField="r => r.Url"
+        Multiple="true"
+        @bind-Items="_selected"
+        Configuration="_config"
+        LoadFunc="LoadRepos"
+        Debug="true">
+        <OptionTemplate>
+            <div class="row border-bottom py-2">
+                <div class="col-2">
+                    <img class="img-fluid" src="{{owner.avatar_url}}" />
+                </div>
+                <div class="col-10">
+                    <div class="mt-0">{{name}} <span class="small text-muted">by {{owner.login}}</span></div>
+                    <div class="mb-1">{{description}}</div>
+                    <div class="d-flex text-muted">
+                        <div class="me-3">{{language}}</div>
+                        <div class="me-3">{{forks_count}} Forks</div>
+                        <div class="me-3">{{stargazers_count}} Stars</div>
+                        <div class="me-3">{{watchers_count}} Watchers</div>
+                    </div>
+                </div>
+            </div>
+        </OptionTemplate>
+        <ItemTemplate>
+            <div class="py-1 d-flex">
+                <div class="icon me-2">
+                    <img class="img-fluid" src="{{owner.avatar_url}}" />
+                </div>
+                <div>
+                    <span class="h6">{{name}}</span>
+                </div>
+            </div>
+        </ItemTemplate>
+    </TomSelect>
+</div>
+
+<div class="demo-section">
+    <h2>GitHub Repository Search — C# HTML Rendering</h2>
+    <p class="demo-description">Same loader, but rendering uses <code>RenderOptionHtml</code>/<code>RenderItemHtml</code> delegates only.</p>
+
+    <TomSelect
+        TItem="GitHubRepo"
+        TType="string"
+        Data="[]"
+        TextField="r => r.Name"
+        ValueField="r => r.Url"
+        Multiple="true"
+        @bind-Items="_selectedHtml"
+        Configuration="_config"
+        LoadFunc="LoadRepos"
+        RenderOptionHtml="RenderRepoOption"
+        RenderItemHtml="RenderRepoItem"
+        Debug="true">
+    </TomSelect>
+</div>
+
+@code {
+    private readonly TomSelectConfiguration _config = new()
+    {
+        UseCdn = true,
+        Debug = true,
+        ShouldLoadMinQueryLength = 2,
+        MaxOptions = 10
+    };
+
+    private List<GitHubRepo> _selected = [];
+    private List<GitHubRepo> _selectedHtml = [];
+
+    private async ValueTask<IEnumerable<GitHubRepo>> LoadRepos(string query)
+    {
+        try
+        {
+            var url = $"https://api.github.com/search/repositories?q={Uri.EscapeDataString(query)}";
+            using var req = new HttpRequestMessage(HttpMethod.Get, url);
+            req.Headers.UserAgent.ParseAdd("Soenneker.Blazor.TomSelect.Demo");
+            using HttpResponseMessage resp = await Http.SendAsync(req, CancellationToken);
+            resp.EnsureSuccessStatusCode();
+            var json = await resp.Content.ReadFromJsonAsync<GitHubSearchResponse>(cancellationToken: CancellationToken);
+            return json?.Items ?? [];
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "GitHub search failed");
+            return [];
+        }
+    }
+
+    private static string RenderRepoOption(GitHubRepo r)
+    {
+        return $"<div class=\"row border-bottom py-2\">" +
+               $"<div class=\"col-2\"><img class=\"img-fluid\" src=\"{r.Owner.AvatarUrl}\" /></div>" +
+               $"<div class=\"col-10\">" +
+               $"<div class=\"mt-0\">{Escape(r.Name)} <span class=\"small text-muted\">by {Escape(r.Owner.Login)}</span></div>" +
+               $"<div class=\"mb-1\">{Escape(r.Description ?? string.Empty)}</div>" +
+               $"<div class=\"d-flex text-muted\">" +
+               $"<div class=\"me-3\">{Escape(r.Language ?? "")} </div>" +
+               $"<div class=\"me-3\">{r.Forks} Forks</div>" +
+               $"<div class=\"me-3\">{r.Stars} Stars</div>" +
+               $"<div class=\"me-3\">{r.Watchers} Watchers</div>" +
+               "</div></div></div>";
+    }
+
+    private static string RenderRepoItem(GitHubRepo r)
+    {
+        return $"<div class=\"py-1 d-flex\">" +
+               $"<div class=\"icon me-2\"><img class=\"img-fluid\" src=\"{r.Owner.AvatarUrl}\" /></div>" +
+               $"<div><span class=\"h6\">{Escape(r.Name)}</span></div>" +
+               "</div>";
+    }
+
+    private static string Escape(string value)
+    {
+        return System.Net.WebUtility.HtmlEncode(value);
+    }
+}
+
+

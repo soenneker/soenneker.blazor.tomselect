@@ -2,6 +2,7 @@ export class TomSelectInterop {
     constructor() {
         this.tomSelects = {};
         this.options = {};
+        this.dotNetCallbacks = {};
         this.debug = false;
     }
 
@@ -17,6 +18,44 @@ export class TomSelectInterop {
         if (options) {
             const opt = JSON.parse(options);
             debug = opt.debug || false;
+            this.dotNetCallbacks[elementId] = dotNetCallback;
+            if (opt.useDotNetLoad === true) {
+                opt.load = (query, callback) => {
+                    try {
+                        this.dotNetCallbacks[elementId]
+                            .invokeMethodAsync("LoadOptions", query)
+                            .then(items => callback(items || []))
+                            .catch(() => callback());
+                    } catch (e) {
+                        if (debug) console.warn("LoadOptions failed", e);
+                        callback();
+                    }
+                };
+            }
+            if (typeof opt.shouldLoadMinQueryLength === 'number' && !isNaN(opt.shouldLoadMinQueryLength)) {
+                const minLen = opt.shouldLoadMinQueryLength;
+                opt.shouldLoad = (query) => (query || '').length >= minLen;
+            }
+            const getTemplateHtml = (el) => {
+                if (!el) return null;
+                // With hidden <div>, innerHTML is reliable
+                return el.innerHTML;
+            };
+            const sanitizeTemplate = (html) => {
+                if (!html) return html;
+                // Remove Blazor comment markers and any HTML comments
+                return html.replace(/<!--[^]*?-->/g, '').trim();
+            };
+
+            const applyTemplate = (tpl, data) => {
+                if (!tpl) return null;
+                let html = sanitizeTemplate(tpl);
+                html = html.replace(/{{\s*([\w$.\-]+)\s*}}/g, (m, path) => {
+                    const val = this.getByPath(data, path);
+                    return (val === undefined || val === null) ? '' : String(val);
+                });
+                return html;
+            };
             opt.onInitialize = async () => {
                 try {
                     await dotNetCallback.invokeMethodAsync("OnInitializedJs");
@@ -26,6 +65,46 @@ export class TomSelectInterop {
                     }
                 }
             };
+            opt.render = opt.render || {};
+            const defaultOptionRender = (item, escape) => {
+                if (item.htmlOption) return item.htmlOption;
+                const optionTemplateEl = document.getElementById(`${elementId}-option-template`);
+                if (optionTemplateEl) {
+                    const tpl = sanitizeTemplate(getTemplateHtml(optionTemplateEl));
+                    const dataRoot = Object.assign({}, item || {}, (item && item.item) || {});
+                    const html = tpl == null ? null : applyTemplate(tpl, dataRoot);
+                    if (debug) {
+                        console.log(`[TomSelectInterop] option template used for ${elementId}`, html);
+                    }
+                    if (html !== null) return html;
+                }
+                if (debug) {
+                    console.log(`[TomSelectInterop] option template not found or empty for ${elementId}, using label`);
+                }
+                const label = (item && (item[opt.labelField || 'text'] || item.text || ''));
+                return `<div>${escape(label)}</div>`;
+            };
+            const defaultItemRender = (item, escape) => {
+                if (item.htmlItem) return item.htmlItem;
+                const itemTemplateEl = document.getElementById(`${elementId}-item-template`);
+                if (itemTemplateEl) {
+                    const tpl = sanitizeTemplate(getTemplateHtml(itemTemplateEl));
+                    const dataRoot = Object.assign({}, item || {}, (item && item.item) || {});
+                    const html = tpl == null ? null : applyTemplate(tpl, dataRoot);
+                    if (debug) {
+                        console.log(`[TomSelectInterop] item template used for ${elementId}`, html);
+                    }
+                    if (html !== null) return html;
+                }
+                if (debug) {
+                    console.log(`[TomSelectInterop] item template not found or empty for ${elementId}, using label`);
+                }
+                const label = (item && (item[opt.labelField || 'text'] || item.text || ''));
+                return `<div>${escape(label)}</div>`;
+            };
+            // Always use our renderer; it will fallback to label if no template/HTML is present
+            opt.render.option = defaultOptionRender;
+            opt.render.item = defaultItemRender;
             tomSelect = new TomSelect(element, opt);
             this.options[elementId] = opt;
         } else {
@@ -207,6 +286,7 @@ export class TomSelectInterop {
             } finally {
                 delete this.tomSelects[elementId];
                 delete this.options[elementId];
+                delete this.dotNetCallbacks[elementId];
             }
         }
     }
@@ -329,6 +409,20 @@ export class TomSelectInterop {
 
         if (target.parentNode) {
             this.observer.observe(target.parentNode, { childList: true });
+        }
+    }
+
+    getByPath(obj, path) {
+        try {
+            const parts = String(path).split('.');
+            let cur = obj;
+            for (let i = 0; i < parts.length; i++) {
+                if (cur == null) return undefined;
+                cur = cur[parts[i]];
+            }
+            return cur;
+        } catch {
+            return undefined;
         }
     }
 }

@@ -18,7 +18,7 @@ public sealed class TomSelectConfiguration
     /// Maps to the <c>items</c> setting. Default is an empty list.
     /// </remarks>
     [JsonPropertyName("items")]
-    public List<string> Items { get; set; } = new List<string>();
+    public List<string> Items { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the list of plugins to load for additional Tom Select functionality.
@@ -382,4 +382,31 @@ public sealed class TomSelectConfiguration
     /// </remarks>
     [JsonPropertyName("debug")]
     public bool Debug { get; set; }
+
+    /// <summary>
+    /// When true, Tom Select will call back into .NET to load options via a C# function.
+    /// </summary>
+    /// <remarks>
+    /// Custom flag handled by interop; not a native Tom Select setting.
+    /// </remarks>
+    [JsonPropertyName("useDotNetLoad")]
+    public bool UseDotNetLoad { get; set; } = false;
+
+    /// <summary>
+    /// Minimum query length required before invoking the load function.
+    /// </summary>
+    /// <remarks>
+    /// Custom flag handled by interop; not a native Tom Select setting. If null, no minimum enforced.
+    /// </remarks>
+    [JsonPropertyName("shouldLoadMinQueryLength")]
+    public int? ShouldLoadMinQueryLength { get; set; }
+
+    /// <summary>
+    /// When true, option and item markup will be sourced from DOM nodes rendered by Blazor.
+    /// </summary>
+    /// <remarks>
+    /// Custom flag handled by interop; not a native Tom Select setting.
+    /// </remarks>
+    [JsonPropertyName("templatesFromDom")]
+    public bool TemplatesFromDom { get; set; } = false;
 }

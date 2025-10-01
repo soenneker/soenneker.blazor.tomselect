@@ -73,11 +73,15 @@ export class TomSelectInterop {
                     const tpl = sanitizeTemplate(getTemplateHtml(optionTemplateEl));
                     const dataRoot = Object.assign({}, item || {}, (item && item.item) || {});
                     const html = tpl == null ? null : applyTemplate(tpl, dataRoot);
+
                     if (debug) {
                         console.log(`[TomSelectInterop] option template used for ${elementId}`, html);
                     }
-                    if (html !== null) return html;
+
+                    if (html !== null)
+                        return html;
                 }
+
                 if (debug) {
                     console.log(`[TomSelectInterop] option template not found or empty for ${elementId}, using label`);
                 }
@@ -91,11 +95,15 @@ export class TomSelectInterop {
                     const tpl = sanitizeTemplate(getTemplateHtml(itemTemplateEl));
                     const dataRoot = Object.assign({}, item || {}, (item && item.item) || {});
                     const html = tpl == null ? null : applyTemplate(tpl, dataRoot);
+
                     if (debug) {
                         console.log(`[TomSelectInterop] item template used for ${elementId}`, html);
                     }
-                    if (html !== null) return html;
+
+                    if (html !== null)
+                        return html;
                 }
+
                 if (debug) {
                     console.log(`[TomSelectInterop] item template not found or empty for ${elementId}, using label`);
                 }

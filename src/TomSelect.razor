@@ -262,6 +262,23 @@ else
         await AddEventListeners();
     }
 
+    [JSInvokable("Invoke")]
+    public async Task OnItemSelectJs(string value)
+    {
+        LogDebug($"Item selected: {value}");
+        
+        TItem? item = ToItemFromValue(value);
+        if (item != null)
+        {
+            // Add the item to working items if it's not already there
+            if (!_workingItems.Any(i => ToValueFromItem(i) == value))
+            {
+                _workingItems.Add(item);
+                await SyncItems();
+            }
+        }
+    }
+
     [JSInvokable("LoadOptions")]
     public async Task<List<TomSelectOption>> LoadOptionsJs(string query)
     {
@@ -279,6 +296,12 @@ else
             items = await LoadFunc!.Invoke(query);
 
         List<TomSelectOption> options = CreateOptionsFromItems(items);
+
+        // Add loaded options to working options so they can be found by ToItemFromValue
+        foreach (TomSelectOption option in options)
+        {
+            TryAddOption(option);
+        }
 
         // Attach async-rendered HTML if provided
         if (RenderOptionHtmlAsync != null || RenderItemHtmlAsync != null)
@@ -528,7 +551,15 @@ else
 
         if (addItemType == AddItemType.NewOption)
         {
-            await OnOptionCreated_internal(valueOrText);
+            // Only create new options if Create is enabled and we have a creation function
+            if (Create || Configuration.Create)
+            {
+                await OnOptionCreated_internal(valueOrText);
+            }
+            else
+            {
+                LogDebug($"Item creation is disabled, ignoring new option: {valueOrText}");
+            }
         }
     }
 

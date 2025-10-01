@@ -58,6 +58,12 @@
             </div>
         </ItemTemplate>
     </TomSelect>
+    
+    <div class="mt-3">
+        <button class="btn btn-primary" @onclick="() => PrintSelectedItems(_selected)">
+            Console Print Selected Items (Template)
+        </button>
+    </div>
 </div>
 
 <div class="demo-section">
@@ -78,6 +84,12 @@
         RenderItemHtml="RenderRepoItem"
         Debug="true">
     </TomSelect>
+    
+    <div class="mt-3">
+        <button class="btn btn-primary" @onclick="() => PrintSelectedItems(_selectedHtml)">
+            Console Print Selected Items (HTML)
+        </button>
+    </div>
 </div>
 
 @code {
@@ -86,7 +98,8 @@
         UseCdn = true,
         Debug = true,
         ShouldLoadMinQueryLength = 2,
-        MaxOptions = 10
+        MaxOptions = 10,
+        Create = false
     };
 
     private List<GitHubRepo> _selected = [];
@@ -137,6 +150,33 @@
     private static string Escape(string value)
     {
         return System.Net.WebUtility.HtmlEncode(value);
+    }
+
+    private void PrintSelectedItems(List<GitHubRepo> selectedItems)
+    {
+        Console.WriteLine("=== DEBUG INFO ===");
+        Console.WriteLine($"selectedItems is null: {selectedItems == null}");
+        Console.WriteLine($"selectedItems count: {selectedItems?.Count ?? -1}");
+        Console.WriteLine($"_selected count: {_selected?.Count ?? -1}");
+        Console.WriteLine($"_selectedHtml count: {_selectedHtml?.Count ?? -1}");
+        Console.WriteLine("==================");
+
+        if (selectedItems == null || selectedItems.Count == 0)
+        {
+            Console.WriteLine("No items selected");
+            return;
+        }
+
+        Console.WriteLine($"Selected {selectedItems.Count} items:");
+        foreach (var item in selectedItems)
+        {
+            Console.WriteLine($"- {item.Name} ({item.Url})");
+            Console.WriteLine($"  Owner: {item.Owner.Login}");
+            Console.WriteLine($"  Language: {item.Language}");
+            Console.WriteLine($"  Stars: {item.Stars}, Forks: {item.Forks}, Watchers: {item.Watchers}");
+            Console.WriteLine($"  Description: {item.Description}");
+            Console.WriteLine();
+        }
     }
 }
 

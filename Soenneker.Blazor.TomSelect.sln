@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.5.33209.295
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11121.172 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Soenneker.Blazor.TomSelect", "src\Soenneker.Blazor.TomSelect.csproj", "{41850636-33B4-4228-AE59-A2113F66B9FA}"
 EndProject
@@ -11,7 +11,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{4E42
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{D786EC1A-4F59-412F-8624-83E6E3525B0C}"
 	ProjectSection(SolutionItems) = preProject
-
 		.github\workflows\build-and-test.yml = .github\workflows\build-and-test.yml
 		.github\workflows\publish-package.yml = .github\workflows\publish-package.yml
 	EndProjectSection
@@ -23,6 +22,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{CE0A7663-BD34-4F70-877E-CF1A0918602E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Soenneker.Blazor.TomSelect.Demo", "test\Soenneker.Blazor.TomSelect.Demo\Soenneker.Blazor.TomSelect.Demo.csproj", "{68114DAC-3B25-4AA6-A405-61F11DD707BA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Soenneker.Blazor.TomSelect.Server", "test\Soenneker.Blazor.TomSelect.Server\Soenneker.Blazor.TomSelect.Server.csproj", "{FD53354F-BB2F-4268-9CFA-FCE3C2B1A1B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,6 +43,10 @@ Global
 		{68114DAC-3B25-4AA6-A405-61F11DD707BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{68114DAC-3B25-4AA6-A405-61F11DD707BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{68114DAC-3B25-4AA6-A405-61F11DD707BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD53354F-BB2F-4268-9CFA-FCE3C2B1A1B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD53354F-BB2F-4268-9CFA-FCE3C2B1A1B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD53354F-BB2F-4268-9CFA-FCE3C2B1A1B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD53354F-BB2F-4268-9CFA-FCE3C2B1A1B8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -51,6 +56,7 @@ Global
 		{D786EC1A-4F59-412F-8624-83E6E3525B0C} = {4E42254D-039C-40ED-B3F4-8C1A94A366D1}
 		{6456E465-9523-4612-9115-9D9B585B42E8} = {CE0A7663-BD34-4F70-877E-CF1A0918602E}
 		{68114DAC-3B25-4AA6-A405-61F11DD707BA} = {CE0A7663-BD34-4F70-877E-CF1A0918602E}
+		{FD53354F-BB2F-4268-9CFA-FCE3C2B1A1B8} = {CE0A7663-BD34-4F70-877E-CF1A0918602E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B849EC5C-B7B3-4C90-9B66-CBC15CCB776A}

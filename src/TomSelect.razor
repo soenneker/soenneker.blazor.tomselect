@@ -110,15 +110,12 @@ else
     [Parameter]
     public RenderFragment? ItemTemplate { get; set; }
 
-    protected override async Task OnInitializedAsync()
-    {
-        await TomSelectInterop.Initialize(Configuration.UseCdn, CancellationToken);
-    }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            await TomSelectInterop.Initialize(Configuration.UseCdn, CancellationToken);
+
             // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
             Items ??= [];
 

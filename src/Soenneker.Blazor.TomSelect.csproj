@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?><Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
-        <TargetFrameworks>net9.0</TargetFrameworks>
+        <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <Platforms>AnyCPU</Platforms>
         <NoWarn>$(NoWarn);1591</NoWarn>
@@ -9,7 +9,7 @@
 
     <PropertyGroup>
         <Description>A Blazor interop library for the select user control library, Tom Select</Description>
-        <Version Condition="'$(BUILD_VERSION)' == ''">3.0.0</Version>
+        <Version Condition="'$(BUILD_VERSION)' == ''">4.0.0</Version>
         <Version Condition="'$(BUILD_VERSION)' != ''">$(BUILD_VERSION)</Version>
         <AssemblyName>Soenneker.Blazor.TomSelect</AssemblyName>
         <PackageId>Soenneker.Blazor.TomSelect</PackageId>

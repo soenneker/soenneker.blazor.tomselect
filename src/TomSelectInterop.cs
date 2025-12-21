@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using Soenneker.Blazor.TomSelect.Configuration;
 using Soenneker.Blazor.TomSelect.Dtos;
 using Soenneker.Blazor.TomSelect.Base;
-using Soenneker.Utils.AsyncSingleton;
+using Soenneker.Asyncs.Initializers;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 
 namespace Soenneker.Blazor.TomSelect;
@@ -18,7 +18,7 @@ namespace Soenneker.Blazor.TomSelect;
 public sealed class TomSelectInterop : EventListeningInterop, ITomSelectInterop
 {
     private readonly IResourceLoader _resourceLoader;
-    private readonly AsyncSingleton _scriptInitializer;
+    private readonly AsyncInitializer<bool> _scriptInitializer;
 
     private const string _module = "Soenneker.Blazor.TomSelect/js/tomselectinterop.js";
     private const string _moduleName = "TomSelectInterop";
@@ -27,13 +27,8 @@ public sealed class TomSelectInterop : EventListeningInterop, ITomSelectInterop
     {
         _resourceLoader = resourceLoader;
 
-        _scriptInitializer = new AsyncSingleton(async (token, arr) =>
+        _scriptInitializer = new AsyncInitializer<bool>(async (useCdn, token) =>
         {
-            var useCdn = true;
-
-            if (arr.Length > 0)
-                useCdn = (bool) arr[0];
-
             if (useCdn)
             {
                 await _resourceLoader.LoadStyle("https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.bootstrap5.min.css",
@@ -54,14 +49,12 @@ public sealed class TomSelectInterop : EventListeningInterop, ITomSelectInterop
             }
 
             await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token);
-
-            return new object();
         });
     }
 
     public ValueTask Initialize(bool useCdn = true, CancellationToken cancellationToken = default)
     {
-        return _scriptInitializer.Init(cancellationToken, useCdn);
+        return _scriptInitializer.Init(useCdn, cancellationToken);
     }
 
     public ValueTask CreateObserver(string elementId, CancellationToken cancellationToken = default)
@@ -72,7 +65,7 @@ public sealed class TomSelectInterop : EventListeningInterop, ITomSelectInterop
     public async ValueTask Create(ElementReference elementReference, string elementId, DotNetObjectReference<BaseTomSelect> dotNetObjectRef,
         TomSelectConfiguration? configuration = null, CancellationToken cancellationToken = default)
     {
-        await _scriptInitializer.Init(cancellationToken, configuration?.UseCdn ?? true);
+        await _scriptInitializer.Init(configuration?.UseCdn ?? true, cancellationToken);
 
         string? json = null;
 

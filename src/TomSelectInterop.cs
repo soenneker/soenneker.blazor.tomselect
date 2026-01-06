@@ -27,10 +27,10 @@ public sealed class TomSelectInterop : EventListeningInterop, ITomSelectInterop
     {
         _resourceLoader = resourceLoader;
 
-        _scriptInitializer = new AsyncInitializer<bool>(Initialize);
+        _scriptInitializer = new AsyncInitializer<bool>(InitializeScript);
     }
 
-    private async ValueTask Initialize(bool useCdn, CancellationToken token)
+    private async ValueTask InitializeScript(bool useCdn, CancellationToken token)
     {
         if (useCdn)
         {

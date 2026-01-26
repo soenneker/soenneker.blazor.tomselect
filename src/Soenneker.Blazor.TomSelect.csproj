@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?><Project Sdk="Microsoft.NET.Sdk.Razor">
+<?xml version="1.0" encoding="utf-8"?><Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
@@ -48,5 +48,6 @@
         <PackageReference Include="Soenneker.Extensions.List" Version="4.0.950" />
         <PackageReference Include="Soenneker.Json.CollectionConverter" Version="4.0.805" />
         <PackageReference Include="Soenneker.Quark.Components.Core.Cancellable" Version="4.0.37" />
+        <PackageReference Include="Soenneker.Utils.CancellationScopes" Version="4.0.22" />
     </ItemGroup>
 </Project>

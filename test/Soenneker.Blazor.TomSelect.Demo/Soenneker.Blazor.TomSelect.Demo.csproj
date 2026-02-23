@@ -12,7 +12,7 @@
       <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.3" PrivateAssets="all" />
       <PackageReference Include="Soenneker.Blazor.Utils.Navigation" Version="4.0.1055" />
       <PackageReference Include="Soenneker.Serilog.Sinks.Browser.Blazor" Version="4.0.248" />
-      <PackageReference Include="Soenneker.Utils.AutoBogus" Version="4.0.847" />
+      <PackageReference Include="Soenneker.Utils.AutoBogus" Version="4.0.848" />
       <PackageReference Include="System.Net.Http.Json" Version="10.0.3" />
   </ItemGroup>
 

@@ -1,8 +1,8 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Blazor.TomSelect.Enums;
 
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class TomSelectPluginType
 {
     public static readonly TomSelectPluginType CaretPosition = new("caret_position");

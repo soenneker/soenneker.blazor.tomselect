@@ -1,8 +1,8 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Blazor.TomSelect.Enums;
 
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class AddItemType
 {
     public static readonly AddItemType Normal = new(nameof(Normal));

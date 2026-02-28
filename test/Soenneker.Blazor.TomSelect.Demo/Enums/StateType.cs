@@ -1,9 +1,9 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Blazor.TomSelect.Demo.Enums;
 
-// Define an Intellenum where the underlying type is a string (the state name)
-[Intellenum<string>]
+// Define an EnumValue where the underlying type is a string (the state name)
+[EnumValue<string>]
 public partial class StateType
 {
     public static readonly StateType Alabama = new(nameof(Alabama));

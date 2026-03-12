@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Soenneker.Blazor.TomSelect.csproj" />
+    <ProjectReference Include="..\..\src\Soenneker.Blazor.TomSelect\Soenneker.Blazor.TomSelect.csproj" />
   </ItemGroup>
 
   <ItemGroup>

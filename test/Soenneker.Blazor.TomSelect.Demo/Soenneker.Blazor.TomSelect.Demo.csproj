@@ -14,7 +14,7 @@
       <PackageReference Include="Soenneker.Blazor.Utils.Navigation" Version="4.0.1083" />
       <PackageReference Include="Soenneker.Serilog.Sinks.Browser.Blazor" Version="4.0.289" />
       <PackageReference Include="Soenneker.Utils.AutoBogus" Version="4.0.874" />
-      <PackageReference Include="System.Net.Http.Json" Version="10.0.4" />
+      <PackageReference Include="System.Net.Http.Json" Version="10.0.5" />
   </ItemGroup>
 
   <ItemGroup>

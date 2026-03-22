@@ -35,7 +35,7 @@
             Multiple="true"
             Create="true"
             OnChange="OnChange"
-            Debug=true
+            Debug="true"
             PlaceHolder="Choose countries or create new ones..."
             Configuration="_configuration" >
         </TomSelect>
@@ -164,7 +164,7 @@
 
     private async Task SetOptionsAndItems()
     {
-        var httpClient = HttpClientFactory.CreateClient("Default");
+        HttpClient httpClient = HttpClientFactory.CreateClient("Default");
         _countries = await httpClient.GetFromJsonAsync<List<Country>>("/sample-data/countries.json");
         _selectedItems = _countries!.ToList();
     }
@@ -181,7 +181,7 @@
 
     private async Task AddViaData()
     {
-        var httpClient = HttpClientFactory.CreateClient("Default");
+        HttpClient httpClient = HttpClientFactory.CreateClient("Default");
         var countries = await httpClient.GetFromJsonAsync<List<Country>>("/sample-data/countries.json");
         _selectedItems.Add(countries!.GetRandom());
     }

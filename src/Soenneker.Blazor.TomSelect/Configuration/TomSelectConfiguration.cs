@@ -374,6 +374,16 @@ public sealed class TomSelectConfiguration
     public bool UseCdn { get; set; } = true;
 
     /// <summary>
+    /// When true, loads the Bootstrap 5 stylesheet; otherwise the regular Tom Select stylesheet.
+    /// </summary>
+    /// <remarks>
+    /// Custom flag handled by interop; not a native Tom Select setting.
+    /// Default is <c>true</c>.
+    /// </remarks>
+    [JsonPropertyName("useBootstrap5Styling")]
+    public bool UseBootstrap5Styling { get; set; } = true;
+
+    /// <summary>
     /// When true, enables debug logging to the browser console.
     /// </summary>
     /// <remarks>

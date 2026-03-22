@@ -115,7 +115,7 @@ else
     {
         if (firstRender)
         {
-            await TomSelectInterop.Initialize(Configuration.UseCdn, CancellationToken);
+            await TomSelectInterop.Initialize(Configuration, CancellationToken);
 
             // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
             Items ??= [];

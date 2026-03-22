@@ -13,6 +13,7 @@
 @using Soenneker.Blazor.Extensions.EventCallback
 @using Soenneker.Utils.Json
 @using Soenneker.Extensions.CancellationTokens
+@using Soenneker.Utils.Case
 
 @inherits Soenneker.Blazor.TomSelect.Base.BaseTomSelect
 
@@ -25,19 +26,19 @@
 }
 else
 {
-    <select id="@Id" @ref="ElementReference" @attributes="Attributes"></select>
+    <select id="@Id" @ref="ElementReference" @attributes="Attributes" ></select>
 }
 
 @if (OptionTemplate != null)
 {
-    <div id="@($"{Id}-option-template")" style="display:none">
+    <div id="@($"{Id}-option-template")" style="display:none" >
         @OptionTemplate
     </div>
 }
 
 @if (ItemTemplate != null)
 {
-    <div id="@($"{Id}-item-template")" style="display:none">
+    <div id="@($"{Id}-item-template")" style="display:none" >
         @ItemTemplate
     </div>
 }
@@ -179,13 +180,18 @@ else
             await TomSelectInterop.ClearAndAddItems(Id!, values, true);
 
             // Restore previously selected items if possible
-            List<string?> preservedValues = oldWorkingItems.Select(ToValueFromItem).ToList();
-            List<string?> newValues = _workingItems.Select(ToValueFromItem).ToList();
-            List<string?> missingValues = preservedValues.Except(newValues).ToList();
+            List<string?> preservedValues = oldWorkingItems.Select(ToValueFromItem)
+                                                           .ToList();
+            List<string?> newValues = _workingItems.Select(ToValueFromItem)
+                                                   .ToList();
+            List<string?> missingValues = preservedValues.Except(newValues)
+                                                         .ToList();
 
             if (missingValues.Count > 0)
             {
-                List<string> nonNullMissingValues = missingValues.Where(v => v != null).Select(v => v!).ToList();
+                List<string> nonNullMissingValues = missingValues.Where(v => v != null)
+                                                                 .Select(v => v!)
+                                                                 .ToList();
                 await TomSelectInterop.AddItems(Id!, nonNullMissingValues, true);
             }
         }
@@ -263,7 +269,7 @@ else
     public async Task OnItemSelectJs(string value)
     {
         LogDebug($"Item selected: {value}");
-        
+
         TItem? item = ToItemFromValue(value);
         if (item != null)
         {
@@ -320,7 +326,6 @@ else
         return options;
     }
 
-    
 
     public async ValueTask<TomSelectOption?> AddOption(TItem item, bool userCreated = true, CancellationToken cancellationToken = default)
     {
@@ -343,7 +348,8 @@ else
 
         List<TomSelectOption> tomSelectOptions = CreateOptionsFromItems(dedupedItems);
 
-        List<TomSelectOption> dedupedOptions = tomSelectOptions.RemoveDuplicates(c => c.Value).ToList();
+        List<TomSelectOption> dedupedOptions = tomSelectOptions.RemoveDuplicates(c => c.Value)
+                                                               .ToList();
 
         for (var i = 0; i < dedupedOptions.Count; i++)
         {
@@ -402,7 +408,9 @@ else
 
     public ValueTask AddItems(IEnumerable<string> value, bool silent = false, CancellationToken cancellationToken = default)
     {
-        IEnumerable<TItem> items = value.Select(ToItemFromValue).Where(item => item != null).Select(item => item!);
+        IEnumerable<TItem> items = value.Select(ToItemFromValue)
+                                        .Where(item => item != null)
+                                        .Select(item => item!);
 
         return AddItems(items, silent, cancellationToken);
     }
@@ -414,7 +422,9 @@ else
 
     private ValueTask AddItemsToDom(IEnumerable<TItem> items, bool silent, CancellationToken cancellationToken)
     {
-        IEnumerable<string> values = items.Select(ToValueFromItem).Where(v => v != null).Select(v => v!);
+        IEnumerable<string> values = items.Select(ToValueFromItem)
+                                          .Where(v => v != null)
+                                          .Select(v => v!);
 
         return TomSelectInterop.AddItems(Id!, values, silent, cancellationToken);
     }
@@ -453,7 +463,9 @@ else
 
     private List<string> ConvertItemsToListString(IEnumerable<TItem> items)
     {
-        return items.Select(ToValueFromItem).Where(value => !value.IsNullOrEmpty()).ToList()!;
+        return items.Select(ToValueFromItem)
+                    .Where(value => !value.IsNullOrEmpty())
+                    .ToList()!;
     }
 
     private List<TomSelectOption> CreateOptionsFromItems(IEnumerable<TItem> items)
@@ -498,7 +510,7 @@ else
         foreach (TomSelectOption option in _workingOptions)
         {
             if (option.Value == text)
-                return (TItem) option.Item!;
+                return (TItem)option.Item!;
         }
 
         return default;
@@ -509,7 +521,7 @@ else
         foreach (TomSelectOption option in _workingOptions)
         {
             if (option.Value == value)
-                return (TItem) option.Item!;
+                return (TItem)option.Item!;
         }
 
         return default;
@@ -604,76 +616,74 @@ else
     {
         // OPTIONS ---
         await AddEventListener<string>(GetJsEventName(nameof(OnOptionAdd)), async str =>
-            {
-                JsonDocument jsonDocument = JsonDocument.Parse(str);
-                var parameters = (jsonDocument.RootElement[0].Deserialize<string>()!, jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!);
+        {
+            JsonDocument jsonDocument = JsonDocument.Parse(str);
+            var parameters = (jsonDocument.RootElement[0]
+                                          .Deserialize<string>()!, jsonDocument.RootElement[1]
+                                                                               .Deserialize<TomSelectOption>()!);
 
-                if (OnOptionAdd.HasDelegate)
-                    await OnOptionAdd.InvokeAsync(parameters);
-            })
-            ;
+            if (OnOptionAdd.HasDelegate)
+                await OnOptionAdd.InvokeAsync(parameters);
+        });
 
         await AddEventListener<string>(GetJsEventName(nameof(OnOptionRemove)), async str =>
-            {
-                if (OnOptionRemove.HasDelegate)
-                    await OnOptionRemove.InvokeAsync(str);
-            })
-            ;
+        {
+            if (OnOptionRemove.HasDelegate)
+                await OnOptionRemove.InvokeAsync(str);
+        });
 
         await AddEventListener<string>(GetJsEventName(nameof(OnOptionClear)), async _ =>
-            {
-                OnOptionClear_internal();
+        {
+            OnOptionClear_internal();
 
-                if (OnOptionClear.HasDelegate)
-                    await OnOptionClear.InvokeAsync();
-            })
-            ;
+            if (OnOptionClear.HasDelegate)
+                await OnOptionClear.InvokeAsync();
+        });
 
         // ITEMS ---
 
         await AddEventListener<string>(GetJsEventName(nameof(OnItemAdd)), async str =>
-            {
-                JsonDocument jsonDocument = JsonDocument.Parse(str);
-                (string, TomSelectOption) parameters = (jsonDocument.RootElement[0].Deserialize<string>()!,
-                    jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!);
+        {
+            JsonDocument jsonDocument = JsonDocument.Parse(str);
+            (string, TomSelectOption) parameters = (jsonDocument.RootElement[0]
+                                                                .Deserialize<string>()!, jsonDocument.RootElement[1]
+                                                                                                     .Deserialize<TomSelectOption>()!);
 
-                await OnItemAdd_internal(parameters.Item1);
+            await OnItemAdd_internal(parameters.Item1);
 
-                if (OnItemAdd.HasDelegate)
-                    await OnItemAdd.InvokeAsync(parameters);
+            if (OnItemAdd.HasDelegate)
+                await OnItemAdd.InvokeAsync(parameters);
 
-                _onModificationTask?.TrySetResult(true);
-            })
-            ;
+            _onModificationTask?.TrySetResult(true);
+        });
 
         await AddEventListener<string>(GetJsEventName(nameof(OnItemRemove)), async str =>
-            {
-                JsonDocument jsonDocument = JsonDocument.Parse(str);
-                (string, TomSelectOption) parameters = (jsonDocument.RootElement[0].Deserialize<string>()!,
-                    jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!);
+        {
+            JsonDocument jsonDocument = JsonDocument.Parse(str);
+            (string, TomSelectOption) parameters = (jsonDocument.RootElement[0]
+                                                                .Deserialize<string>()!, jsonDocument.RootElement[1]
+                                                                                                     .Deserialize<TomSelectOption>()!);
 
-                await OnItemRemove_Internal(parameters.Item1);
+            await OnItemRemove_Internal(parameters.Item1);
 
-                if (OnItemRemove.HasDelegate)
-                    await OnItemRemove.InvokeAsync(parameters);
+            if (OnItemRemove.HasDelegate)
+                await OnItemRemove.InvokeAsync(parameters);
 
-                _onModificationTask?.TrySetResult(true);
-            })
-            ;
+            _onModificationTask?.TrySetResult(true);
+        });
 
         await AddEventListener<string>(GetJsEventName(nameof(OnItemSelect)), async str =>
+        {
+            TItem? item = ToItemFromValue(str);
+
+            if (item != null)
             {
-                TItem? item = ToItemFromValue(str);
+                TomSelectOption? option = CreateOptionFromItem(item);
 
-                if (item != null)
-                {
-                    TomSelectOption? option = CreateOptionFromItem(item);
-
-                    if (OnItemSelect.HasDelegate)
-                        await OnItemSelect.InvokeAsync(option);
-                }
-            })
-            ;
+                if (OnItemSelect.HasDelegate)
+                    await OnItemSelect.InvokeAsync(option);
+            }
+        });
 
         // TODO: There's a bug in the JS that raises the clear event when an item is selected 04/04/24
         //await AddEventListener<string>(
@@ -689,78 +699,101 @@ else
         if (OnChange.HasDelegate)
         {
             await AddEventListener<string>(GetJsEventName(nameof(OnChange)), async str =>
-                {
-                    if (_onModificationTask != null)
-                        await _onModificationTask.Task;
+            {
+                if (_onModificationTask != null)
+                    await _onModificationTask.Task;
 
-                    var values = JsonUtil.Deserialize<List<string>>(str);
+                var values = JsonUtil.Deserialize<List<string>>(str);
 
-                    await OnChange.InvokeAsync(values);
+                await OnChange.InvokeAsync(values);
 
-                    _onModificationTask = new TaskCompletionSource<bool>();
-                })
-                ;
+                _onModificationTask = new TaskCompletionSource<bool>();
+            });
         }
 
         if (OnFocus.HasDelegate)
         {
-            await AddEventListener<string>(GetJsEventName(nameof(OnFocus)), async _ => { await OnFocus.InvokeAsync(); });
+            await AddEventListener<string>(GetJsEventName(nameof(OnFocus)), async _ =>
+            {
+                await OnFocus.InvokeAsync();
+            });
         }
 
         if (OnBlur.HasDelegate)
         {
-            await AddEventListener<string>(GetJsEventName(nameof(OnBlur)), async _ => { await OnBlur.InvokeAsync(); });
+            await AddEventListener<string>(GetJsEventName(nameof(OnBlur)), async _ =>
+            {
+                await OnBlur.InvokeAsync();
+            });
         }
 
         if (OnOptgroupAdd.HasDelegate)
         {
             await AddEventListener<string>(GetJsEventName(nameof(OnOptgroupAdd)), async str =>
-                {
-                    JsonDocument jsonDocument = JsonDocument.Parse(str);
-                    (string, TomSelectOption) parameters = (jsonDocument.RootElement[0].Deserialize<string>()!,
-                        jsonDocument.RootElement[1].Deserialize<TomSelectOption>()!);
+            {
+                JsonDocument jsonDocument = JsonDocument.Parse(str);
+                (string, TomSelectOption) parameters = (jsonDocument.RootElement[0]
+                                                                    .Deserialize<string>()!, jsonDocument.RootElement[1]
+                                                                                                         .Deserialize<TomSelectOption>()!);
 
-                    await OnOptgroupAdd.InvokeAsync(parameters);
-                })
-                ;
+                await OnOptgroupAdd.InvokeAsync(parameters);
+            });
         }
 
         if (OnOptgroupRemove.HasDelegate)
         {
-            await AddEventListener<string>(GetJsEventName(nameof(OnOptgroupRemove)), async str => { await OnOptgroupRemove.InvokeAsync(str); })
-                ;
+            await AddEventListener<string>(GetJsEventName(nameof(OnOptgroupRemove)), async str =>
+            {
+                await OnOptgroupRemove.InvokeAsync(str);
+            });
         }
 
         if (OnOptgroupClear.HasDelegate)
         {
-            await AddEventListener<string>(GetJsEventName(nameof(OnOptgroupClear)), async str => { await OnOptgroupClear.InvokeAsync(); });
+            await AddEventListener<string>(GetJsEventName(nameof(OnOptgroupClear)), async str =>
+            {
+                await OnOptgroupClear.InvokeAsync();
+            });
         }
 
         if (OnDropdownOpen.HasDelegate)
         {
-            await AddEventListener<TomSelectOption>(GetJsEventName(nameof(OnDropdownOpen)), async str => { await OnDropdownOpen.InvokeAsync(str); })
-                ;
+            await AddEventListener<TomSelectOption>(GetJsEventName(nameof(OnDropdownOpen)), async str =>
+            {
+                await OnDropdownOpen.InvokeAsync(str);
+            });
         }
 
         if (OnDropdownClose.HasDelegate)
         {
-            await AddEventListener<TomSelectOption>(GetJsEventName(nameof(OnDropdownClose)), async str => { await OnDropdownClose.InvokeAsync(str); })
-                ;
+            await AddEventListener<TomSelectOption>(GetJsEventName(nameof(OnDropdownClose)), async str =>
+            {
+                await OnDropdownClose.InvokeAsync(str);
+            });
         }
 
         if (OnType.HasDelegate)
         {
-            await AddEventListener<string>(GetJsEventName(nameof(OnType)), async str => { await OnType.InvokeAsync(str); });
+            await AddEventListener<string>(GetJsEventName(nameof(OnType)), async str =>
+            {
+                await OnType.InvokeAsync(str);
+            });
         }
 
         if (OnLoad.HasDelegate)
         {
-            await AddEventListener<object>(GetJsEventName(nameof(OnLoad)), async str => { await OnLoad.InvokeAsync(str); });
+            await AddEventListener<object>(GetJsEventName(nameof(OnLoad)), async str =>
+            {
+                await OnLoad.InvokeAsync(str);
+            });
         }
 
         if (OnDestroy.HasDelegate)
         {
-            await AddEventListener<string>(GetJsEventName(nameof(OnDestroy)), async _ => { await OnDestroy.InvokeAsync(); });
+            await AddEventListener<string>(GetJsEventName(nameof(OnDestroy)), async _ =>
+            {
+                await OnDestroy.InvokeAsync();
+            });
         }
     }
 
@@ -768,7 +801,7 @@ else
     {
         // Remove first two characters
         string subStr = callback[2..];
-        return subStr.ToSnakeCaseFromPascal();
+        return CaseUtil.ToSnake(subStr);
     }
 
     private ValueTask AddEventListener<T>(string eventName, Func<T, ValueTask> callback)
@@ -825,7 +858,7 @@ else
             TomSelectOption option = _workingOptions[optionIndex];
             if (option.Value == valueOrText || option.Text == valueOrText)
             {
-                item = (TItem) option.Item!;
+                item = (TItem)option.Item!;
                 break;
             }
         }
@@ -913,4 +946,5 @@ else
         // Call base disposal which will handle other cleanup
         await base.DisposeAsync();
     }
+
 }

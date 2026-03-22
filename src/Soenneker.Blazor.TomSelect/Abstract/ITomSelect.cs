@@ -42,11 +42,6 @@ public interface ITomSelect<TItem, TType> : IBaseTomSelect
     Func<string, ValueTask<TItem>>? CreateFunc { get; set; }
 
     /// <summary>
-    /// Gets or sets additional attributes to be applied to the component.
-    /// </summary>
-    Dictionary<string, object?>? Attributes { get; set; }
-
-    /// <summary>
     /// Gets or sets the configuration for the TomSelect component.
     /// </summary>
     TomSelectConfiguration Configuration { get; set; }

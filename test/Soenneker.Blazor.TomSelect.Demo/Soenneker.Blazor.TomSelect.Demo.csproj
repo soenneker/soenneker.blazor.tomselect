@@ -9,16 +9,30 @@
         <NoWarn>$(NoWarn);1591</NoWarn>
         <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
         <IsPackable>false</IsPackable>
+        <TailwindGeneratorBuildEnabled>true</TailwindGeneratorBuildEnabled>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.5" />
-        <PackageReference Include="Soenneker.Gen.EnumValues" Version="4.0.33" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.5"
                           PrivateAssets="all" />
+        <PackageReference Include="Soenneker.Quark.Gen.Lucide" Version="4.0.94">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Soenneker.Quark.Gen.Tailwind.Manifest" Version="4.0.29">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Soenneker.Gen.EnumValues" Version="4.0.33" />
         <PackageReference Include="Soenneker.Blazor.Utils.Navigation" Version="4.0.1102" />
         <PackageReference Include="Soenneker.Serilog.Sinks.Browser.Blazor" Version="4.0.304" />
         <PackageReference Include="Soenneker.Utils.AutoBogus" Version="4.0.885" />
+        <PackageReference Include="Soenneker.Quark.Gen.Tailwind" Version="4.0.98">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Soenneker.Quark.Suite" Version="4.0.704" />
     </ItemGroup>
 
     <ItemGroup>
@@ -29,18 +43,6 @@
         <Content Update="wwwroot\sample-data\countries.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-    </ItemGroup>
-
-    <PropertyGroup>
-        <TailwindGeneratorBuildEnabled>true</TailwindGeneratorBuildEnabled>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Soenneker.Quark.Gen.Tailwind" Version="4.0.95">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Soenneker.Quark.Suite" Version="4.0.701" />
     </ItemGroup>
 
 </Project>

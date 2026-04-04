@@ -8,154 +8,68 @@
 @inject ILogger<Index> Logger
 @inject HttpClient Http
 
-<div class="page-header">
-    <h1 class="page-title">Advanced TomSelect Features</h1>
-    <p class="page-subtitle">Explore advanced TomSelect functionality including dynamic data loading, complex event handling, and programmatic control.</p>
-</div>
+<Div Space="Space.Y.Is6">
+    <Div Space="Space.Y.Is2">
+        <H1 TextSize="TextSize.TwoXl" FontWeight="FontWeight.Semibold" Margin="Margin.Is0">Advanced TomSelect</H1>
+        <Paragraph Margin="Margin.Is0" TextColor="TextColor.MutedForeground" TextSize="TextSize.Sm">
+            Load data on demand, manipulate options in code, and watch events in the console.
+        </Paragraph>
+    </Div>
 
-@if (_render)
-{
-    <div class="demo-section fade-in">
-        <h2>Advanced Multi-Select with Create</h2>
-        <p class="demo-description">This example demonstrates advanced TomSelect features including dynamic data loading, complex event handling, and programmatic control of the component.</p>
-        
-        <div class="tomselect-container">
-            <TomSelect
-                TItem="Country"
-                TType="string"
-                OnInitialize="OnTomSelectInitialized"
-                OnOptionAdd="OnOptionAdd"
-                OnItemAdd="OnItemAdd"
-                Data="@_countries"
-                TextField="item => item.Name"
-                ValueField="item => item.Id.ToString()"
-                CreateFuncSync="text => new Country{Name = text, Id = Guid.NewGuid().ToString()}"
-                @ref="_tomSelect"
-                Items=_selectedItems
-                Multiple="true"
-                Create="true"
-                PlaceHolder="Select countries or create new ones..."
-                OnChange="OnChange">
-            </TomSelect>
-        </div>
-    </div>
+    @if (_render)
+    {
+        <DemoPanel Title="Multi-select with create" Description="Use Load Data before interacting if the list is empty.">
+            <Div Class="w-full">
+                <TomSelect
+                    TItem="Country"
+                    TType="string"
+                    OnInitialize="OnTomSelectInitialized"
+                    OnOptionAdd="OnOptionAdd"
+                    OnItemAdd="OnItemAdd"
+                    Data="@_countries"
+                    TextField="item => item.Name"
+                    ValueField="item => item.Id.ToString()"
+                    CreateFuncSync="text => new Country{Name = text, Id = Guid.NewGuid().ToString()}"
+                    @ref="_tomSelect"
+                    Items=_selectedItems
+                    Multiple="true"
+                    Create="true"
+                    PlaceHolder="Select countries or create new ones..."
+                    OnChange="OnChange">
+                </TomSelect>
+            </Div>
+        </DemoPanel>
 
-    <div class="demo-section">
-        <h2>Advanced Controls</h2>
-        <p class="demo-description">These controls demonstrate advanced programmatic manipulation of the TomSelect component.</p>
-        
-        <div class="btn-group">
-            <button class="btn btn-primary" @onclick="AddOption">
-                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                </svg>
-                Add Option
-            </button>
-            <button class="btn btn-secondary" @onclick="AddItem">
-                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                    <path d="m8 4.5 2.5 2.5L8 9.5l-.5-.5L9.5 7 7.5 5l.5-.5z"/>
-                </svg>
-                Add Item
-            </button>
-            <button class="btn btn-secondary" @onclick="GetSelectedItems">
-                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z"/>
-                    <path d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0zM7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0z"/>
-                </svg>
-                Get Selected Items
-            </button>
-        </div>
+        <DemoPanel Title="Controls" Description="Programmatic helpers for the component above.">
+            <DemoButtonRow>
+                <Button OnClick="AddOption">Add option</Button>
+                <Button OnClick="AddItem" Variant="ButtonVariant.Secondary">Add item</Button>
+                <Button OnClick="GetSelectedItems" Variant="ButtonVariant.Outline">Get selected items</Button>
+            </DemoButtonRow>
+            <DemoButtonRow>
+                <Button OnClick="Render" Variant="ButtonVariant.Secondary">Toggle render</Button>
+                <Button OnClick="ClearItems" Variant="ButtonVariant.Destructive">Clear items</Button>
+                <Button OnClick="ClearOptions" Variant="ButtonVariant.Destructive">Clear options</Button>
+            </DemoButtonRow>
+            <DemoButtonRow>
+                <Button OnClick="Reinitialize" Variant="ButtonVariant.Secondary">Reinitialize</Button>
+                <Button OnClick="SetData" Variant="ButtonVariant.Secondary">Load data</Button>
+            </DemoButtonRow>
+        </DemoPanel>
 
-        <div class="btn-group">
-            <button class="btn btn-secondary" @onclick="Render">
-                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
-                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
-                </svg>
-                Toggle Render
-            </button>
-            <button class="btn btn-danger" @onclick="ClearItems">
-                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                </svg>
-                Clear Items
-            </button>
-            <button class="btn btn-danger" @onclick="ClearOptions">
-                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                </svg>
-                Clear Options
-            </button>
-        </div>
+        <DemoPanel Title="Modal example" Description="Open the modal with another TomSelect host.">
+            <DemoButtonRow>
+                <Button OnClick="OpenModal">Open modal</Button>
+            </DemoButtonRow>
+        </DemoPanel>
 
-        <div class="btn-group">
-            <button class="btn btn-secondary" @onclick="Reinitialize">
-                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
-                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
-                </svg>
-                Reinitialize
-            </button>
-            <button class="btn btn-secondary" @onclick="SetData">
-                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                    <path d="m8 4.5 2.5 2.5L8 9.5l-.5-.5L9.5 7 7.5 5l.5-.5z"/>
-                </svg>
-                Load Data
-            </button>
-        </div>
-    </div>
-
-    <div class="demo-section">
-        <h2>Modal Example</h2>
-        <p class="demo-description">Open a modal dialog to see how TomSelect works within a modal context.</p>
-        
-        <div class="btn-group">
-            <button class="btn btn-primary" @onclick="OpenModal">
-                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                    <path d="m8 4.5 2.5 2.5L8 9.5l-.5-.5L9.5 7 7.5 5l.5-.5z"/>
-                </svg>
-                Open Modal
-            </button>
-        </div>
-    </div>
-
-    <div class="demo-section">
-        <h2>Advanced Features Explained</h2>
-        <p class="demo-description">This page demonstrates several advanced TomSelect features and patterns.</p>
-        
-        <div class="card mb-6">
-            <div class="card-header">
-                <h3 class="card-title">Dynamic Data Loading</h3>
-            </div>
-            <div class="card-body">
-                <p>The "Load Data" button demonstrates how to dynamically load data into the TomSelect component. This is useful for scenarios where data needs to be fetched from an API or loaded conditionally.</p>
-            </div>
-        </div>
-        
-        <div class="card mb-6">
-            <div class="card-header">
-                <h3 class="card-title">Programmatic Control</h3>
-            </div>
-            <div class="card-body">
-                <p>All the control buttons show how to programmatically manipulate the TomSelect component. You can add/remove items, clear selections, and reinitialize the component from code.</p>
-            </div>
-        </div>
-        
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Event Handling</h3>
-            </div>
-            <div class="card-body">
-                <p>This example includes comprehensive event handling for various TomSelect events like initialization, option addition, item creation, and changes. Check the browser console to see the events being logged.</p>
-            </div>
-        </div>
-    </div>
-}
+        <DemoPanel Title="Notes" Description="Patterns demonstrated on this page.">
+            <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">
+                Load Data hydrates options and seeds one selection. Buttons show programmatic add/clear/reinit flows; event callbacks log to the browser console.
+            </Paragraph>
+        </DemoPanel>
+    }
+</Div>
 
 <TomSelectModal @ref="_tomSelectModal" />
 
@@ -174,7 +88,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Data is loaded on demand via the SetData button
+        await Task.CompletedTask;
     }
 
     private async Task SetData()

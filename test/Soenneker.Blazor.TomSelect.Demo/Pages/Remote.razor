@@ -2,95 +2,104 @@
 @using Microsoft.Extensions.Logging
 @using Soenneker.Blazor.TomSelect.Configuration
 @using Soenneker.Blazor.TomSelect.Demo.Dtos
+@using Target = Soenneker.Quark.Target
 
 @inherits Soenneker.Quark.CoreCancellableComponent
 
 @inject ILogger<Remote> Logger
 @inject HttpClient Http
 
-<div class="page-header">
-    <h1 class="page-title">Remote Loading (C#)</h1>
-    <p class="page-subtitle">Type to search GitHub repositories. Data is fetched in C# and rendered with custom HTML.</p>
-    <a href="/" class="btn btn-secondary">Back to Home</a>
-    <a href="https://tom-select.js.org/examples/remote/" target="_blank" class="btn btn-link">Remote examples</a>
- </div>
+<Div Space="Space.Y.Is6">
+    <Div Space="Space.Y.Is2">
+        <H1 TextSize="TextSize.TwoXl" FontWeight="FontWeight.Semibold" Margin="Margin.Is0">Remote loading (C#)</H1>
+        <Paragraph Margin="Margin.Is0" TextColor="TextColor.MutedForeground" TextSize="TextSize.Sm">
+            Type to search GitHub repositories. Data loads in C#; options render with templates or HTML delegates.
+        </Paragraph>
+        <DemoButtonRow>
+            <Button To="/" Variant="ButtonVariant.Outline">Back to home</Button>
+            <Anchor To="https://tom-select.js.org/examples/remote/"
+                    Target="Target.Blank"
+                    Rel="noreferrer"
+                    Display="Display.InlineFlex"
+                    AlignUtility="Align.ItemsCenter"
+                    Rounded="Rounded.Lg"
+                    Border="Border.Is1"
+                    BorderColor="BorderColor.Border"
+                    Padding='Padding.Token("2").OnX.Token("3").OnY'
+                    TextSize="TextSize.Sm"
+                    FontWeight="FontWeight.Medium">
+                Tom Select remote examples
+            </Anchor>
+        </DemoButtonRow>
+    </Div>
 
-<div class="demo-section fade-in">
-    <h2>GitHub Repository Search — Template Rendering</h2>
-    <p class="demo-description">Start typing (2+ chars). Results load via <code>LoadFunc</code> in C#. Rendering uses <code>OptionTemplate</code>/<code>ItemTemplate</code> only.</p>
-
-    <TomSelect
-        TItem="GitHubRepo"
-        TType="string"
-        Data="[]"
-        TextField="r => r.Name"
-        ValueField="r => r.Url"
-        Multiple="true"
-        @bind-Items="_selected"
-        Configuration="_config"
-        LoadFunc="LoadRepos"
-        Debug="true">
-        <OptionTemplate>
-            <div class="row border-bottom py-2">
-                <div class="col-2">
-                    <img class="img-fluid" src="{{owner.avatar_url}}" />
-                </div>
-                <div class="col-10">
-                    <div class="mt-0">{{name}} <span class="small text-muted">by {{owner.login}}</span></div>
-                    <div class="mb-1">{{description}}</div>
-                    <div class="d-flex text-muted">
-                        <div class="me-3">{{language}}</div>
-                        <div class="me-3">{{forks_count}} Forks</div>
-                        <div class="me-3">{{stargazers_count}} Stars</div>
-                        <div class="me-3">{{watchers_count}} Watchers</div>
+    <DemoPanel Title="Template rendering" Description="LoadFunc in C#; OptionTemplate and ItemTemplate for markup.">
+        <TomSelect
+            TItem="GitHubRepo"
+            TType="string"
+            Data="[]"
+            TextField="r => r.Name"
+            ValueField="r => r.Url"
+            Multiple="true"
+            @bind-Items="_selected"
+            Configuration="_config"
+            LoadFunc="LoadRepos"
+            Debug="true">
+            <OptionTemplate>
+                <div class="row border-bottom py-2">
+                    <div class="col-2">
+                        <img class="img-fluid" src="{{owner.avatar_url}}" alt="" />
+                    </div>
+                    <div class="col-10">
+                        <div class="mt-0">{{name}} <span class="small text-muted">by {{owner.login}}</span></div>
+                        <div class="mb-1">{{description}}</div>
+                        <div class="d-flex text-muted">
+                            <div class="me-3">{{language}}</div>
+                            <div class="me-3">{{forks_count}} Forks</div>
+                            <div class="me-3">{{stargazers_count}} Stars</div>
+                            <div class="me-3">{{watchers_count}} Watchers</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </OptionTemplate>
-        <ItemTemplate>
-            <div class="py-1 d-flex">
-                <div class="icon me-2">
-                    <img class="img-fluid" src="{{owner.avatar_url}}" />
+            </OptionTemplate>
+            <ItemTemplate>
+                <div class="py-1 d-flex">
+                    <div class="icon me-2">
+                        <img class="img-fluid" src="{{owner.avatar_url}}" alt="" />
+                    </div>
+                    <div>
+                        <span class="h6">{{name}}</span>
+                    </div>
                 </div>
-                <div>
-                    <span class="h6">{{name}}</span>
-                </div>
-            </div>
-        </ItemTemplate>
-    </TomSelect>
-    
-    <div class="mt-3">
-        <button class="btn btn-primary" @onclick="() => PrintSelectedItems(_selected)">
-            Console Print Selected Items (Template)
-        </button>
-    </div>
-</div>
+            </ItemTemplate>
+        </TomSelect>
 
-<div class="demo-section">
-    <h2>GitHub Repository Search — C# HTML Rendering</h2>
-    <p class="demo-description">Same loader, but rendering uses <code>RenderOptionHtml</code>/<code>RenderItemHtml</code> delegates only.</p>
+        <Div Margin="Margin.Is3.FromTop">
+            <Button OnClick="() => PrintSelectedItems(_selected)">Log selected (template)</Button>
+        </Div>
+    </DemoPanel>
 
-    <TomSelect
-        TItem="GitHubRepo"
-        TType="string"
-        Data="[]"
-        TextField="r => r.Name"
-        ValueField="r => r.Url"
-        Multiple="true"
-        @bind-Items="_selectedHtml"
-        Configuration="_config"
-        LoadFunc="LoadRepos"
-        RenderOptionHtml="RenderRepoOption"
-        RenderItemHtml="RenderRepoItem"
-        Debug="true">
-    </TomSelect>
-    
-    <div class="mt-3">
-        <button class="btn btn-primary" @onclick="() => PrintSelectedItems(_selectedHtml)">
-            Console Print Selected Items (HTML)
-        </button>
-    </div>
-</div>
+    <DemoPanel Title="HTML delegate rendering" Description="Same loader with RenderOptionHtml and RenderItemHtml.">
+        <TomSelect
+            TItem="GitHubRepo"
+            TType="string"
+            Data="[]"
+            TextField="r => r.Name"
+            ValueField="r => r.Url"
+            Multiple="true"
+            @bind-Items="_selectedHtml"
+            Configuration="_config"
+            LoadFunc="LoadRepos"
+            RenderOptionHtml="RenderRepoOption"
+            RenderItemHtml="RenderRepoItem"
+            Debug="true">
+        </TomSelect>
+
+        <Div Margin="Margin.Is3.FromTop">
+            <Button OnClick="() => PrintSelectedItems(_selectedHtml)">Log selected (HTML)</Button>
+        </Div>
+    </DemoPanel>
+</Div>
 
 @code {
     private readonly TomSelectConfiguration _config = new()
@@ -127,7 +136,7 @@
     private static string RenderRepoOption(GitHubRepo r)
     {
         return $"<div class=\"row border-bottom py-2\">" +
-               $"<div class=\"col-2\"><img class=\"img-fluid\" src=\"{r.Owner.AvatarUrl}\" /></div>" +
+               $"<div class=\"col-2\"><img class=\"img-fluid\" src=\"{r.Owner.AvatarUrl}\" alt=\"\" /></div>" +
                $"<div class=\"col-10\">" +
                $"<div class=\"mt-0\">{Escape(r.Name)} <span class=\"small text-muted\">by {Escape(r.Owner.Login)}</span></div>" +
                $"<div class=\"mb-1\">{Escape(r.Description ?? string.Empty)}</div>" +
@@ -142,7 +151,7 @@
     private static string RenderRepoItem(GitHubRepo r)
     {
         return $"<div class=\"py-1 d-flex\">" +
-               $"<div class=\"icon me-2\"><img class=\"img-fluid\" src=\"{r.Owner.AvatarUrl}\" /></div>" +
+               $"<div class=\"icon me-2\"><img class=\"img-fluid\" src=\"{r.Owner.AvatarUrl}\" alt=\"\" /></div>" +
                $"<div><span class=\"h6\">{Escape(r.Name)}</span></div>" +
                "</div>";
     }
@@ -179,5 +188,3 @@
         }
     }
 }
-
-

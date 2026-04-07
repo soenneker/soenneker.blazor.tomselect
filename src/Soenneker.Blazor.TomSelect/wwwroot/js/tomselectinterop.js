@@ -1,15 +1,13 @@
-export class TomSelectInterop {
-    constructor() {
-        this.tomSelects = {};
-        this.options = {};
-        this.dotNetCallbacks = {};
-        this.debug = false;
-    }
+const tomSelectInstances = {};
+const tomSelectOptions = {};
+const tomSelectDotNetCallbacks = {};
+let tomSelectDebug = false;
+let tomSelectObserver;
 
-    create(element, elementId, options, dotNetCallback) {
+export function create(element, elementId, options, dotNetCallback) {
         // Destroy any existing instance first
-        if (this.tomSelects[elementId]) {
-            this.destroy(elementId);
+        if (tomSelectInstances[elementId]) {
+            destroy(elementId);
         }
 
         let tomSelect;
@@ -18,11 +16,11 @@ export class TomSelectInterop {
         if (options) {
             const opt = JSON.parse(options);
             debug = opt.debug || false;
-            this.dotNetCallbacks[elementId] = dotNetCallback;
+            tomSelectDotNetCallbacks[elementId] = dotNetCallback;
             if (opt.useDotNetLoad === true) {
                 opt.load = (query, callback) => {
                     try {
-                        this.dotNetCallbacks[elementId]
+                        tomSelectDotNetCallbacks[elementId]
                             .invokeMethodAsync("LoadOptions", query)
                             .then(items => callback(items || []))
                             .catch(() => callback());
@@ -51,7 +49,7 @@ export class TomSelectInterop {
                 if (!tpl) return null;
                 let html = sanitizeTemplate(tpl);
                 html = html.replace(/{{\s*([\w$.\-]+)\s*}}/g, (m, path) => {
-                    const val = this.getByPath(data, path);
+                    const val = getByPath(data, path);
                     return (val === undefined || val === null) ? '' : String(val);
                 });
                 return html;
@@ -114,7 +112,7 @@ export class TomSelectInterop {
             opt.render.option = defaultOptionRender;
             opt.render.item = defaultItemRender;
             tomSelect = new TomSelect(element, opt);
-            this.options[elementId] = opt;
+            tomSelectOptions[elementId] = opt;
         } else {
             tomSelect = new TomSelect(element, {
                 onInitialize: async () => {
@@ -129,220 +127,184 @@ export class TomSelectInterop {
             });
         }
 
-        this.tomSelects[elementId] = tomSelect;
-        this.debug = debug;
-    }
-
-    addOption(elementId, data, userCreated) {
-        const tomSelect = this.tomSelects[elementId];
+        tomSelectInstances[elementId] = tomSelect;
+        tomSelectDebug = debug;
+    };
+export function addOption(elementId, data, userCreated) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.addOption(data, userCreated);
-    }
-
-    addItem(elementId, value, silent) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function addItem(elementId, value, silent) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.addItem(value, silent);
-    }
-
-    addItems(elementId, data, silent) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function addItems(elementId, data, silent) {
+        const tomSelect = tomSelectInstances[elementId];
         data.forEach(item => tomSelect.addItem(item, silent));
-    }
-
-    clearAndAddOptions(elementId, data, userCreated) {
-        this.clearOptions(elementId);
-        this.addOptions(elementId, data, userCreated);
-    }
-
-    clearAndAddItems(elementId, data, silent) {
-        this.clearItems(elementId, silent);
-        this.addItems(elementId, data, silent);
-    }
-
-    setOptions(elementId, options) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function clearAndAddOptions(elementId, data, userCreated) {
+        clearOptions(elementId);
+        addOptions(elementId, data, userCreated);
+    };
+export function clearAndAddItems(elementId, data, silent) {
+        clearItems(elementId, silent);
+        addItems(elementId, data, silent);
+    };
+export function setOptions(elementId, options) {
+        const tomSelect = tomSelectInstances[elementId];
         const opt = JSON.parse(options);
-        this.options[elementId] = opt;
+        tomSelectOptions[elementId] = opt;
         tomSelect.setOptions(opt);
-    }
-
-    addOptions(elementId, data, userCreated) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function addOptions(elementId, data, userCreated) {
+        const tomSelect = tomSelectInstances[elementId];
         data.forEach(option => tomSelect.addOption(option, userCreated));
-    }
-
-    updateOption(elementId, value, data) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function updateOption(elementId, value, data) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.updateOption(value, data);
-    }
-
-    removeOption(elementId, value) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function removeOption(elementId, value) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.removeOption(value);
-    }
-
-    refreshOptions(elementId, triggerDropdown) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function refreshOptions(elementId, triggerDropdown) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.refreshOptions(triggerDropdown);
-    }
-
-    clearOptions(elementId) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function clearOptions(elementId) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.clearOptions();
-    }
-
-    clearItems(elementId, silent) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function clearItems(elementId, silent) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.clear(silent);
-    }
-
-    removeItem(elementId, valueOrHTMLElement, silent) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function removeItem(elementId, valueOrHTMLElement, silent) {
+        const tomSelect = tomSelectInstances[elementId];
         if (typeof valueOrHTMLElement === 'string' || valueOrHTMLElement instanceof String) {
             tomSelect.removeItem(valueOrHTMLElement, silent);
         } else {
             const itemValue = valueOrHTMLElement.getAttribute('data-value');
             tomSelect.removeItem(itemValue, silent);
         }
-    }
-
-    refreshItems(elementId) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function refreshItems(elementId) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.refreshItems();
-    }
-
-    addOptionGroup(elementId, id, data) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function addOptionGroup(elementId, id, data) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.addOptionGroup(id, data);
-    }
-
-    removeOptionGroup(elementId, id) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function removeOptionGroup(elementId, id) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.removeOptionGroup(id);
-    }
-
-    clearOptionGroups(elementId) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function clearOptionGroups(elementId) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.clearOptionGroups();
-    }
-
-    lock(elementId) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function lock(elementId) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.lock();
-    }
-
-    unlock(elementId) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function unlock(elementId) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.unlock();
-    }
-
-    enable(elementId) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function enable(elementId) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.enable();
-    }
-
-    disable(elementId) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function disable(elementId) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.disable();
-    }
-
-    setValue(elementId, value, silent) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function setValue(elementId, value, silent) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.setValue(value, silent);
-    }
-
-    getValue(elementId) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function getValue(elementId) {
+        const tomSelect = tomSelectInstances[elementId];
         return tomSelect.getValue();
-    }
-
-    setCaret(elementId, index) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function setCaret(elementId, index) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.setCaret(index);
-    }
-
-    isFull(elementId) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function isFull(elementId) {
+        const tomSelect = tomSelectInstances[elementId];
         return tomSelect.isFull();
-    }
-
-    clearCache(elementId) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function clearCache(elementId) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.clearCache();
-    }
-
-    setTextboxValue(elementId, str) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function setTextboxValue(elementId, str) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.setTextboxValue(str);
-    }
-
-    sync(elementId) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function sync(elementId) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.sync();
-    }
-
-    destroy(elementId) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function destroy(elementId) {
+        const tomSelect = tomSelectInstances[elementId];
         if (tomSelect) {
             try {
                 // Remove all event listeners before destroying
                 tomSelect.off();
                 tomSelect.destroy();
             } catch (error) {
-                if (this.debug) {
+                if (tomSelectDebug) {
                     console.warn(`Error destroying TomSelect for element ${elementId}:`, error);
                 }
             } finally {
-                delete this.tomSelects[elementId];
-                delete this.options[elementId];
-                delete this.dotNetCallbacks[elementId];
+                delete tomSelectInstances[elementId];
+                delete tomSelectOptions[elementId];
+                delete tomSelectDotNetCallbacks[elementId];
             }
         }
-    }
-
-    trigger(elementId, event) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function trigger(elementId, event) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.trigger(event);
-    }
-
-    open(elementId) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function open(elementId) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.open();
-    }
-
-    close(elementId) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function close(elementId) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.close();
-    }
-
-    positionDropdown(elementId) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function positionDropdown(elementId) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.positionDropdown();
-    }
-
-    focus(elementId) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function focus(elementId) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.focus();
-    }
-
-    blur(elementId) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function blur(elementId) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.blur();
-    }
-
-    addEventListener(elementId, eventName, dotNetCallback) {
-        const tomSelect = this.tomSelects[elementId];
+    };
+export function addEventListener(elementId, eventName, dotNetCallback) {
+        const tomSelect = tomSelectInstances[elementId];
         tomSelect.on(eventName, async (...args) => {
             try {
                 if (eventName === "item_select") {
                     return await dotNetCallback.invokeMethodAsync("Invoke", args[0].textContent);
                 } else {
-                    var json = this.getJsonFromArguments(...args);
+                    var json = getJsonFromArguments(...args);
                     return await dotNetCallback.invokeMethodAsync("Invoke", json);
                 }
             } catch (error) {
                 // Handle case where DotNetObjectReference is disposed
                 if (error.message && error.message.includes("There is no tracked object")) {
-                    if (this.debug) {
+                    if (tomSelectDebug) {
                         console.warn(`DotNetObjectReference disposed for element ${elementId}, removing event listener`);
                     }
                     tomSelect.off(eventName);
@@ -351,12 +313,11 @@ export class TomSelectInterop {
                 throw error;
             }
         });
-    }
-
-    getJsonFromArguments(...args) {
+    };
+export function getJsonFromArguments(...args) {
         const processedArgs = args.map(arg => {
             if (typeof arg === 'object' && arg !== null) {
-                return this.objectToStringifyable(arg);
+                return objectToStringifyable(arg);
             } else {
                 return arg;
             }
@@ -364,9 +325,8 @@ export class TomSelectInterop {
 
         const json = JSON.stringify(processedArgs);
         return json;
-    }
-
-    objectToStringifyable(obj) {
+    };
+export function objectToStringifyable(obj) {
         let objectJSON = {};
         const props = Object.getOwnPropertyNames(obj);
 
@@ -377,7 +337,7 @@ export class TomSelectInterop {
             } else {
                 const propValue = obj[prop];
                 if (typeof propValue === 'object' && propValue !== null) {
-                    objectJSON[prop] = this.objectToStringifyable(propValue);
+                    objectJSON[prop] = objectToStringifyable(propValue);
                 } else {
                     objectJSON[prop] = propValue;
                 }
@@ -385,42 +345,40 @@ export class TomSelectInterop {
         });
 
         return objectJSON;
-    }
-
-    createObserver(elementId) {
+    };
+export function createObserver(elementId) {
         const target = document.getElementById(elementId);
         if (!target) {
-            if (this.debug) {
+            if (tomSelectDebug) {
                 console.warn(`Element with id ${elementId} not found for observer`);
             }
             return;
         }
 
-        this.observer = new MutationObserver((mutations) => {
+        tomSelectObserver = new MutationObserver((mutations) => {
             const targetRemoved = mutations.some(mutation => Array.from(mutation.removedNodes).indexOf(target) !== -1);
 
             if (targetRemoved) {
                 try {
-                    this.destroy(elementId);
+                    destroy(elementId);
                 } catch (error) {
-                    if (this.debug) {
+                    if (tomSelectDebug) {
                         console.warn(`Error in mutation observer for element ${elementId}:`, error);
                     }
                 }
 
-                if (this.observer) {
-                    this.observer.disconnect();
-                    delete this.observer;
+                if (tomSelectObserver) {
+                    tomSelectObserver.disconnect();
+                    tomSelectObserver = null;
                 }
             }
         });
 
         if (target.parentNode) {
-            this.observer.observe(target.parentNode, { childList: true });
+            tomSelectObserver.observe(target.parentNode, { childList: true });
         }
-    }
-
-    getByPath(obj, path) {
+    };
+export function getByPath(obj, path) {
         try {
             const parts = String(path).split('.');
             let cur = obj;
@@ -432,7 +390,4 @@ export class TomSelectInterop {
         } catch {
             return undefined;
         }
-    }
-}
-
-window.TomSelectInterop = new TomSelectInterop();
+    };

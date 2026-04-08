@@ -25,16 +25,16 @@ public sealed class TomSelectInterop : ITomSelectInterop
     private readonly HashSet<string> _loadedStyles = [];
     private readonly SemaphoreSlim _styleSemaphore = new(1, 1);
 
-    private const string _modulePath = "/_content/Soenneker.Blazor.TomSelect/js/tomselectinterop.js";
+    private const string _modulePath = "_content/Soenneker.Blazor.TomSelect/js/tomselectinterop.js";
     private const string _bootstrap5CdnStylePath = "https://cdn.jsdelivr.net/npm/tom-select@2.5.2/dist/css/tom-select.bootstrap5.min.css";
     private const string _bootstrap5CdnStyleIntegrity = "sha256-Re4GjTaUjj1cCjvRlSe/GXl4eWsdaw9i6rGP3dZAz0U=";
     private const string _regularCdnStylePath = "https://cdn.jsdelivr.net/npm/tom-select@2.5.2/dist/css/tom-select.min.css";
     private const string _regularCdnStyleIntegrity = "sha256-Bz8grFpl3OF4fFRKz8HaIQ9TSBXis6YhioC7jFESW0c=";
     private const string _cdnScriptPath = "https://cdn.jsdelivr.net/npm/tom-select@2.5.2/dist/js/tom-select.complete.min.js";
     private const string _cdnScriptIntegrity = "sha256-gNr/eWjW3Y6HYubw6H8pd1rkFPbH1+5aU/F1hpjNIS4=";
-    private const string _bootstrap5LocalStylePath = "/_content/Soenneker.Blazor.TomSelect/css/tom-select.bootstrap5.min.css";
-    private const string _regularLocalStylePath = "/_content/Soenneker.Blazor.TomSelect/css/tom-select.min.css";
-    private const string _localScriptPath = "/_content/Soenneker.Blazor.TomSelect/js/tom-select.complete.min.js";
+    private const string _bootstrap5LocalStylePath = "_content/Soenneker.Blazor.TomSelect/css/tom-select.bootstrap5.min.css";
+    private const string _regularLocalStylePath = "_content/Soenneker.Blazor.TomSelect/css/tom-select.min.css";
+    private const string _localScriptPath = "_content/Soenneker.Blazor.TomSelect/js/tom-select.complete.min.js";
 
     private readonly CancellationScope _cancellationScope = new();
 

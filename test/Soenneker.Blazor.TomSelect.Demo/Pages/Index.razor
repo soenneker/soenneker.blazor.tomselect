@@ -6,6 +6,7 @@
 @using Soenneker.Blazor.TomSelect.Enums
 @using Soenneker.Utils.AutoBogus
 @using Soenneker.Extensions.Enumerable
+@using Soenneker.Blazor.Utils.Ids
 
 @inherits Soenneker.Quark.CoreCancellableComponent
 
@@ -38,7 +39,7 @@
                         Data="@_countries"
                         TextField="item => item.Name"
                         ValueField="item => item.Id.ToString()"
-                        CreateFuncSync="text => new Country {Name = text, Id = Guid.NewGuid().ToString()}"
+                        CreateFuncSync="CreateCountryFromText"
                         @ref="_tomSelect"
                         @bind-Items="_selectedItems"
                         Multiple="true"
@@ -126,6 +127,8 @@
     {
         await _tomSelectModal!.Show();
     }
+
+    private Country CreateCountryFromText(string text) => new() { Name = text, Id = BlazorIdGenerator.New("country") };
 
     private void OnTomSelectInitialized()
     {

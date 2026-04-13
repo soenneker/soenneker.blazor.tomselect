@@ -4,6 +4,7 @@
 @using Soenneker.Blazor.TomSelect.Dtos
 @using Soenneker.Extensions.Enumerable
 @using Soenneker.Utils.AutoBogus
+@using Soenneker.Blazor.Utils.Ids
 
 @inject ILogger<Index> Logger
 @inject HttpClient Http
@@ -29,7 +30,7 @@
                     Data="@_countries"
                     TextField="item => item.Name"
                     ValueField="item => item.Id.ToString()"
-                    CreateFuncSync="text => new Country{Name = text, Id = Guid.NewGuid().ToString()}"
+                    CreateFuncSync="CreateCountryFromText"
                     @ref="_tomSelect"
                     Items=_selectedItems
                     Multiple="true"
@@ -102,6 +103,8 @@
     {
         await _tomSelectModal!.Show();
     }
+
+    private Country CreateCountryFromText(string text) => new() { Name = text, Id = BlazorIdGenerator.New("country") };
 
     private void OnTomSelectInitialized()
     {

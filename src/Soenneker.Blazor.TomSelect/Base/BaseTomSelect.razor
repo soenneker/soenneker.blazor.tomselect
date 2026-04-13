@@ -5,6 +5,7 @@
 @using Soenneker.Blazor.Utils.InteropEventListener.Abstract
 @using Soenneker.Extensions.CancellationTokens
 @using Microsoft.JSInterop
+@using Soenneker.Blazor.Utils.Ids
 
 @* ReSharper disable InconsistentNaming *@
 @inject ITomSelectInterop _tomSelectInterop
@@ -95,7 +96,7 @@
     protected IInteropEventListener InteropEventListener = null!;
 
     [Parameter]
-    public override string? Id { get; set; } = $"tomselect-{Guid.NewGuid().ToString()}";
+    public override string? Id { get; set; } = BlazorIdGenerator.New("tomselect");
 
     protected ElementReference ElementReference;
 

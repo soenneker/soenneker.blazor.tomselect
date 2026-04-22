@@ -1,20 +1,19 @@
 using Soenneker.Blazor.TomSelect.Abstract;
-using Soenneker.Tests.FixturedUnit;
-using Xunit;
+using Soenneker.Tests.HostedUnit;
 
 namespace Soenneker.Blazor.TomSelect.Tests;
 
-[Collection("Collection")]
-public class TomSelectInteropTests : FixturedUnitTest
+[ClassDataSource<Host>(Shared = SharedType.PerTestSession)]
+public class TomSelectInteropTests : HostedUnitTest
 {
     private readonly ITomSelectInterop _util;
 
-    public TomSelectInteropTests(Fixture fixture, ITestOutputHelper output) : base(fixture, output)
+    public TomSelectInteropTests(Host host) : base(host)
     {
         _util = Resolve<ITomSelectInterop>(true);
     }
 
-    [Fact]
+    [Test]
     public void Default()
     { 
     

@@ -3,7 +3,7 @@ using Soenneker.Blazor.TomSelect.Dtos;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Soenneker.Quark;
+using Soenneker.Lepton.Suite.Abstract;
 
 namespace Soenneker.Blazor.TomSelect.Base.Abstract;
 
@@ -11,7 +11,7 @@ namespace Soenneker.Blazor.TomSelect.Base.Abstract;
 /// Represents the base object for TomSelect.
 /// </summary>
 /// <remarks>We need a base object because we have generic type parameters on TomSelect.</remarks>
-public interface IBaseTomSelect : ICoreCancellableComponent
+public interface IBaseTomSelect : ILeptonCancellableIdentifiableContentElement
 {
     #region Events
 

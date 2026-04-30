@@ -13,9 +13,14 @@
 @inject ILogger<BaseTomSelect> _logger
 @* ReSharper restore InconsistentNaming *@
 
-@inherits Soenneker.Quark.CoreCancellableComponent
+@inherits Soenneker.Lepton.Suite.LeptonCancellableIdentifiableContentElement
 
 @code {
+
+    public BaseTomSelect()
+    {
+        Id = BlazorIdGenerator.New("tomselect");
+    }
 
     #region Events
 
@@ -94,10 +99,6 @@
     protected ITomSelectInterop TomSelectInterop = null!;
 
     protected IInteropEventListener InteropEventListener = null!;
-
-    [Parameter]
-    public override string? Id { get; set; } = BlazorIdGenerator.New("tomselect");
-
     protected ElementReference ElementReference;
 
     protected ILogger<BaseTomSelect> Logger = null!;
@@ -122,7 +123,8 @@
             DotNetReference.Dispose();
             DotNetReference = null;
         }
-        InteropEventListener.DisposeForElement(Id);
+
+        InteropEventListener.DisposeForElement(Id!);
     }
 
     protected void LogWarning(string message)

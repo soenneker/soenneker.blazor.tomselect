@@ -22,8 +22,7 @@ public sealed class TomSelectInterop : ITomSelectInterop
     private readonly IResourceLoader _resourceLoader;
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly AsyncInitializer<bool> _scriptInitializer;
-    private readonly HashSet<string> _loadedStyles = [];
-    private readonly SemaphoreSlim _styleSemaphore = new(1, 1);
+    private readonly AsyncInitializer<StyleResourceOptions> _styleInitializer;
 
     private const string _modulePath = "_content/Soenneker.Blazor.TomSelect/js/tomselectinterop.js";
     private const string _bootstrap5CdnStylePath = "https://cdn.jsdelivr.net/npm/tom-select@2.5.2/dist/css/tom-select.bootstrap5.min.css";
@@ -44,6 +43,7 @@ public sealed class TomSelectInterop : ITomSelectInterop
         _moduleImportUtil = moduleImportUtil;
 
         _scriptInitializer = new AsyncInitializer<bool>(InitializeScript);
+        _styleInitializer = new AsyncInitializer<StyleResourceOptions>(InitializeStyle);
     }
 
     private async ValueTask InitializeScript(bool useCdn, CancellationToken token)
@@ -74,28 +74,14 @@ public sealed class TomSelectInterop : ITomSelectInterop
             : (_regularLocalStylePath, null);
     }
 
-    private async ValueTask EnsureStyleLoaded(bool useCdn, bool useBootstrap5Styling, CancellationToken cancellationToken)
+    private async ValueTask InitializeStyle(StyleResourceOptions options, CancellationToken cancellationToken)
     {
-        (string path, string? integrity) = GetStyleResource(useCdn, useBootstrap5Styling);
+        (string path, string? integrity) = GetStyleResource(options.UseCdn, options.UseBootstrap5Styling);
 
-        await _styleSemaphore.WaitAsync(cancellationToken);
-
-        try
-        {
-            if (_loadedStyles.Contains(path))
-                return;
-
-            if (integrity != null)
-                await _resourceLoader.LoadStyle(path, integrity, cancellationToken: cancellationToken);
-            else
-                await _resourceLoader.LoadStyle(path, cancellationToken: cancellationToken);
-
-            _loadedStyles.Add(path);
-        }
-        finally
-        {
-            _styleSemaphore.Release();
-        }
+        if (integrity != null)
+            await _resourceLoader.LoadStyle(path, integrity, cancellationToken: cancellationToken);
+        else
+            await _resourceLoader.LoadStyle(path, cancellationToken: cancellationToken);
     }
 
     private async ValueTask<IJSObjectReference> GetModule(CancellationToken cancellationToken)
@@ -135,7 +121,7 @@ public sealed class TomSelectInterop : ITomSelectInterop
         using (source)
         {
             await _scriptInitializer.Init(useCdn, linked);
-            await EnsureStyleLoaded(useCdn, useBootstrap5Styling, linked);
+            await _styleInitializer.Init(new StyleResourceOptions(useCdn, useBootstrap5Styling), linked);
         }
     }
 
@@ -158,7 +144,7 @@ public sealed class TomSelectInterop : ITomSelectInterop
             bool useBootstrap5Styling = configuration?.UseBootstrap5Styling ?? true;
 
             await _scriptInitializer.Init(useCdn, linked);
-            await EnsureStyleLoaded(useCdn, useBootstrap5Styling, linked);
+            await _styleInitializer.Init(new StyleResourceOptions(useCdn, useBootstrap5Styling), linked);
 
             string? json = null;
 
@@ -452,7 +438,9 @@ public sealed class TomSelectInterop : ITomSelectInterop
         await _moduleImportUtil.DisposeContentModule(_modulePath);
 
         await _scriptInitializer.DisposeAsync();
+        await _styleInitializer.DisposeAsync();
         await _cancellationScope.DisposeAsync();
-        _styleSemaphore.Dispose();
     }
+
+    private readonly record struct StyleResourceOptions(bool UseCdn, bool UseBootstrap5Styling);
 }

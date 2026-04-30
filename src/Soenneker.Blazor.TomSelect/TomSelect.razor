@@ -22,11 +22,11 @@
 
 @if (Multiple)
 {
-    <input id="@Id" @ref="ElementReference" @attributes="Attributes" />
+    <input @ref="ElementReference" @attributes="EffectiveAttributes" />
 }
 else
 {
-    <select id="@Id" @ref="ElementReference" @attributes="Attributes" ></select>
+    <select @ref="ElementReference" @attributes="EffectiveAttributes"></select>
 }
 
 @if (OptionTemplate != null)

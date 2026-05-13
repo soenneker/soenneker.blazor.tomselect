@@ -7,7 +7,7 @@
 
     <ItemGroup>
         <PackageReference Include="Soenneker.Blazor.Utils.Ids" Version="4.0.7" />
-        <PackageReference Include="Soenneker.Utils.AutoBogus" Version="4.0.895" />
+        <PackageReference Include="Soenneker.Utils.AutoBogus" Version="4.0.896" />
     </ItemGroup>
 
     <ItemGroup>

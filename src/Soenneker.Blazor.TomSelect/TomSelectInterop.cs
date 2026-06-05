@@ -421,6 +421,15 @@ public sealed class TomSelectInterop : ITomSelectInterop
             await InvokeVoidAsync("sync", linked, elementId);
     }
 
+    /// <summary>
+    /// Adds event listener.
+    /// </summary>
+    /// <param name="functionName">The function name.</param>
+    /// <param name="elementId">The element id.</param>
+    /// <param name="eventName">The event name.</param>
+    /// <param name="dotNetCallback">The dot net callback.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async ValueTask AddEventListener(string functionName, string elementId, string eventName, object dotNetCallback,
         CancellationToken cancellationToken = default)
     {
@@ -433,6 +442,10 @@ public sealed class TomSelectInterop : ITomSelectInterop
         }
     }
 
+    /// <summary>
+    /// Asynchronously releases resources used by the current instance.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async ValueTask DisposeAsync()
     {
         await _moduleImportUtil.DisposeContentModule(_modulePath);

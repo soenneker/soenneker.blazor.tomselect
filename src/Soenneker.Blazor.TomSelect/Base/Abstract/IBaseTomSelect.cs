@@ -40,6 +40,9 @@ public interface IBaseTomSelect : ILeptonCancellableIdentifiableContentElement
     /// </summary>
     EventCallback<(string Value, TomSelectOption Item)> OnItemAdd { get; set; }
 
+    /// <summary>
+    /// Gets or sets on item created.
+    /// </summary>
     EventCallback<(string Value, TomSelectOption Item)> OnItemCreated { get; set; }
 
     /// <summary>

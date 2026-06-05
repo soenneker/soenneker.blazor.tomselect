@@ -48,7 +48,7 @@
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="4.0.450" />
         <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="4.0.3962" />
         <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1665" />
-        <PackageReference Include="Soenneker.Extensions.List" Version="4.0.971" />
+        <PackageReference Include="Soenneker.Extensions.List" Version="4.0.973" />
         <PackageReference Include="Soenneker.Json.CollectionConverter" Version="4.0.826" />
         <PackageReference Include="Soenneker.Lepton.Suite" Version="4.0.15" />
         <PackageReference Include="Soenneker.Utils.Case" Version="4.0.43" />

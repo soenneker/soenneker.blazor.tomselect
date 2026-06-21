@@ -23,7 +23,7 @@
         <PackageReference Include="Soenneker.Blazor.Utils.Navigation" Version="4.0.1137" />
         <PackageReference Include="Soenneker.Serilog.Sinks.Browser.Blazor" Version="4.0.338" />
         <PackageReference Include="Soenneker.Utils.AutoBogus" Version="4.0.912" />
-        <PackageReference Include="Soenneker.Quark.Gen.Tailwind" Version="4.0.160">
+        <PackageReference Include="Soenneker.Quark.Gen.Tailwind" Version="4.0.161">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>

@@ -15,7 +15,7 @@
     <Div Space="Space.Y.Is2">
         <H1 TextSize="TextSize.TwoXl" FontWeight="FontWeight.Semibold" Margin="Margin.Is0">Multiple TomSelect components</H1>
         <Paragraph Margin="Margin.Is0" TextColor="TextColor.MutedForeground" TextSize="TextSize.Sm">
-            Two independent multi-select instances on one page. Controls target the first instance.
+            Six independent multi-select instances initialized together on one page. Controls target the first instance.
         </Paragraph>
     </Div>
 
@@ -23,55 +23,78 @@
     {
         @if (_countries.Populated())
         {
-            <DemoPanel Title="First TomSelect" Description="Primary instance referenced by the control buttons.">
-                <Div Class="w-full">
-                    <TomSelect
-                        @ref="_tomSelect"
-                        TItem="Country"
-                        TType="string"
-                        OnInitialize="OnTomSelectInitialized"
-                        OnOptionRemove="OnOptionRemove"
-                        OnItemRemove="OnItemRemove"
-                        OnOptionAdd="OnOptionAdd"
-                        OnItemCreated="OnItemCreated"
-                        OnItemAdd="OnItemAdd"
-                        Data="@_countries"
-                        TextField="item => item.Name"
-                        ValueField="item => item.Id.ToString()"
-                        CreateFuncSync="CreateCountryFromText"
-                        Multiple="true"
-                        Create="true"
-                        OnChange="OnChange"
-                        Debug=true
-                        PlaceHolder="Select or create countries..."
-                        Configuration="_configuration">
-                    </TomSelect>
-                </Div>
-            </DemoPanel>
+            <DemoPanel Title="Six initialized TomSelects" Description="@GetInitializationStatus()">
+            <Div Class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                @foreach (int instanceNumber in InstanceNumbers)
+                {
+                    bool isPrimary = instanceNumber == 1;
 
-            <DemoPanel Title="Second TomSelect" Description="Same configuration; state is separate.">
-                <Div Class="w-full">
-                    <TomSelect
-                        TItem="Country"
-                        TType="string"
-                        OnInitialize="OnTomSelectInitialized"
-                        OnOptionRemove="OnOptionRemove"
-                        OnItemRemove="OnItemRemove"
-                        OnOptionAdd="OnOptionAdd"
-                        OnItemCreated="OnItemCreated"
-                        OnItemAdd="OnItemAdd"
-                        Data="@_countries"
-                        TextField="item => item.Name"
-                        ValueField="item => item.Id.ToString()"
-                        CreateFuncSync="CreateCountryFromText"
-                        Multiple="true"
-                        Create="true"
-                        OnChange="OnChange"
-                        Debug=true
-                        PlaceHolder="Select or create countries..."
-                        Configuration="_configuration">
-                    </TomSelect>
-                </Div>
+                    <Div Class="space-y-2">
+                        <Div Space="Space.Y.Is1">
+                            <Paragraph Margin="Margin.Is0" FontWeight="FontWeight.Medium">
+                                @GetPanelTitle(instanceNumber)
+                            </Paragraph>
+                            <Paragraph Margin="Margin.Is0" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                                @GetPanelDescription(instanceNumber)
+                            </Paragraph>
+                        </Div>
+
+                        @if (isPrimary)
+                        {
+                            <TomSelect
+                                @key="instanceNumber"
+                                @ref="_tomSelect"
+                                TItem="Country"
+                                TType="string"
+                                OnInitialize="@(() => OnTomSelectInitialized(instanceNumber))"
+                                OnOptionRemove="OnOptionRemove"
+                                OnItemRemove="OnItemRemove"
+                                OnOptionAdd="OnOptionAdd"
+                                OnItemCreated="OnItemCreated"
+                                OnItemAdd="OnItemAdd"
+                                Data="@_countries"
+                                Items="@_selectedItemsByInstance[instanceNumber - 1]"
+                                ItemsChanged="@(items => OnItemsChanged(instanceNumber, items))"
+                                TextField="item => item.Name"
+                                ValueField="item => item.Id.ToString()"
+                                CreateFuncSync="CreateCountryFromText"
+                                Multiple="true"
+                                Create="true"
+                                OnChange="OnChange"
+                                Debug=true
+                                PlaceHolder="@GetPlaceholder(instanceNumber)"
+                                Configuration="@_configurations[instanceNumber - 1]">
+                            </TomSelect>
+                        }
+                        else
+                        {
+                            <TomSelect
+                                @key="instanceNumber"
+                                TItem="Country"
+                                TType="string"
+                                OnInitialize="@(() => OnTomSelectInitialized(instanceNumber))"
+                                OnOptionRemove="OnOptionRemove"
+                                OnItemRemove="OnItemRemove"
+                                OnOptionAdd="OnOptionAdd"
+                                OnItemCreated="OnItemCreated"
+                                OnItemAdd="OnItemAdd"
+                                Data="@_countries"
+                                Items="@_selectedItemsByInstance[instanceNumber - 1]"
+                                ItemsChanged="@(items => OnItemsChanged(instanceNumber, items))"
+                                TextField="item => item.Name"
+                                ValueField="item => item.Id.ToString()"
+                                CreateFuncSync="CreateCountryFromText"
+                                Multiple="true"
+                                Create="true"
+                                OnChange="OnChange"
+                                Debug=true
+                                PlaceHolder="@GetPlaceholder(instanceNumber)"
+                                Configuration="@_configurations[instanceNumber - 1]">
+                            </TomSelect>
+                        }
+                    </Div>
+                }
+            </Div>
             </DemoPanel>
         }
 
@@ -110,12 +133,21 @@
     private TomSelect<Country, string> _tomSelect = null!;
     private bool _render = true;
     private TomSelectModal? _tomSelectModal;
+    private readonly HashSet<int> _initializedInstances = [];
+    private List<List<Country>> _selectedItemsByInstance = CreateEmptySelectedItemLists();
 
-    private readonly TomSelectConfiguration _configuration = new()
-    {
-        Plugins = [TomSelectPluginType.DragDrop],
-        UseCdn = true
-    };
+    private const int InstanceCount = 6;
+    private static readonly int[] InstanceNumbers = [1, 2, 3, 4, 5, 6];
+
+    private readonly TomSelectConfiguration[] _configurations =
+    [
+        CreateConfiguration(),
+        CreateConfiguration(),
+        CreateConfiguration(),
+        CreateConfiguration(),
+        CreateConfiguration(),
+        CreateConfiguration()
+    ];
 
     protected override void OnInitialized()
     {
@@ -130,6 +162,7 @@
     private async Task SetOptionsAndItems()
     {
         _countries = await Http.GetFromJsonAsync<List<Country>>("sample-data/countries.json");
+        _selectedItemsByInstance = CreateSelectedItemLists(_countries!);
     }
 
     private async Task OpenModal()
@@ -139,18 +172,22 @@
 
     private Country CreateCountryFromText(string text) => new() { Name = text, Id = BlazorIdGenerator.New("country") };
 
-    private void OnTomSelectInitialized()
+    private void OnTomSelectInitialized(int instanceNumber)
     {
-        Logger.LogInformation("OnInitialized called");
+        _initializedInstances.Add(instanceNumber);
+
+        Logger.LogInformation("TomSelect instance {InstanceNumber} initialized", instanceNumber);
     }
 
     private void ClearViaData()
     {
+        _selectedItemsByInstance[0] = [];
     }
 
     private async Task AddViaData()
     {
-        await Http.GetFromJsonAsync<List<Country>>("sample-data/countries.json");
+        var countries = await Http.GetFromJsonAsync<List<Country>>("sample-data/countries.json");
+        _selectedItemsByInstance[0] = [.. _selectedItemsByInstance[0], countries!.GetRandom()!];
     }
 
     private async ValueTask ClearItems()
@@ -203,6 +240,11 @@
         Logger.LogInformation("OnChange called");
     }
 
+    private void OnItemsChanged(int instanceNumber, List<Country> items)
+    {
+        _selectedItemsByInstance[instanceNumber - 1] = items;
+    }
+
     private async Task AddExistingItem()
     {
         await _tomSelect.AddItem(_tomSelect.Data.GetRandom()!.Id);
@@ -226,4 +268,32 @@
             Logger.LogInformation("_tomSelect.Item: {0}", item.Name);
         }
     }
+
+    private static TomSelectConfiguration CreateConfiguration() =>
+        new()
+        {
+            Plugins = [TomSelectPluginType.DragDrop],
+            UseCdn = true,
+            UseBootstrap5Styling = false
+        };
+
+    private static string GetPanelTitle(int instanceNumber) => instanceNumber == 1 ? "TomSelect 1 (primary)" : $"TomSelect {instanceNumber}";
+
+    private static string GetPanelDescription(int instanceNumber) =>
+        instanceNumber == 1 ? "Primary instance referenced by the control buttons." : "Same data and behavior; separate TomSelect instance.";
+
+    private static string GetPlaceholder(int instanceNumber) => $"Select or create countries in instance {instanceNumber}...";
+
+    private string GetInitializationStatus() => $"Initialized {_initializedInstances.Count} of {InstanceCount} instances. Controls target the first instance.";
+
+    private static List<List<Country>> CreateEmptySelectedItemLists() =>
+        Enumerable.Range(0, InstanceCount)
+                  .Select(_ => new List<Country>())
+                  .ToList();
+
+    private static List<List<Country>> CreateSelectedItemLists(IReadOnlyList<Country> countries) =>
+        InstanceNumbers.Select(instanceNumber => countries.Skip(instanceNumber - 1)
+                                                          .Take(2)
+                                                          .ToList())
+                       .ToList();
 }

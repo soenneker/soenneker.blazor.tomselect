@@ -44,7 +44,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Soenneker.Asyncs.Initializers" Version="4.0.69" />
+        <PackageReference Include="Soenneker.Asyncs.Initializers" Version="4.0.70" />
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="4.0.454" />
         <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="4.0.4021" />
         <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1694" />

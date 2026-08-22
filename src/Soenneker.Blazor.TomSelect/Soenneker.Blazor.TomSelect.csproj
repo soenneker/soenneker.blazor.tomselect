@@ -50,7 +50,7 @@
         <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1715" />
         <PackageReference Include="Soenneker.Extensions.List" Version="4.0.982" />
         <PackageReference Include="Soenneker.Json.CollectionConverter" Version="4.0.837" />
-        <PackageReference Include="Soenneker.Lepton.Suite" Version="4.0.52" />
+        <PackageReference Include="Soenneker.Lepton.Suite" Version="4.0.53" />
         <PackageReference Include="Soenneker.Utils.Case" Version="4.0.69" />
     </ItemGroup>
 </Project>

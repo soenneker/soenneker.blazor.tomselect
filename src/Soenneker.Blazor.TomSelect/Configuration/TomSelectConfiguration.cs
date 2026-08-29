@@ -228,7 +228,7 @@ public sealed class TomSelectConfiguration
     /// Allows supplying a custom input element selector or DOM reference.
     /// </summary>
     /// <remarks>
-    /// Maps to <c>controlInput</c>. Null uses the default <input> element.
+    /// Maps to <c>controlInput</c>. Null uses the default <c>input</c> element.
     /// </remarks>
     [JsonPropertyName("controlInput")]
     public string? ControlInput { get; set; } = null;

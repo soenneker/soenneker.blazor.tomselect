@@ -14,6 +14,8 @@ public static class TomSelectRegistrar
     /// <summary>
     /// Adds <see cref="ITomSelectInterop"/> as a scoped service. <para/>
     /// </summary>
+    /// <param name="services">Service collection that receives the registration.</param>
+    /// <returns>The same service collection, so additional registrations can be chained.</returns>
     public static IServiceCollection AddTomSelectInteropAsScoped(this IServiceCollection services)
     {
         services.AddResourceLoaderAsScoped().AddInteropEventListenerAsScoped().TryAddScoped<ITomSelectInterop, TomSelectInterop>();

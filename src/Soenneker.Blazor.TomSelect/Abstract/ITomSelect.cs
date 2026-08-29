@@ -9,11 +9,6 @@ using System.Threading.Tasks;
 
 namespace Soenneker.Blazor.TomSelect.Abstract;
 
-/// <summary>
-/// Defines the contract for a TomSelect component that provides a dynamic dropdown with selection capabilities.
-/// </summary>
-/// <typeparam name="TItem">The type of data item.</typeparam>
-/// <typeparam name="TType">The type of value associated with the item.</typeparam>
 public interface ITomSelect<TItem, TType> : IBaseTomSelect
 {
     /// <summary>

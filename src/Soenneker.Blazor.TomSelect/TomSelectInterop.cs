@@ -424,12 +424,12 @@ public sealed class TomSelectInterop : ITomSelectInterop
     /// <summary>
     /// Adds event listener.
     /// </summary>
-    /// <param name="functionName">The function name.</param>
-    /// <param name="elementId">The element id.</param>
-    /// <param name="eventName">The event name.</param>
-    /// <param name="dotNetCallback">The dot net callback.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="functionName">Name of the function to invoke.</param>
+    /// <param name="elementId">ID of the DOM element to target.</param>
+    /// <param name="eventName">Name of the event to publish or subscribe to.</param>
+    /// <param name="dotNetCallback">dot Net Callback to invoke when the operation runs.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the event listener addition is complete.</returns>
     public async ValueTask AddEventListener(string functionName, string elementId, string eventName, object dotNetCallback,
         CancellationToken cancellationToken = default)
     {

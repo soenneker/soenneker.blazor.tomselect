@@ -1,18 +1,17 @@
 const tomSelectInstances = {};
 const tomSelectOptions = {};
 const tomSelectDotNetCallbacks = {};
-let tomSelectDebug = false;
-let tomSelectObserver;
+const tomSelectDebug = {};
+const tomSelectObservers = {};
 
 export function create(element, elementId, options, dotNetCallback) {
         // Destroy any existing instance first
-        if (tomSelectInstances[elementId]) {
-            destroy(elementId);
-        }
+        destroy(elementId);
 
         let tomSelect;
         let debug = false;
 
+        try {
         if (options) {
             const opt = JSON.parse(options);
             debug = opt.debug || false;
@@ -45,23 +44,25 @@ export function create(element, elementId, options, dotNetCallback) {
                 return html.replace(/<!--[^]*?-->/g, '').trim();
             };
 
-            const applyTemplate = (tpl, data) => {
+            const applyTemplate = (tpl, data, escape) => {
                 if (!tpl) return null;
                 let html = sanitizeTemplate(tpl);
                 html = html.replace(/{{\s*([\w$.\-]+)\s*}}/g, (m, path) => {
                     const val = getByPath(data, path);
-                    return (val === undefined || val === null) ? '' : String(val);
+                    return (val === undefined || val === null) ? '' : escape(String(val));
                 });
                 return html;
             };
-            opt.onInitialize = async () => {
-                try {
-                    await dotNetCallback.invokeMethodAsync("OnInitializedJs");
-                } catch (error) {
-                    if (debug) {
-                        console.warn(`Error calling OnInitializedJs for element ${elementId}:`, error);
+            opt.onInitialize = () => {
+                queueMicrotask(async () => {
+                    try {
+                        await dotNetCallback.invokeMethodAsync("OnInitializedJs");
+                    } catch (error) {
+                        if (debug) {
+                            console.warn(`Error calling OnInitializedJs for element ${elementId}:`, error);
+                        }
                     }
-                }
+                });
             };
             opt.render = opt.render || {};
             const defaultOptionRender = (item, escape) => {
@@ -70,7 +71,7 @@ export function create(element, elementId, options, dotNetCallback) {
                 if (optionTemplateEl) {
                     const tpl = sanitizeTemplate(getTemplateHtml(optionTemplateEl));
                     const dataRoot = Object.assign({}, item || {}, (item && item.item) || {});
-                    const html = tpl == null ? null : applyTemplate(tpl, dataRoot);
+                    const html = tpl == null ? null : applyTemplate(tpl, dataRoot, escape);
 
                     if (debug) {
                         console.log(`[TomSelectInterop] option template used for ${elementId}`, html);
@@ -92,7 +93,7 @@ export function create(element, elementId, options, dotNetCallback) {
                 if (itemTemplateEl) {
                     const tpl = sanitizeTemplate(getTemplateHtml(itemTemplateEl));
                     const dataRoot = Object.assign({}, item || {}, (item && item.item) || {});
-                    const html = tpl == null ? null : applyTemplate(tpl, dataRoot);
+                    const html = tpl == null ? null : applyTemplate(tpl, dataRoot, escape);
 
                     if (debug) {
                         console.log(`[TomSelectInterop] item template used for ${elementId}`, html);
@@ -115,20 +116,29 @@ export function create(element, elementId, options, dotNetCallback) {
             tomSelectOptions[elementId] = opt;
         } else {
             tomSelect = new TomSelect(element, {
-                onInitialize: async () => {
-                    try {
-                        await dotNetCallback.invokeMethodAsync("OnInitializedJs");
-                    } catch (error) {
-                        if (debug) {
-                            console.warn(`Error calling OnInitializedJs for element ${elementId}:`, error);
+                onInitialize: () => {
+                    queueMicrotask(async () => {
+                        try {
+                            await dotNetCallback.invokeMethodAsync("OnInitializedJs");
+                        } catch (error) {
+                            if (debug) {
+                                console.warn(`Error calling OnInitializedJs for element ${elementId}:`, error);
+                            }
                         }
-                    }
+                    });
                 }
             });
         }
 
         tomSelectInstances[elementId] = tomSelect;
-        tomSelectDebug = debug;
+        tomSelectDebug[elementId] = debug;
+        } catch (error) {
+            delete tomSelectInstances[elementId];
+            delete tomSelectOptions[elementId];
+            delete tomSelectDotNetCallbacks[elementId];
+            delete tomSelectDebug[elementId];
+            throw error;
+        }
     };
 export function addOption(elementId, data, userCreated) {
         const tomSelect = tomSelectInstances[elementId];
@@ -223,7 +233,10 @@ export function disable(elementId) {
     };
 export function setValue(elementId, value, silent) {
         const tomSelect = tomSelectInstances[elementId];
-        tomSelect.setValue(value, silent);
+        const normalizedValue = value && typeof value === 'object'
+            ? (value.value ?? value.Value)
+            : value;
+        tomSelect.setValue(normalizedValue, silent);
     };
 export function getValue(elementId) {
         const tomSelect = tomSelectInstances[elementId];
@@ -253,19 +266,35 @@ export function destroy(elementId) {
         const tomSelect = tomSelectInstances[elementId];
         if (tomSelect) {
             try {
-                // Remove all event listeners before destroying
-                tomSelect.off();
                 tomSelect.destroy();
             } catch (error) {
-                if (tomSelectDebug) {
+                if (tomSelectDebug[elementId]) {
                     console.warn(`Error destroying TomSelect for element ${elementId}:`, error);
                 }
             } finally {
                 delete tomSelectInstances[elementId];
                 delete tomSelectOptions[elementId];
-                delete tomSelectDotNetCallbacks[elementId];
             }
         }
+
+        const observer = tomSelectObservers[elementId];
+        if (observer) {
+            observer.disconnect();
+            delete tomSelectObservers[elementId];
+        }
+
+        delete tomSelectOptions[elementId];
+        delete tomSelectDotNetCallbacks[elementId];
+        delete tomSelectDebug[elementId];
+    };
+export function dispose() {
+        const elementIds = new Set([
+            ...Object.keys(tomSelectInstances),
+            ...Object.keys(tomSelectObservers)
+        ]);
+
+        for (const elementId of elementIds)
+            destroy(elementId);
     };
 export function trigger(elementId, event) {
         const tomSelect = tomSelectInstances[elementId];
@@ -296,7 +325,8 @@ export function addEventListener(elementId, eventName, dotNetCallback) {
         tomSelect.on(eventName, async (...args) => {
             try {
                 if (eventName === "item_select") {
-                    return await dotNetCallback.invokeMethodAsync("Invoke", args[0].textContent);
+                    const value = args[0]?.getAttribute?.('data-value') ?? args[0]?.textContent ?? '';
+                    return await dotNetCallback.invokeMethodAsync("Invoke", value);
                 } else {
                     var json = getJsonFromArguments(...args);
                     return await dotNetCallback.invokeMethodAsync("Invoke", json);
@@ -304,13 +334,15 @@ export function addEventListener(elementId, eventName, dotNetCallback) {
             } catch (error) {
                 // Handle case where DotNetObjectReference is disposed
                 if (error.message && error.message.includes("There is no tracked object")) {
-                    if (tomSelectDebug) {
+                    if (tomSelectDebug[elementId]) {
                         console.warn(`DotNetObjectReference disposed for element ${elementId}, removing event listener`);
                     }
                     tomSelect.off(eventName);
                     return;
                 }
-                throw error;
+                if (tomSelectDebug[elementId]) {
+                    console.warn(`TomSelect event '${eventName}' callback failed for element ${elementId}.`, error);
+                }
             }
         });
     };
@@ -349,33 +381,32 @@ export function objectToStringifyable(obj) {
 export function createObserver(elementId) {
         const target = document.getElementById(elementId);
         if (!target) {
-            if (tomSelectDebug) {
+            if (tomSelectDebug[elementId]) {
                 console.warn(`Element with id ${elementId} not found for observer`);
             }
             return;
         }
 
-        tomSelectObserver = new MutationObserver((mutations) => {
-            const targetRemoved = mutations.some(mutation => Array.from(mutation.removedNodes).indexOf(target) !== -1);
+        const existingObserver = tomSelectObservers[elementId];
+        if (existingObserver)
+            existingObserver.disconnect();
 
-            if (targetRemoved) {
+        const observer = new MutationObserver(() => {
+            if (!target.isConnected) {
                 try {
                     destroy(elementId);
                 } catch (error) {
-                    if (tomSelectDebug) {
+                    if (tomSelectDebug[elementId]) {
                         console.warn(`Error in mutation observer for element ${elementId}:`, error);
                     }
-                }
-
-                if (tomSelectObserver) {
-                    tomSelectObserver.disconnect();
-                    tomSelectObserver = null;
                 }
             }
         });
 
-        if (target.parentNode) {
-            tomSelectObserver.observe(target.parentNode, { childList: true });
+        const observationRoot = document.body ?? document.documentElement;
+        if (observationRoot) {
+            observer.observe(observationRoot, { childList: true, subtree: true });
+            tomSelectObservers[elementId] = observer;
         }
     };
 export function getByPath(obj, path) {

@@ -168,9 +168,7 @@ else
         {
             LogDebug("OnParametersSet: Items hash differs, updating...");
 
-            List<TItem> oldWorkingItems = _workingItems.ToList(); // Save previous selections
-
-            _workingItems = Items ?? [];
+            _workingItems = Items?.ToList() ?? [];
 
             await CleanItems();
 
@@ -178,22 +176,6 @@ else
 
             List<string> values = ConvertItemsToListString(_workingItems);
             await TomSelectInterop.ClearAndAddItems(Id!, values, true);
-
-            // Restore previously selected items if possible
-            List<string?> preservedValues = oldWorkingItems.Select(ToValueFromItem)
-                                                           .ToList();
-            List<string?> newValues = _workingItems.Select(ToValueFromItem)
-                                                   .ToList();
-            List<string?> missingValues = preservedValues.Except(newValues)
-                                                         .ToList();
-
-            if (missingValues.Count > 0)
-            {
-                List<string> nonNullMissingValues = missingValues.Where(v => v != null)
-                                                                 .Select(v => v!)
-                                                                 .ToList();
-                await TomSelectInterop.AddItems(Id!, nonNullMissingValues, true);
-            }
         }
     }
 
@@ -220,7 +202,7 @@ else
         {
             await AddOptions(Data, false, cancellationToken);
 
-            _workingItems = Items;
+            _workingItems = Items.ToList();
 
             await CleanItems();
 
@@ -256,13 +238,32 @@ else
 
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
-        using (cts)
+        try
         {
-            await TomSelectInterop.Create(ElementReference, Id!, DotNetReference, Configuration, linked);
-            await TomSelectInterop.CreateObserver(Id!, linked);
-        }
+            using (cts)
+            {
+                await TomSelectInterop.Create(ElementReference, Id!, DotNetReference, Configuration, linked);
+                await TomSelectInterop.CreateObserver(Id!, linked);
+            }
 
-        await AddEventListeners();
+            await AddEventListeners();
+        }
+        catch
+        {
+            try
+            {
+                await TomSelectInterop.Destroy(Id!);
+            }
+            catch
+            {
+                // Preserve the initialization exception; browser cleanup is best effort on this path.
+            }
+
+            DotNetReference.Dispose();
+            DotNetReference = null;
+            InteropEventListener.DisposeForElement(Id!);
+            throw;
+        }
     }
 
     [JSInvokable("Invoke")]
@@ -931,19 +932,25 @@ else
     private Task SyncItems()
     {
         _itemsHash = _workingItems.GetAggregateHashCode(false);
-        return ItemsChanged.InvokeAsync(_workingItems);
+        List<TItem> snapshot = _workingItems.ToList();
+        Items = snapshot;
+        return ItemsChanged.InvokeAsync(snapshot);
     }
 
     public override async ValueTask DisposeAsync()
     {
-        // Dispose DotNetReference first to prevent JavaScript callbacks to disposed references
-        if (DotNetReference != null)
+        if (_isCreated && Id is not null)
         {
-            DotNetReference.Dispose();
-            DotNetReference = null;
+            try
+            {
+                await TomSelectInterop.Destroy(Id);
+            }
+            catch (JSDisconnectedException)
+            {
+            }
         }
 
-        // Call base disposal which will handle other cleanup
+        _isCreated = false;
         await base.DisposeAsync();
     }
 

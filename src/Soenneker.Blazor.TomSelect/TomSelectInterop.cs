@@ -36,6 +36,7 @@ public sealed class TomSelectInterop : ITomSelectInterop
     private const string _localScriptPath = "_content/Soenneker.Blazor.TomSelect/js/tom-select.complete.min.js";
 
     private readonly CancellationScope _cancellationScope = new();
+    private bool _moduleInitialized;
 
     public TomSelectInterop(IResourceLoader resourceLoader, IModuleImportUtil moduleImportUtil)
     {
@@ -86,7 +87,9 @@ public sealed class TomSelectInterop : ITomSelectInterop
 
     private async ValueTask<IJSObjectReference> GetModule(CancellationToken cancellationToken)
     {
-        return await _moduleImportUtil.GetContentModuleReference(_modulePath, cancellationToken);
+        IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, cancellationToken);
+        _moduleInitialized = true;
+        return module;
     }
 
     private async ValueTask InvokeVoidAsync(string identifier, CancellationToken cancellationToken, params object?[] args)
@@ -448,11 +451,22 @@ public sealed class TomSelectInterop : ITomSelectInterop
     /// <returns>A task that represents the asynchronous operation.</returns>
     public async ValueTask DisposeAsync()
     {
-        await _moduleImportUtil.DisposeContentModule(_modulePath);
+        if (_moduleInitialized)
+        {
+            try
+            {
+                IJSObjectReference module = await GetModule(CancellationToken.None);
+                await module.InvokeVoidAsync("dispose");
+            }
+            catch (JSDisconnectedException)
+            {
+            }
+        }
 
+        await _cancellationScope.DisposeAsync();
         await _scriptInitializer.DisposeAsync();
         await _styleInitializer.DisposeAsync();
-        await _cancellationScope.DisposeAsync();
+        await _moduleImportUtil.DisposeContentModule(_modulePath);
     }
 
     private readonly record struct StyleResourceOptions(bool UseCdn, bool UseBootstrap5Styling);

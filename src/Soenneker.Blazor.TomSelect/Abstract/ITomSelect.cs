@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace Soenneker.Blazor.TomSelect.Abstract;
 
+/// <summary>
+/// Defines callbacks and state updates exposed by the Tom Select component.
+/// </summary>
 public interface ITomSelect<TItem, TType> : IBaseTomSelect
 {
     /// <summary>

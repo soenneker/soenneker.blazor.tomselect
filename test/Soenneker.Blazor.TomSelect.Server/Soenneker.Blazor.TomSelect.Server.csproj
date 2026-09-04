@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Soenneker.Utils.AutoBogus" Version="4.0.946" />
+        <PackageReference Include="Soenneker.Utils.AutoBogus" Version="4.0.947" />
     </ItemGroup>
 
     <ItemGroup>

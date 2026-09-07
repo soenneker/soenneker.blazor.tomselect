@@ -44,13 +44,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Soenneker.Asyncs.Initializers" Version="4.0.91" />
+        <PackageReference Include="Soenneker.Asyncs.Initializers" Version="4.0.92" />
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="4.0.458" />
-        <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="4.0.4100" />
-        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1733" />
+        <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="4.0.4101" />
+        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1734" />
         <PackageReference Include="Soenneker.Extensions.List" Version="4.0.987" />
         <PackageReference Include="Soenneker.Json.CollectionConverter" Version="4.0.846" />
-        <PackageReference Include="Soenneker.Lepton.Suite" Version="4.0.69" />
-        <PackageReference Include="Soenneker.Utils.Case" Version="4.0.82" />
+        <PackageReference Include="Soenneker.Lepton.Suite" Version="4.0.71" />
+        <PackageReference Include="Soenneker.Utils.Case" Version="4.0.83" />
     </ItemGroup>
 </Project>

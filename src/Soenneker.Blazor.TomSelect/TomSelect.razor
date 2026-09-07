@@ -618,7 +618,7 @@ else
         // OPTIONS ---
         await AddEventListener<string>(GetJsEventName(nameof(OnOptionAdd)), async str =>
         {
-            JsonDocument jsonDocument = JsonDocument.Parse(str);
+            using JsonDocument jsonDocument = JsonDocument.Parse(str);
             var parameters = (jsonDocument.RootElement[0]
                                           .Deserialize<string>()!, jsonDocument.RootElement[1]
                                                                                .Deserialize<TomSelectOption>()!);
@@ -645,7 +645,7 @@ else
 
         await AddEventListener<string>(GetJsEventName(nameof(OnItemAdd)), async str =>
         {
-            JsonDocument jsonDocument = JsonDocument.Parse(str);
+            using JsonDocument jsonDocument = JsonDocument.Parse(str);
             (string, TomSelectOption) parameters = (jsonDocument.RootElement[0]
                                                                 .Deserialize<string>()!, jsonDocument.RootElement[1]
                                                                                                      .Deserialize<TomSelectOption>()!);
@@ -660,7 +660,7 @@ else
 
         await AddEventListener<string>(GetJsEventName(nameof(OnItemRemove)), async str =>
         {
-            JsonDocument jsonDocument = JsonDocument.Parse(str);
+            using JsonDocument jsonDocument = JsonDocument.Parse(str);
             (string, TomSelectOption) parameters = (jsonDocument.RootElement[0]
                                                                 .Deserialize<string>()!, jsonDocument.RootElement[1]
                                                                                                      .Deserialize<TomSelectOption>()!);
@@ -732,7 +732,7 @@ else
         {
             await AddEventListener<string>(GetJsEventName(nameof(OnOptgroupAdd)), async str =>
             {
-                JsonDocument jsonDocument = JsonDocument.Parse(str);
+                using JsonDocument jsonDocument = JsonDocument.Parse(str);
                 (string, TomSelectOption) parameters = (jsonDocument.RootElement[0]
                                                                     .Deserialize<string>()!, jsonDocument.RootElement[1]
                                                                                                          .Deserialize<TomSelectOption>()!);

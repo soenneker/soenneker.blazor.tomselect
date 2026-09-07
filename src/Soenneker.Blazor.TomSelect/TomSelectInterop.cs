@@ -106,19 +106,16 @@ public sealed class TomSelectInterop : ITomSelectInterop
 
     public ValueTask Initialize(bool useCdn = true, CancellationToken cancellationToken = default)
     {
-        var configuration = new TomSelectConfiguration
-        {
-            UseCdn = useCdn
-        };
-
-        return Initialize(configuration, cancellationToken);
+        return InitializeCore(useCdn, true, cancellationToken);
     }
 
-    public async ValueTask Initialize(TomSelectConfiguration? configuration, CancellationToken cancellationToken = default)
+    public ValueTask Initialize(TomSelectConfiguration? configuration, CancellationToken cancellationToken = default)
     {
-        bool useCdn = configuration?.UseCdn ?? true;
-        bool useBootstrap5Styling = configuration?.UseBootstrap5Styling ?? true;
+        return InitializeCore(configuration?.UseCdn ?? true, configuration?.UseBootstrap5Styling ?? true, cancellationToken);
+    }
 
+    private async ValueTask InitializeCore(bool useCdn, bool useBootstrap5Styling, CancellationToken cancellationToken)
+    {
         CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)

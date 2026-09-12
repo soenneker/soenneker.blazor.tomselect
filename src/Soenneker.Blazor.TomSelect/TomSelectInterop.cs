@@ -465,6 +465,4 @@ public sealed class TomSelectInterop : ITomSelectInterop
         await _styleInitializer.DisposeAsync();
         await _moduleImportUtil.DisposeContentModule(_modulePath);
     }
-
-    private readonly record struct StyleResourceOptions(bool UseCdn, bool UseBootstrap5Styling);
 }

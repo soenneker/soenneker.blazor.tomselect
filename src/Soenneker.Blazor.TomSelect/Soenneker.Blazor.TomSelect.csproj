@@ -51,6 +51,6 @@
         <PackageReference Include="Soenneker.Extensions.List" Version="4.0.992" />
         <PackageReference Include="Soenneker.Json.CollectionConverter" Version="4.0.852" />
         <PackageReference Include="Soenneker.Lepton.Suite" Version="4.0.84" />
-        <PackageReference Include="Soenneker.Utils.Case" Version="4.0.91" />
+        <PackageReference Include="Soenneker.Utils.Case" Version="4.0.94" />
     </ItemGroup>
 </Project>

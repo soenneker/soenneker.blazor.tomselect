@@ -932,9 +932,10 @@ else
     private Task SyncItems()
     {
         _itemsHash = _workingItems.GetAggregateHashCode(false);
-        List<TItem> snapshot = _workingItems.ToList();
-        Items = snapshot;
-        return ItemsChanged.InvokeAsync(snapshot);
+        Items ??= [];
+        Items.Clear();
+        Items.AddRange(_workingItems);
+        return ItemsChanged.InvokeAsync(Items);
     }
 
     public override async ValueTask DisposeAsync()

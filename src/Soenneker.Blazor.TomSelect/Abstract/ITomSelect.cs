@@ -56,11 +56,13 @@ public interface ITomSelect<TItem, TType> : IBaseTomSelect
 
     /// <summary>
     /// Gets or sets the currently selected items.
+    /// Selection changes update the supplied list in place before change callbacks are invoked.
     /// </summary>
     List<TItem> Items { get; set; }
 
     /// <summary>
     /// Gets or sets the event callback that is invoked when the selected items change.
+    /// The callback receives the updated <see cref="Items"/> list.
     /// </summary>
     EventCallback<List<TItem>> ItemsChanged { get; set; }
 

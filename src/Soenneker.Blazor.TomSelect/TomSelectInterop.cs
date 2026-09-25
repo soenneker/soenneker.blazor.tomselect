@@ -19,6 +19,11 @@ namespace Soenneker.Blazor.TomSelect;
 /// <inheritdoc cref="ITomSelectInterop"/>
 public sealed class TomSelectInterop : ITomSelectInterop
 {
+    private readonly System.Text.Json.JsonSerializerOptions _jsonOptions;
+
+    private System.Text.Json.Serialization.Metadata.JsonTypeInfo<T> GetJsonTypeInfo<T>() =>
+        (System.Text.Json.Serialization.Metadata.JsonTypeInfo<T>)_jsonOptions.GetTypeInfo(typeof(T));
+
     private readonly IResourceLoader _resourceLoader;
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly AsyncInitializer<bool> _scriptInitializer;
@@ -38,8 +43,9 @@ public sealed class TomSelectInterop : ITomSelectInterop
     private readonly CancellationScope _cancellationScope = new();
     private bool _moduleInitialized;
 
-    public TomSelectInterop(IResourceLoader resourceLoader, IModuleImportUtil moduleImportUtil)
+    public TomSelectInterop(IResourceLoader resourceLoader, IModuleImportUtil moduleImportUtil, System.Text.Json.Serialization.JsonSerializerContext? jsonContext = null)
     {
+        _jsonOptions = LibraryJsonContext.WithContext(jsonContext);
         _resourceLoader = resourceLoader;
         _moduleImportUtil = moduleImportUtil;
 
@@ -149,7 +155,7 @@ public sealed class TomSelectInterop : ITomSelectInterop
             string? json = null;
 
             if (configuration != null)
-                json = JsonUtil.Serialize(configuration);
+                json = JsonUtil.Serialize(configuration, GetJsonTypeInfo<TomSelectConfiguration>());
 
             await InvokeVoidAsync("create", linked, elementReference, elementId, json, dotNetObjectRef);
         }

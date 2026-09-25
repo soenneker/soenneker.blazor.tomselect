@@ -14,6 +14,7 @@ namespace Soenneker.Blazor.TomSelect.Abstract;
 /// <summary>
 /// A Blazor interop library for the select user control library, Tom Select
 /// </summary>
+/// <remarks>Library DTOs use generated JSON metadata. Register an additional source-generated JsonSerializerContext for custom values inside object-typed properties; unknown CLR types are rejected.</remarks>
 public interface ITomSelectInterop : IEventListeningInterop, IAsyncDisposable
 {
     /// <summary>

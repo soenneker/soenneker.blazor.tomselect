@@ -8,6 +8,9 @@ namespace Soenneker.Blazor.TomSelect.Enums;
 [EnumValue<string>]
 public sealed partial class AddItemType
 {
+    // Prevent JSON source generation from assuming an implicit public constructor.
+    private AddItemType() => throw new System.NotSupportedException("Use a declared enum value.");
+
     /// <summary>
     /// The normal.
     /// </summary>

@@ -620,8 +620,8 @@ else
         {
             using JsonDocument jsonDocument = JsonDocument.Parse(str);
             var parameters = (jsonDocument.RootElement[0]
-                                          .Deserialize<string>()!, jsonDocument.RootElement[1]
-                                                                               .Deserialize<TomSelectOption>()!);
+                                          .Deserialize(LibraryJsonContext.Get<string>())!, jsonDocument.RootElement[1]
+                                                                               .Deserialize(LibraryJsonContext.Get<TomSelectOption>())!);
 
             if (OnOptionAdd.HasDelegate)
                 await OnOptionAdd.InvokeAsync(parameters);
@@ -647,8 +647,8 @@ else
         {
             using JsonDocument jsonDocument = JsonDocument.Parse(str);
             (string, TomSelectOption) parameters = (jsonDocument.RootElement[0]
-                                                                .Deserialize<string>()!, jsonDocument.RootElement[1]
-                                                                                                     .Deserialize<TomSelectOption>()!);
+                                                                .Deserialize(LibraryJsonContext.Get<string>())!, jsonDocument.RootElement[1]
+                                                                                                     .Deserialize(LibraryJsonContext.Get<TomSelectOption>())!);
 
             await OnItemAdd_internal(parameters.Item1);
 
@@ -662,8 +662,8 @@ else
         {
             using JsonDocument jsonDocument = JsonDocument.Parse(str);
             (string, TomSelectOption) parameters = (jsonDocument.RootElement[0]
-                                                                .Deserialize<string>()!, jsonDocument.RootElement[1]
-                                                                                                     .Deserialize<TomSelectOption>()!);
+                                                                .Deserialize(LibraryJsonContext.Get<string>())!, jsonDocument.RootElement[1]
+                                                                                                     .Deserialize(LibraryJsonContext.Get<TomSelectOption>())!);
 
             await OnItemRemove_Internal(parameters.Item1);
 
@@ -704,7 +704,7 @@ else
                 if (_onModificationTask != null)
                     await _onModificationTask.Task;
 
-                var values = JsonUtil.Deserialize<List<string>>(str);
+                var values = JsonUtil.Deserialize(str, LibraryJsonContext.Get<List<string>>());
 
                 await OnChange.InvokeAsync(values);
 
@@ -734,8 +734,8 @@ else
             {
                 using JsonDocument jsonDocument = JsonDocument.Parse(str);
                 (string, TomSelectOption) parameters = (jsonDocument.RootElement[0]
-                                                                    .Deserialize<string>()!, jsonDocument.RootElement[1]
-                                                                                                         .Deserialize<TomSelectOption>()!);
+                                                                    .Deserialize(LibraryJsonContext.Get<string>())!, jsonDocument.RootElement[1]
+                                                                                                         .Deserialize(LibraryJsonContext.Get<TomSelectOption>())!);
 
                 await OnOptgroupAdd.InvokeAsync(parameters);
             });

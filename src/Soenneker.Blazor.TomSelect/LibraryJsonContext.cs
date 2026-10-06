@@ -12,6 +12,7 @@ namespace Soenneker.Blazor.TomSelect;
 [JsonSourceGenerationOptions(JsonSerializerDefaults.Web, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, ReadCommentHandling = JsonCommentHandling.Skip, UseStringEnumConverter = true, Converters = new[] { typeof(AddItemTypeMetadataConverter), typeof(TomSelectPluginTypeMetadataConverter) })]
 [JsonSerializable(typeof(TomSelectConfiguration))]
 [JsonSerializable(typeof(TomSelectOption))]
+[JsonSerializable(typeof(IEnumerable<TomSelectOption>))]
 [JsonSerializable(typeof(List<string>))]
 [JsonSerializable(typeof(object))]
 [JsonSerializable(typeof(string))]

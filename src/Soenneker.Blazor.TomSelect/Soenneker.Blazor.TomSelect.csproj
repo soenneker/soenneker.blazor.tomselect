@@ -54,4 +54,7 @@
         <PackageReference Include="Soenneker.Lepton.Suite" Version="4.0.93" />
         <PackageReference Include="Soenneker.Utils.Case" Version="4.0.98" />
     </ItemGroup>
+    <ItemGroup>
+        <InternalsVisibleTo Include="Soenneker.Blazor.TomSelect.TrimSmoke" />
+    </ItemGroup>
 </Project>

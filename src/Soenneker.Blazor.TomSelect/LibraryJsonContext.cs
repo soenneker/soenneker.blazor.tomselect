@@ -13,6 +13,7 @@ namespace Soenneker.Blazor.TomSelect;
 [JsonSerializable(typeof(TomSelectConfiguration))]
 [JsonSerializable(typeof(TomSelectOption))]
 [JsonSerializable(typeof(IEnumerable<TomSelectOption>))]
+[JsonSerializable(typeof(IEnumerable<string>))]
 [JsonSerializable(typeof(List<string>))]
 [JsonSerializable(typeof(object))]
 [JsonSerializable(typeof(string))]
@@ -22,9 +23,9 @@ namespace Soenneker.Blazor.TomSelect;
 [JsonSerializable(typeof(double))]
 [JsonSerializable(typeof(decimal))]
 [JsonSerializable(typeof(float))]
-[JsonSerializable(typeof(System.Text.Json.JsonElement))]
-[JsonSerializable(typeof(System.Collections.Generic.Dictionary<string, object?>))]
-[JsonSerializable(typeof(System.Collections.Generic.List<object?>))]
+[JsonSerializable(typeof(JsonElement))]
+[JsonSerializable(typeof(Dictionary<string, object?>))]
+[JsonSerializable(typeof(List<object?>))]
 [JsonSerializable(typeof(string[]))]
 [JsonSerializable(typeof(object[]))]
 internal partial class LibraryJsonContext : JsonSerializerContext
@@ -46,20 +47,20 @@ internal partial class LibraryJsonContext : JsonSerializerContext
     }
 }
 
-internal sealed class AddItemTypeMetadataConverter : JsonConverter<Soenneker.Blazor.TomSelect.Enums.AddItemType>
+internal sealed class AddItemTypeMetadataConverter : JsonConverter<Enums.AddItemType>
 {
-    public override Soenneker.Blazor.TomSelect.Enums.AddItemType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
-        reader.TokenType == JsonTokenType.String && Soenneker.Blazor.TomSelect.Enums.AddItemType.TryFromValue(reader.GetString(), out var value) ? value : throw new JsonException("Unknown AddItemType value.");
+    public override Enums.AddItemType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
+        reader.TokenType == JsonTokenType.String && Enums.AddItemType.TryFromValue(reader.GetString(), out var value) ? value : throw new JsonException("Unknown AddItemType value.");
 
-    public override void Write(Utf8JsonWriter writer, Soenneker.Blazor.TomSelect.Enums.AddItemType value, JsonSerializerOptions options) =>
+    public override void Write(Utf8JsonWriter writer, Enums.AddItemType value, JsonSerializerOptions options) =>
         writer.WriteStringValue(value.Value);
 }
 
-internal sealed class TomSelectPluginTypeMetadataConverter : JsonConverter<Soenneker.Blazor.TomSelect.Enums.TomSelectPluginType>
+internal sealed class TomSelectPluginTypeMetadataConverter : JsonConverter<Enums.TomSelectPluginType>
 {
-    public override Soenneker.Blazor.TomSelect.Enums.TomSelectPluginType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
-        reader.TokenType == JsonTokenType.String && Soenneker.Blazor.TomSelect.Enums.TomSelectPluginType.TryFromValue(reader.GetString(), out var value) ? value : throw new JsonException("Unknown TomSelectPluginType value.");
+    public override Enums.TomSelectPluginType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
+        reader.TokenType == JsonTokenType.String && Enums.TomSelectPluginType.TryFromValue(reader.GetString(), out var value) ? value : throw new JsonException("Unknown TomSelectPluginType value.");
 
-    public override void Write(Utf8JsonWriter writer, Soenneker.Blazor.TomSelect.Enums.TomSelectPluginType value, JsonSerializerOptions options) =>
+    public override void Write(Utf8JsonWriter writer, Enums.TomSelectPluginType value, JsonSerializerOptions options) =>
         writer.WriteStringValue(value.Value);
 }

@@ -1,7 +1,6 @@
 using System.Text.Json.Serialization.Metadata;
 using System.Text.Json.Serialization;
 using System.Text.Json;
-using System.Diagnostics.CodeAnalysis;
 using Soenneker.Blazor.TomSelect.Abstract;
 using Microsoft.JSInterop;
 using System.Threading.Tasks;
@@ -20,14 +19,10 @@ using Soenneker.Utils.CancellationScopes;
 
 namespace Soenneker.Blazor.TomSelect;
 
-/// <inheritdoc cref="ITomSelectInterop"/>
 public sealed class TomSelectInterop : ITomSelectInterop
 {
-    private readonly JsonSerializerOptions _jsonOptions;
-
-    private JsonTypeInfo<T> GetJsonTypeInfo<T>() => (JsonTypeInfo<T>)_jsonOptions.GetTypeInfo(typeof(T));
-
-
+    private static JsonTypeInfo<T> GetJsonTypeInfo<T>(JsonSerializerContext? jsonContext) =>
+        (JsonTypeInfo<T>)LibraryJsonContext.WithContext(jsonContext).GetTypeInfo(typeof(T));
 
     private readonly IResourceLoader _resourceLoader;
     private readonly IModuleImportUtil _moduleImportUtil;
@@ -35,22 +30,33 @@ public sealed class TomSelectInterop : ITomSelectInterop
     private readonly AsyncInitializer<StyleResourceOptions> _styleInitializer;
 
     private const string _modulePath = "_content/Soenneker.Blazor.TomSelect/js/tomselectinterop.js";
-    private const string _bootstrap5CdnStylePath = "https://cdn.jsdelivr.net/npm/tom-select@2.6.2/dist/css/tom-select.bootstrap5.min.css";
+
+    private const string _bootstrap5CdnStylePath =
+        "https://cdn.jsdelivr.net/npm/tom-select@2.6.2/dist/css/tom-select.bootstrap5.min.css";
+
     private const string _bootstrap5CdnStyleIntegrity = "sha256-zkZ1mPiVMETd/A/5/Ut+L2zO1UkAFzfWtxKhT4uaZZk=";
-    private const string _regularCdnStylePath = "https://cdn.jsdelivr.net/npm/tom-select@2.6.2/dist/css/tom-select.min.css";
+
+    private const string _regularCdnStylePath =
+        "https://cdn.jsdelivr.net/npm/tom-select@2.6.2/dist/css/tom-select.min.css";
+
     private const string _regularCdnStyleIntegrity = "sha256-Bz8grFpl3OF4fFRKz8HaIQ9TSBXis6YhioC7jFESW0c=";
-    private const string _cdnScriptPath = "https://cdn.jsdelivr.net/npm/tom-select@2.6.2/dist/js/tom-select.complete.min.js";
+
+    private const string _cdnScriptPath =
+        "https://cdn.jsdelivr.net/npm/tom-select@2.6.2/dist/js/tom-select.complete.min.js";
+
     private const string _cdnScriptIntegrity = "sha256-j519NCDpOMLJgXgYtW30PqRv6uW/H1ougohjwDTfDjc=";
-    private const string _bootstrap5LocalStylePath = "_content/Soenneker.Blazor.TomSelect/css/tom-select.bootstrap5.min.css";
+
+    private const string _bootstrap5LocalStylePath =
+        "_content/Soenneker.Blazor.TomSelect/css/tom-select.bootstrap5.min.css";
+
     private const string _regularLocalStylePath = "_content/Soenneker.Blazor.TomSelect/css/tom-select.min.css";
     private const string _localScriptPath = "_content/Soenneker.Blazor.TomSelect/js/tom-select.complete.min.js";
 
     private readonly CancellationScope _cancellationScope = new();
     private bool _moduleInitialized;
 
-    public TomSelectInterop(IResourceLoader resourceLoader, IModuleImportUtil moduleImportUtil, JsonSerializerContext? jsonContext = null)
+    public TomSelectInterop(IResourceLoader resourceLoader, IModuleImportUtil moduleImportUtil)
     {
-        _jsonOptions = LibraryJsonContext.WithContext(jsonContext);
         _resourceLoader = resourceLoader;
         _moduleImportUtil = moduleImportUtil;
 
@@ -62,7 +68,8 @@ public sealed class TomSelectInterop : ITomSelectInterop
     {
         if (useCdn)
         {
-            await _resourceLoader.LoadScriptAndWaitForVariable(_cdnScriptPath, "TomSelect", _cdnScriptIntegrity, cancellationToken: token);
+            await _resourceLoader.LoadScriptAndWaitForVariable(_cdnScriptPath, "TomSelect", _cdnScriptIntegrity,
+                cancellationToken: token);
         }
         else
         {
@@ -81,9 +88,7 @@ public sealed class TomSelectInterop : ITomSelectInterop
                 : (_regularCdnStylePath, _regularCdnStyleIntegrity);
         }
 
-        return useBootstrap5Styling
-            ? (_bootstrap5LocalStylePath, null)
-            : (_regularLocalStylePath, null);
+        return useBootstrap5Styling ? (_bootstrap5LocalStylePath, null) : (_regularLocalStylePath, null);
     }
 
     private async ValueTask InitializeStyle(StyleResourceOptions options, CancellationToken cancellationToken)
@@ -103,16 +108,19 @@ public sealed class TomSelectInterop : ITomSelectInterop
         return module;
     }
 
-    private async ValueTask InvokeVoidAsync(string identifier, CancellationToken cancellationToken, params object?[] args)
+    private async ValueTask InvokeVoidAsync(string identifier, CancellationToken cancellationToken,
+        params object?[] args)
     {
         IJSObjectReference module = await GetModule(cancellationToken);
         await module.InvokeVoidAsync(identifier, cancellationToken, args);
     }
 
-    private async ValueTask<T> InvokeAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.PublicProperties)] T>(string identifier, CancellationToken cancellationToken, params object?[] args)
+    private async ValueTask<T> InvokeAsync<T>(string identifier, JsonTypeInfo<T> jsonTypeInfo,
+        CancellationToken cancellationToken, params object?[] args)
     {
         IJSObjectReference module = await GetModule(cancellationToken);
-        return await module.InvokeAsync<T>(identifier, cancellationToken, args);
+        var payload = await module.InvokeAsync<JsonElement>(identifier, cancellationToken, args);
+        return payload.Deserialize(jsonTypeInfo)!;
     }
 
     public ValueTask Initialize(bool useCdn = true, CancellationToken cancellationToken = default)
@@ -122,12 +130,14 @@ public sealed class TomSelectInterop : ITomSelectInterop
 
     public ValueTask Initialize(TomSelectConfiguration? configuration, CancellationToken cancellationToken = default)
     {
-        return InitializeCore(configuration?.UseCdn ?? true, configuration?.UseBootstrap5Styling ?? true, cancellationToken);
+        return InitializeCore(configuration?.UseCdn ?? true, configuration?.UseBootstrap5Styling ?? true,
+            cancellationToken);
     }
 
     private async ValueTask InitializeCore(bool useCdn, bool useBootstrap5Styling, CancellationToken cancellationToken)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
         {
@@ -138,16 +148,19 @@ public sealed class TomSelectInterop : ITomSelectInterop
 
     public async ValueTask CreateObserver(string elementId, CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await InvokeVoidAsync("createObserver", linked, elementId);
     }
 
-    public async ValueTask Create(ElementReference elementReference, string elementId, DotNetObjectReference<BaseTomSelect> dotNetObjectRef,
-        TomSelectConfiguration? configuration = null, CancellationToken cancellationToken = default)
+    public async ValueTask Create(ElementReference elementReference, string elementId,
+        DotNetObjectReference<BaseTomSelect> dotNetObjectRef, TomSelectConfiguration? configuration = null,
+        CancellationToken cancellationToken = default, JsonSerializerContext? jsonContext = null)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
         {
@@ -160,7 +173,7 @@ public sealed class TomSelectInterop : ITomSelectInterop
             string? json = null;
 
             if (configuration != null)
-                json = JsonUtil.Serialize(configuration, GetJsonTypeInfo<TomSelectConfiguration>());
+                json = JsonUtil.Serialize(configuration, GetJsonTypeInfo<TomSelectConfiguration>(jsonContext));
 
             await InvokeVoidAsync("create", linked, elementReference, elementId, json, dotNetObjectRef);
         }
@@ -168,48 +181,62 @@ public sealed class TomSelectInterop : ITomSelectInterop
 
     public async ValueTask Destroy(string elementId, CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await InvokeVoidAsync("destroy", linked, elementId);
     }
 
-    public async ValueTask AddOption(string elementId, TomSelectOption tomSelectOption, bool userCreated = false, CancellationToken cancellationToken = default)
+    public async ValueTask AddOption(string elementId, TomSelectOption tomSelectOption, bool userCreated = false,
+        CancellationToken cancellationToken = default, JsonSerializerContext? jsonContext = null)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
-            await InvokeVoidAsync("addOption", linked, elementId, JsonSerializer.SerializeToElement(tomSelectOption, GetJsonTypeInfo<TomSelectOption>()), userCreated);
+            await InvokeVoidAsync("addOption", linked, elementId,
+                JsonSerializer.SerializeToElement(tomSelectOption, GetJsonTypeInfo<TomSelectOption>(jsonContext)),
+                userCreated);
     }
 
     public async ValueTask AddOptions(string elementId, IEnumerable<TomSelectOption> data, bool userCreated = false,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default, JsonSerializerContext? jsonContext = null)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
-            await InvokeVoidAsync("addOptions", linked, elementId, JsonSerializer.SerializeToElement(data, GetJsonTypeInfo<IEnumerable<TomSelectOption>>()), userCreated);
+            await InvokeVoidAsync("addOptions", linked, elementId,
+                JsonSerializer.SerializeToElement(data, GetJsonTypeInfo<IEnumerable<TomSelectOption>>(jsonContext)),
+                userCreated);
     }
 
-    public async ValueTask UpdateOption(string elementId, string value, TomSelectOption data, CancellationToken cancellationToken = default)
+    public async ValueTask UpdateOption(string elementId, string value, TomSelectOption data,
+        CancellationToken cancellationToken = default, JsonSerializerContext? jsonContext = null)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
-            await InvokeVoidAsync("updateOption", linked, elementId, value, JsonSerializer.SerializeToElement(data, GetJsonTypeInfo<TomSelectOption>()));
+            await InvokeVoidAsync("updateOption", linked, elementId, value,
+                JsonSerializer.SerializeToElement(data, GetJsonTypeInfo<TomSelectOption>(jsonContext)));
     }
 
     public async ValueTask RemoveOption(string elementId, string value, CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await InvokeVoidAsync("removeOption", linked, elementId, value);
     }
 
-    public async ValueTask RefreshOptions(string elementId, bool triggerDropdown, CancellationToken cancellationToken = default)
+    public async ValueTask RefreshOptions(string elementId, bool triggerDropdown,
+        CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await InvokeVoidAsync("refreshOptions", linked, elementId, triggerDropdown);
@@ -217,56 +244,72 @@ public sealed class TomSelectInterop : ITomSelectInterop
 
     public async ValueTask ClearOptions(string elementId, CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await InvokeVoidAsync("clearOptions", linked, elementId);
     }
 
-    public async ValueTask ClearItems(string elementId, bool silent = false, CancellationToken cancellationToken = default)
+    public async ValueTask ClearItems(string elementId, bool silent = false,
+        CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await InvokeVoidAsync("clearItems", linked, elementId, silent);
     }
 
-    public async ValueTask ClearAndAddItems(string elementId, IEnumerable<string> values, bool silent = false, CancellationToken cancellationToken = default)
+    public async ValueTask ClearAndAddItems(string elementId, IEnumerable<string> values, bool silent = false,
+        CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
-            await InvokeVoidAsync("clearAndAddItems", linked, elementId, values, silent);
+            await InvokeVoidAsync("clearAndAddItems", linked, elementId,
+                JsonSerializer.SerializeToElement(values, LibraryJsonContext.Default.IEnumerableString), silent);
     }
 
     public async ValueTask ClearAndAddOptions(string elementId, IEnumerable<TomSelectOption> data, bool silent = false,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default, JsonSerializerContext? jsonContext = null)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
-            await InvokeVoidAsync("clearAndAddOptions", linked, elementId, JsonSerializer.SerializeToElement(data, GetJsonTypeInfo<IEnumerable<TomSelectOption>>()), silent);
+            await InvokeVoidAsync("clearAndAddOptions", linked, elementId,
+                JsonSerializer.SerializeToElement(data, GetJsonTypeInfo<IEnumerable<TomSelectOption>>(jsonContext)),
+                silent);
     }
 
-    public async ValueTask AddItem(string elementId, string value, bool silent = false, CancellationToken cancellationToken = default)
+    public async ValueTask AddItem(string elementId, string value, bool silent = false,
+        CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await InvokeVoidAsync("addItem", linked, elementId, value, silent);
     }
 
-    public async ValueTask AddItems(string elementId, IEnumerable<string> values, bool silent = false, CancellationToken cancellationToken = default)
+    public async ValueTask AddItems(string elementId, IEnumerable<string> values, bool silent = false,
+        CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
-            await InvokeVoidAsync("addItems", linked, elementId, values, silent);
+            await InvokeVoidAsync("addItems", linked, elementId,
+                JsonSerializer.SerializeToElement(values, LibraryJsonContext.Default.IEnumerableString), silent);
     }
 
-    public async ValueTask RemoveItem(string elementId, string valueOrHtmlElement, bool silent = false, CancellationToken cancellationToken = default)
+    public async ValueTask RemoveItem(string elementId, string valueOrHtmlElement, bool silent = false,
+        CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await InvokeVoidAsync("removeItem", linked, elementId, valueOrHtmlElement, silent);
@@ -274,23 +317,28 @@ public sealed class TomSelectInterop : ITomSelectInterop
 
     public async ValueTask RefreshItems(string elementId, CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await InvokeVoidAsync("refreshItems", linked, elementId);
     }
 
-    public async ValueTask AddOptionGroup(string elementId, string id, object data, CancellationToken cancellationToken = default)
+    public async ValueTask AddOptionGroup(string elementId, string id, object data,
+        CancellationToken cancellationToken = default, JsonSerializerContext? jsonContext = null)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
-            await InvokeVoidAsync("addOptionGroup", linked, elementId, id, JsonSerializer.SerializeToElement(data, GetJsonTypeInfo<object>()));
+            await InvokeVoidAsync("addOptionGroup", linked, elementId, id,
+                JsonSerializer.SerializeToElement(data, GetJsonTypeInfo<object>(jsonContext)));
     }
 
     public async ValueTask RemoveOptionGroup(string elementId, string id, CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await InvokeVoidAsync("removeOptionGroup", linked, elementId, id);
@@ -298,7 +346,8 @@ public sealed class TomSelectInterop : ITomSelectInterop
 
     public async ValueTask ClearOptionGroups(string elementId, CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await InvokeVoidAsync("clearOptionGroups", linked, elementId);
@@ -306,7 +355,8 @@ public sealed class TomSelectInterop : ITomSelectInterop
 
     public async ValueTask OpenDropdown(string elementId, CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await InvokeVoidAsync("open", linked, elementId);
@@ -314,7 +364,8 @@ public sealed class TomSelectInterop : ITomSelectInterop
 
     public async ValueTask CloseDropdown(string elementId, CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await InvokeVoidAsync("close", linked, elementId);
@@ -322,7 +373,8 @@ public sealed class TomSelectInterop : ITomSelectInterop
 
     public async ValueTask PositionDropdown(string elementId, CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await InvokeVoidAsync("positionDropdown", linked, elementId);
@@ -330,7 +382,8 @@ public sealed class TomSelectInterop : ITomSelectInterop
 
     public async ValueTask Focus(string elementId, CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await InvokeVoidAsync("focus", linked, elementId);
@@ -338,7 +391,8 @@ public sealed class TomSelectInterop : ITomSelectInterop
 
     public async ValueTask Blur(string elementId, CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await InvokeVoidAsync("blur", linked, elementId);
@@ -346,7 +400,8 @@ public sealed class TomSelectInterop : ITomSelectInterop
 
     public async ValueTask Lock(string elementId, CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await InvokeVoidAsync("lock", linked, elementId);
@@ -354,7 +409,8 @@ public sealed class TomSelectInterop : ITomSelectInterop
 
     public async ValueTask Unlock(string elementId, CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await InvokeVoidAsync("unlock", linked, elementId);
@@ -362,7 +418,8 @@ public sealed class TomSelectInterop : ITomSelectInterop
 
     public async ValueTask Enable(string elementId, CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await InvokeVoidAsync("enable", linked, elementId);
@@ -370,34 +427,38 @@ public sealed class TomSelectInterop : ITomSelectInterop
 
     public async ValueTask Disable(string elementId, CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await InvokeVoidAsync("disable", linked, elementId);
     }
 
-    public async ValueTask SetValue(string elementId, TomSelectOption value, bool silent = false, CancellationToken cancellationToken = default)
+    public async ValueTask SetValue(string elementId, TomSelectOption value, bool silent = false,
+        CancellationToken cancellationToken = default, JsonSerializerContext? jsonContext = null)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
-            await InvokeVoidAsync("setValue", linked, elementId, value, silent);
+            await InvokeVoidAsync("setValue", linked, elementId,
+                JsonSerializer.SerializeToElement(value, GetJsonTypeInfo<TomSelectOption>(jsonContext)), silent);
     }
 
-    public async ValueTask<TomSelectOption> GetValue(string elementId, CancellationToken cancellationToken = default)
+    public async ValueTask<TomSelectOption> GetValue(string elementId, CancellationToken cancellationToken = default,
+        JsonSerializerContext? jsonContext = null)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
-        {
-            JsonElement payload = await InvokeAsync<JsonElement>("getValue", linked, elementId);
-            return payload.Deserialize(GetJsonTypeInfo<TomSelectOption>())!;
-        }
+            return await InvokeAsync("getValue", GetJsonTypeInfo<TomSelectOption>(jsonContext), linked, elementId);
     }
 
     public async ValueTask SetCaret(string elementId, int index, CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await InvokeVoidAsync("setCaret", linked, elementId, index);
@@ -405,15 +466,17 @@ public sealed class TomSelectInterop : ITomSelectInterop
 
     public async ValueTask<bool> IsFull(string elementId, CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
-            return await InvokeAsync<bool>("isFull", linked, elementId);
+            return await InvokeAsync("isFull", LibraryJsonContext.Default.Boolean, linked, elementId);
     }
 
     public async ValueTask ClearCache(string elementId, CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await InvokeVoidAsync("clearCache", linked, elementId);
@@ -421,7 +484,8 @@ public sealed class TomSelectInterop : ITomSelectInterop
 
     public async ValueTask SetTextboxValue(string elementId, string str, CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await InvokeVoidAsync("setTextboxValue", linked, elementId, str);
@@ -429,7 +493,8 @@ public sealed class TomSelectInterop : ITomSelectInterop
 
     public async ValueTask Sync(string elementId, CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await InvokeVoidAsync("sync", linked, elementId);
@@ -444,10 +509,11 @@ public sealed class TomSelectInterop : ITomSelectInterop
     /// <param name="dotNetCallback">dot Net Callback to invoke when the operation runs.</param>
     /// <param name="cancellationToken">Token used to cancel the operation.</param>
     /// <returns>A task that completes when the event listener addition is complete.</returns>
-    public async ValueTask AddEventListener(string functionName, string elementId, string eventName, object dotNetCallback,
-        CancellationToken cancellationToken = default)
+    public async ValueTask AddEventListener(string functionName, string elementId, string eventName,
+        object dotNetCallback, CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        CancellationToken linked =
+            _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
         {

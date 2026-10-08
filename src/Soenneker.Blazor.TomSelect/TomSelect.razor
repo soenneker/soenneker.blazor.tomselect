@@ -272,10 +272,11 @@ else
         LogDebug($"Item selected: {value}");
 
         TItem? item = ToItemFromValue(value);
+
         if (item != null)
         {
             // Add the item to working items if it's not already there
-            if (!_workingItems.Any(i => ToValueFromItem(i) == value))
+            if (_workingItems.All(i => ToValueFromItem(i) != value))
             {
                 _workingItems.Add(item);
                 await SyncItems();

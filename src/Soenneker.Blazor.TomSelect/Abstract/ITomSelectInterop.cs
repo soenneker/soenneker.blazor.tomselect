@@ -8,6 +8,7 @@ using Soenneker.Blazor.TomSelect.Configuration;
 using Soenneker.Blazor.TomSelect.Dtos;
 using Soenneker.Blazor.TomSelect.Base;
 using System;
+using System.Text.Json.Serialization;
 
 namespace Soenneker.Blazor.TomSelect.Abstract;
 
@@ -16,8 +17,8 @@ namespace Soenneker.Blazor.TomSelect.Abstract;
 /// </summary>
 /// <remarks>Payloads use JsonUtil web JSON defaults, including custom values inside object-typed properties.</remarks>
 /// <remarks>
-/// For trimmed applications, register a <see cref="System.Text.Json.Serialization.JsonSerializerContext"/>
-/// containing any application-defined payload types in dependency injection. The interop combines that
+/// Pass a generated JSON context to each operation that uses application-defined payload types.
+/// The interop combines that
 /// metadata with its built-in JSON contracts without falling back to reflection.
 /// </remarks>
 public interface ITomSelectInterop : IEventListeningInterop, IAsyncDisposable
@@ -54,8 +55,9 @@ public interface ITomSelectInterop : IEventListeningInterop, IAsyncDisposable
     /// <param name="dotNetObjectRef">A reference to a .NET object for callback handling.</param>
     /// <param name="configuration">Optional configuration settings for TomSelect.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <param name="jsonContext">Optional generated metadata for application-defined payload types, used only for this call.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
-    ValueTask Create(ElementReference elementReference, string elementId, DotNetObjectReference<BaseTomSelect> dotNetObjectRef, TomSelectConfiguration? configuration = null, CancellationToken cancellationToken = default);
+    ValueTask Create(ElementReference elementReference, string elementId, DotNetObjectReference<BaseTomSelect> dotNetObjectRef, TomSelectConfiguration? configuration = null, CancellationToken cancellationToken = default, JsonSerializerContext? jsonContext = null);
 
     /// <summary>
     /// Destroys the TomSelect instance associated with the specified element.
@@ -72,8 +74,9 @@ public interface ITomSelectInterop : IEventListeningInterop, IAsyncDisposable
     /// <param name="tomSelectOption">The option to add.</param>
     /// <param name="userCreated">Indicates whether the option was created by the user.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <param name="jsonContext">Optional generated metadata for application-defined payload types, used only for this call.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
-    ValueTask AddOption(string elementId, TomSelectOption tomSelectOption, bool userCreated = false, CancellationToken cancellationToken = default);
+    ValueTask AddOption(string elementId, TomSelectOption tomSelectOption, bool userCreated = false, CancellationToken cancellationToken = default, JsonSerializerContext? jsonContext = null);
 
     /// <summary>
     /// Adds multiple options to the TomSelect instance.
@@ -82,8 +85,9 @@ public interface ITomSelectInterop : IEventListeningInterop, IAsyncDisposable
     /// <param name="data">A collection of options to add.</param>
     /// <param name="userCreated">Indicates whether the options were created by the user.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <param name="jsonContext">Optional generated metadata for application-defined payload types, used only for this call.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
-    ValueTask AddOptions(string elementId, IEnumerable<TomSelectOption> data, bool userCreated = false, CancellationToken cancellationToken = default);
+    ValueTask AddOptions(string elementId, IEnumerable<TomSelectOption> data, bool userCreated = false, CancellationToken cancellationToken = default, JsonSerializerContext? jsonContext = null);
 
     /// <summary>
     /// Updates an existing option in the TomSelect instance.
@@ -92,8 +96,9 @@ public interface ITomSelectInterop : IEventListeningInterop, IAsyncDisposable
     /// <param name="value">The value identifying the option to update.</param>
     /// <param name="data">The updated option data.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <param name="jsonContext">Optional generated metadata for application-defined payload types, used only for this call.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
-    ValueTask UpdateOption(string elementId, string value, TomSelectOption data, CancellationToken cancellationToken = default);
+    ValueTask UpdateOption(string elementId, string value, TomSelectOption data, CancellationToken cancellationToken = default, JsonSerializerContext? jsonContext = null);
 
     /// <summary>
     /// Removes an option from the TomSelect instance.
@@ -147,8 +152,9 @@ public interface ITomSelectInterop : IEventListeningInterop, IAsyncDisposable
     /// <param name="data">A collection of options to add.</param>
     /// <param name="silent">If set to true, suppresses any events triggered by the operation.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <param name="jsonContext">Optional generated metadata for application-defined payload types, used only for this call.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
-    ValueTask ClearAndAddOptions(string elementId, IEnumerable<TomSelectOption> data, bool silent = false, CancellationToken cancellationToken = default);
+    ValueTask ClearAndAddOptions(string elementId, IEnumerable<TomSelectOption> data, bool silent = false, CancellationToken cancellationToken = default, JsonSerializerContext? jsonContext = null);
 
     /// <summary>
     /// Adds a selected item to the TomSelect instance.
@@ -195,8 +201,9 @@ public interface ITomSelectInterop : IEventListeningInterop, IAsyncDisposable
     /// <param name="id">The identifier for the option group.</param>
     /// <param name="data">The data associated with the option group.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <param name="jsonContext">Optional generated metadata for application-defined payload types, used only for this call.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
-    ValueTask AddOptionGroup(string elementId, string id, object data, CancellationToken cancellationToken = default);
+    ValueTask AddOptionGroup(string elementId, string id, object data, CancellationToken cancellationToken = default, JsonSerializerContext? jsonContext = null);
 
     /// <summary>
     /// Removes an option group from the TomSelect instance.
@@ -294,16 +301,18 @@ public interface ITomSelectInterop : IEventListeningInterop, IAsyncDisposable
     /// <param name="value">The option to set as the current value.</param>
     /// <param name="silent">If set to true, suppresses any events triggered by the operation.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <param name="jsonContext">Optional generated metadata for application-defined payload types, used only for this call.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
-    ValueTask SetValue(string elementId, TomSelectOption value, bool silent = false, CancellationToken cancellationToken = default);
+    ValueTask SetValue(string elementId, TomSelectOption value, bool silent = false, CancellationToken cancellationToken = default, JsonSerializerContext? jsonContext = null);
 
     /// <summary>
     /// Gets the current value of the TomSelect instance.
     /// </summary>
     /// <param name="elementId">The unique identifier of the target element.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <param name="jsonContext">Optional generated metadata for application-defined payload types, used only for this call.</param>
     /// <returns>A <see cref="ValueTask{TomSelectOption}"/> containing the current value.</returns>
-    ValueTask<TomSelectOption> GetValue(string elementId, CancellationToken cancellationToken = default);
+    ValueTask<TomSelectOption> GetValue(string elementId, CancellationToken cancellationToken = default, JsonSerializerContext? jsonContext = null);
 
     /// <summary>
     /// Sets the caret position in the TomSelect input.

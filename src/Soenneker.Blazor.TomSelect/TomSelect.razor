@@ -242,7 +242,7 @@ else
         {
             using (cts)
             {
-                await TomSelectInterop.Create(ElementReference, Id!, DotNetReference, Configuration, linked);
+                await TomSelectInterop.Create(ElementReference, Id!, DotNetReference, Configuration, linked, JsonContext);
                 await TomSelectInterop.CreateObserver(Id!, linked);
             }
 
@@ -339,7 +339,7 @@ else
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.AddOption(Id!, option!, userCreated, linked);
+            await TomSelectInterop.AddOption(Id!, option!, userCreated, linked, JsonContext);
 
         return option;
     }
@@ -362,7 +362,7 @@ else
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.AddOptions(Id!, dedupedOptions, userCreated, linked);
+            await TomSelectInterop.AddOptions(Id!, dedupedOptions, userCreated, linked, JsonContext);
     }
 
     public async ValueTask UpdateOption(string value, TItem item, CancellationToken cancellationToken = default)
@@ -380,7 +380,7 @@ else
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.UpdateOption(Id!, value, option, linked);
+            await TomSelectInterop.UpdateOption(Id!, value, option, linked, JsonContext);
     }
 
     public ValueTask AddItem(string value, bool silent = false, CancellationToken cancellationToken = default)

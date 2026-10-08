@@ -5,6 +5,7 @@
 @using Soenneker.Blazor.Utils.InteropEventListener.Abstract
 @using Soenneker.Extensions.CancellationTokens
 @using Microsoft.JSInterop
+@using System.Text.Json.Serialization
 @using Soenneker.Blazor.Utils.Ids
 
 @* ReSharper disable InconsistentNaming *@
@@ -23,6 +24,9 @@
     }
 
     #region Events
+
+    [Parameter]
+    public JsonSerializerContext? JsonContext { get; set; }
 
     [Parameter]
     public EventCallback OnInitialize { get; set; }
@@ -181,7 +185,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.AddOptionGroup(Id!, id, data, linked);
+            await TomSelectInterop.AddOptionGroup(Id!, id, data, linked, JsonContext);
     }
 
     public async ValueTask RemoveOptionGroup(string id, CancellationToken cancellationToken = default)
@@ -277,7 +281,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TomSelectInterop.SetValue(Id!, value, silent, linked);
+            await TomSelectInterop.SetValue(Id!, value, silent, linked, JsonContext);
     }
 
     public async ValueTask<TomSelectOption> GetValue(CancellationToken cancellationToken = default)
@@ -285,7 +289,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            return await TomSelectInterop.GetValue(Id!, linked);
+            return await TomSelectInterop.GetValue(Id!, linked, JsonContext);
     }
 
     public async ValueTask SetCaret(int index, CancellationToken cancellationToken = default)

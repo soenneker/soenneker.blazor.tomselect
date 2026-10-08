@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Soenneker.Blazor.TomSelect.Dtos;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Soenneker.Lepton.Suite.Abstract;
@@ -13,6 +14,13 @@ namespace Soenneker.Blazor.TomSelect.Base.Abstract;
 /// <remarks>We need a base object because we have generic type parameters on TomSelect.</remarks>
 public interface IBaseTomSelect : ILeptonCancellableIdentifiableContentElement
 {
+    /// <summary>
+    /// Gets or sets the application JSON metadata used by component interop calls.
+    /// Supply a generated context for custom option items, option group data, or configuration values
+    /// when JSON reflection is disabled. Library metadata is combined with this context automatically.
+    /// </summary>
+    JsonSerializerContext? JsonContext { get; set; }
+
     #region Events
 
     /// <summary>

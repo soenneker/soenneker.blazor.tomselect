@@ -52,7 +52,7 @@
         <PackageReference Include="Soenneker.Extensions.Enumerable" Version="4.0.686" />
         <PackageReference Include="Soenneker.Extensions.List" Version="4.0.1007" />
         <PackageReference Include="Soenneker.Lepton.Suite" Version="4.0.115" />
-        <PackageReference Include="Soenneker.Utils.Case" Version="4.0.112" />
+        <PackageReference Include="Soenneker.Utils.Case" Version="4.0.115" />
     </ItemGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="Soenneker.Blazor.TomSelect.TrimSmoke" />

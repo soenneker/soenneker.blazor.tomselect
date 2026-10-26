@@ -96,7 +96,6 @@
     {
         _countries = await Http.GetFromJsonAsync<List<Country>>("sample-data/countries.json");
         _selectedItems = _countries!.Take(1).ToList();
-        StateHasChanged();
     }
 
     private async Task OpenModal()
@@ -114,7 +113,6 @@
     private void ClearItems()
     {
         _selectedItems.Clear();
-        StateHasChanged();
     }
 
     private async Task ClearOptions()

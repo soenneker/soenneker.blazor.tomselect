@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
     <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
+        <TargetFramework>net11.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Soenneker.Utils.AutoBogus" Version="4.0.989" />
+        <PackageReference Include="Soenneker.Utils.AutoBogus" Version="4.0.991" />
     </ItemGroup>
 
     <ItemGroup>

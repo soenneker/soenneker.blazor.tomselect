@@ -111,16 +111,30 @@ public sealed class TomSelectInterop : ITomSelectInterop
     private async ValueTask InvokeVoidAsync(string identifier, CancellationToken cancellationToken,
         params object?[] args)
     {
-        IJSObjectReference module = await GetModule(cancellationToken);
-        await module.InvokeVoidAsync(identifier, cancellationToken, args);
+        try
+        {
+            IJSObjectReference module = await GetModule(cancellationToken);
+            await module.InvokeVoidAsync(identifier, cancellationToken, args);
+        }
+        catch (JSException exception)
+        {
+            throw new JSException($"JavaScript operation 'TomSelectInterop.{identifier}' failed: {exception.Message}", exception);
+        }
     }
 
     private async ValueTask<T> InvokeAsync<T>(string identifier, JsonTypeInfo<T> jsonTypeInfo,
         CancellationToken cancellationToken, params object?[] args)
     {
-        IJSObjectReference module = await GetModule(cancellationToken);
-        var payload = await module.InvokeAsync<JsonElement>(identifier, cancellationToken, args);
-        return payload.Deserialize(jsonTypeInfo)!;
+        try
+        {
+            IJSObjectReference module = await GetModule(cancellationToken);
+            var payload = await module.InvokeAsync<JsonElement>(identifier, cancellationToken, args);
+            return payload.Deserialize(jsonTypeInfo)!;
+        }
+        catch (JSException exception)
+        {
+            throw new JSException($"JavaScript operation 'TomSelectInterop.{identifier}' failed: {exception.Message}", exception);
+        }
     }
 
     public ValueTask Initialize(bool useCdn = true, CancellationToken cancellationToken = default)

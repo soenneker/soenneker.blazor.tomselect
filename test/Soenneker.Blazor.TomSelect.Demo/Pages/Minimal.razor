@@ -67,7 +67,8 @@
 
     private async Task SetOptionsAndItems()
     {
-        _countries = (await Http.GetFromJsonAsync<List<Country>>("sample-data/countries.json")).Select(c => c.Name).ToList();
+        _countries = (await Http.GetFromJsonAsync<List<Country>>("sample-data/countries.json") ?? [])
+            .Select(c => c.Name).OfType<string>().Where(name => !string.IsNullOrWhiteSpace(name)).ToList();
     }
 
     private void OnChange(List<string> values)

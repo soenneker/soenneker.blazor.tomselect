@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using Soenneker.Blazor.TomSelect.Abstract;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Soenneker.Utils.Json;
@@ -111,30 +112,16 @@ public sealed class TomSelectInterop : ITomSelectInterop
     private async ValueTask InvokeVoidAsync(string identifier, CancellationToken cancellationToken,
         params object?[] args)
     {
-        try
-        {
-            IJSObjectReference module = await GetModule(cancellationToken);
-            await module.InvokeVoidAsync(identifier, cancellationToken, args);
-        }
-        catch (JSException exception)
-        {
-            throw new JSException($"JavaScript operation 'TomSelectInterop.{identifier}' failed: {exception.Message}", exception);
-        }
+        IJSObjectReference module = await GetModule(cancellationToken);
+        await module.InvokeVoidWithContextAsync(identifier, cancellationToken, args);
     }
 
     private async ValueTask<T> InvokeAsync<T>(string identifier, JsonTypeInfo<T> jsonTypeInfo,
         CancellationToken cancellationToken, params object?[] args)
     {
-        try
-        {
-            IJSObjectReference module = await GetModule(cancellationToken);
-            var payload = await module.InvokeAsync<JsonElement>(identifier, cancellationToken, args);
-            return payload.Deserialize(jsonTypeInfo)!;
-        }
-        catch (JSException exception)
-        {
-            throw new JSException($"JavaScript operation 'TomSelectInterop.{identifier}' failed: {exception.Message}", exception);
-        }
+        IJSObjectReference module = await GetModule(cancellationToken);
+        var payload = await module.InvokeWithContextAsync<JsonElement>(identifier, cancellationToken, args);
+        return payload.Deserialize(jsonTypeInfo)!;
     }
 
     public ValueTask Initialize(bool useCdn = true, CancellationToken cancellationToken = default)

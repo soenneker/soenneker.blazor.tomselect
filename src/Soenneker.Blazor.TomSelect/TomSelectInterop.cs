@@ -30,7 +30,7 @@ public sealed class TomSelectInterop : ITomSelectInterop
     private readonly AsyncInitializer<bool> _scriptInitializer;
     private readonly AsyncInitializer<StyleResourceOptions> _styleInitializer;
 
-    private const string _modulePath = "_content/Soenneker.Blazor.TomSelect/js/tomselectinterop.js";
+    private const string _modulePath = "_content/Soenneker.Blazor.TomSelect/js/tomselectinterop.min.js";
 
     private const string _bootstrap5CdnStylePath =
         "https://cdn.jsdelivr.net/npm/tom-select@2.6.2/dist/css/tom-select.bootstrap5.min.css";

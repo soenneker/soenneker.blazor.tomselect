@@ -53,7 +53,7 @@
         <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="11.0.1806" />
         <PackageReference Include="Soenneker.Extensions.Enumerable" Version="11.0.693" />
         <PackageReference Include="Soenneker.Extensions.List" Version="11.0.1010" />
-        <PackageReference Include="Soenneker.Lepton.Suite" Version="11.0.133" />
+        <PackageReference Include="Soenneker.Lepton.Suite" Version="11.0.134" />
         <PackageReference Include="Soenneker.Utils.Case" Version="11.0.117" />
     </ItemGroup>
     <ItemGroup>

@@ -17,18 +17,18 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Soenneker.Quark.Gen.Tailwind.Manifest" Version="11.0.312">
+        <PackageReference Include="Soenneker.Quark.Gen.Tailwind.Manifest" Version="11.0.313">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Soenneker.Blazor.Utils.Navigation" Version="11.0.1227" />
         <PackageReference Include="Soenneker.Serilog.Sinks.Browser.Blazor" Version="11.0.442" />
-        <PackageReference Include="Soenneker.Utils.AutoBogus" Version="11.0.1001" />
+        <PackageReference Include="Soenneker.Utils.AutoBogus" Version="11.0.1002" />
         <PackageReference Include="Soenneker.Quark.Gen.Tailwind" Version="11.0.332">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Soenneker.Quark.Suite" Version="11.0.1667" />
+        <PackageReference Include="Soenneker.Quark.Suite" Version="11.0.1669" />
     </ItemGroup>
 
     <ItemGroup>

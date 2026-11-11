@@ -49,18 +49,18 @@
     <ItemGroup>
         <PackageReference Include="Soenneker.Asyncs.Initializers" Version="11.0.138" />
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="11.0.476" />
-        <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="11.0.4215" />
-        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="11.0.1826" />
-        <PackageReference Include="Soenneker.Extensions.Enumerable" Version="11.0.701" />
+        <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="11.0.4216" />
+        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="11.0.1827" />
+        <PackageReference Include="Soenneker.Extensions.Enumerable" Version="11.0.702" />
         <PackageReference Include="Soenneker.Extensions.List" Version="11.0.1014" />
-        <PackageReference Include="Soenneker.Lepton.Suite" Version="11.0.140" />
+        <PackageReference Include="Soenneker.Lepton.Suite" Version="11.0.141" />
         <PackageReference Include="Soenneker.Utils.Case" Version="11.0.121" />
     </ItemGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="Soenneker.Blazor.TomSelect.TrimSmoke" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Soenneker.Blazor.Extensions.IJSObjectReferences" Version="11.0.5" />
+        <PackageReference Include="Soenneker.Blazor.Extensions.IJSObjectReferences" Version="11.0.6" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Soenneker.Gen.Web.Minifier" Version="11.0.57" PrivateAssets="all" />

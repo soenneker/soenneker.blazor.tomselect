@@ -60,7 +60,7 @@
         <InternalsVisibleTo Include="Soenneker.Blazor.TomSelect.TrimSmoke" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Soenneker.Blazor.Extensions.IJSObjectReferences" Version="11.0.2" />
+        <PackageReference Include="Soenneker.Blazor.Extensions.IJSObjectReferences" Version="11.0.4" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Soenneker.Gen.Web.Minifier" Version="11.0.55" PrivateAssets="all" />

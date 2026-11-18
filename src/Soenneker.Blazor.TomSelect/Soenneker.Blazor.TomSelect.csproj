@@ -49,7 +49,7 @@
     <ItemGroup>
         <PackageReference Include="Soenneker.Asyncs.Initializers" Version="11.0.142" />
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="11.0.477" />
-        <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="11.0.4224" />
+        <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="11.0.4225" />
         <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="11.0.1849" />
         <PackageReference Include="Soenneker.Extensions.Enumerable" Version="11.0.703" />
         <PackageReference Include="Soenneker.Extensions.List" Version="11.0.1015" />
@@ -63,6 +63,6 @@
         <PackageReference Include="Soenneker.Blazor.Extensions.IJSObjectReferences" Version="11.0.8" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Soenneker.Gen.Web.Minifier" Version="11.0.78" PrivateAssets="all" />
+        <PackageReference Include="Soenneker.Gen.Web.Minifier" Version="11.0.79" PrivateAssets="all" />
     </ItemGroup>
 </Project>

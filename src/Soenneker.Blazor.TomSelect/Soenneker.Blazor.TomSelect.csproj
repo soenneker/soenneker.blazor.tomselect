@@ -50,7 +50,7 @@
         <PackageReference Include="Soenneker.Asyncs.Initializers" Version="11.0.144" />
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="11.0.477" />
         <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="11.0.4226" />
-        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="11.0.1854" />
+        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="11.0.1855" />
         <PackageReference Include="Soenneker.Extensions.Enumerable" Version="11.0.705" />
         <PackageReference Include="Soenneker.Extensions.List" Version="11.0.1016" />
         <PackageReference Include="Soenneker.Lepton.Suite" Version="11.0.149" />
